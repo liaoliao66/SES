@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>安环监测</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: '#0f172a' }}}}
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
+    .btn { transition: transform 0.2s ease; }
+    .btn:active { transform: scale(0.95); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <div class="fixed top-0 left-0 right-0 z-40 pt-12 pb-4 px-5 bg-gradient-to-b from-white/90 to-white/40 glass">
+    <div class="flex items-center justify-between">
+      <div class="text-sm font-semibold text-slate-800">安环监测</div>
+      <button class="btn px-3 py-2 rounded-xl bg-white/80 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]" id="btnSearch">
+        <i class="fa-solid fa-magnifying-glass text-slate-600"></i>
+      </button>
+    </div>
+    <div class="mt-3">
+      <div class="text-2xl font-semibold tracking-tight text-slate-900">功能入口</div>
+      <div class="text-sm text-slate-600 mt-1">选择功能进入对应业务</div>
+    </div>
+  </div>
+
+  <div class="pt-40 pb-10 px-5">
+    <div class="space-y-3">
+      <button class="btn w-full rounded-3xl p-4 text-left bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:bg-slate-50 transition"
+              onclick="navTo('安环检查_检查记录_list.html')">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">检查记录</div>
+            <div class="text-xs text-slate-500 mt-0.5">新增检查 · 正常/异常 · 隐患录入</div>
+          </div>
+          <i class="fa-solid fa-angle-right text-slate-400 shrink-0"></i>
+        </div>
+      </button>
+
+      <button class="btn w-full rounded-3xl p-4 text-left bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:bg-slate-50 transition"
+              onclick="navTo('安环检查_整改通知_list.html')">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-file-circle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">整改通知</div>
+            <div class="text-xs text-slate-500 mt-0.5">待整改 · 待复核 · 已复核</div>
+          </div>
+          <i class="fa-solid fa-angle-right text-slate-400 shrink-0"></i>
+        </div>
+      </button>
+
+      <button class="btn w-full rounded-3xl p-4 text-left bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:bg-slate-50 transition"
+              onclick="navTo('危险作业管理_申请_list.html')">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-helmet-safety"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">危险作业</div>
+            <div class="text-xs text-slate-500 mt-0.5">申请 · 审批 · 导出作业票</div>
+          </div>
+          <i class="fa-solid fa-angle-right text-slate-400 shrink-0"></i>
+        </div>
+      </button>
+
+      <button class="btn w-full rounded-3xl p-4 text-left bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:bg-slate-50 transition"
+              onclick="navTo('违章管理_违章登记_list.html')">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">违章登记</div>
+            <div class="text-xs text-slate-500 mt-0.5">登记违章 · 发起审核审批</div>
+          </div>
+          <i class="fa-solid fa-angle-right text-slate-400 shrink-0"></i>
+        </div>
+      </button>
+
+      <button class="btn w-full rounded-3xl p-4 text-left bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:bg-slate-50 transition"
+              onclick="navTo('违章管理_违章处理_list.html')">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-violet-50 border border-violet-200 text-violet-700 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-gavel"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">违章处理</div>
+            <div class="text-xs text-slate-500 mt-0.5">待处理 · 填写处罚 · 提交审批</div>
+          </div>
+          <i class="fa-solid fa-angle-right text-slate-400 shrink-0"></i>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <script src="_shared_mobile.js"></script>
+  <script>
+    qs('#btnSearch').addEventListener('click', () => toast('原型演示：搜索/筛选入口'));
+  </script>
+</body>
+</html>

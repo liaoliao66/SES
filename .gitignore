@@ -1,0 +1,17 @@
+﻿# Cursor metadata
+.cursor/
+agent-transcripts/
+mcps/
+terminals/
+skills-cursor/
+
+# System
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# Build / temp
+node_modules/
+dist/
+.tmp/

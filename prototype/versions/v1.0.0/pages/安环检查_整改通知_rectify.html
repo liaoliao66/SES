@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>整改</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_mobile_layout.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .btn { transition: transform 0.2s ease; }
+    .btn:active { transform: scale(0.95); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <header class="mobile-header px-5 pb-4">
+    <div class="flex items-center justify-between">
+      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+              onclick="navBack('安环检查_整改通知_list.html')">
+        <i class="fa-solid fa-angle-left text-slate-700"></i>
+      </button>
+      <div class="text-sm font-semibold text-slate-900">整改</div>
+      <div class="w-10"></div>
+    </div>
+    <div class="mt-2 text-xs text-slate-500 leading-relaxed">查看检查信息，逐条完成隐患整改；全部完成后可发起审批</div>
+  </header>
+
+  <main class="mobile-content space-y-4">
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4">
+      <div class="text-sm font-semibold text-slate-800 mb-3" id="recordTitle">专项检查（仓储区）</div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+          <div class="text-slate-500">检查类型</div>
+          <div class="mt-1 font-semibold">专项检查</div>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+          <div class="text-slate-500">检查日期</div>
+          <div class="mt-1 font-semibold">2026-07-06</div>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+          <div class="text-slate-500">整改责任人</div>
+          <div class="mt-1 font-semibold">王强</div>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+          <div class="text-slate-500">整改截止</div>
+          <div class="mt-1 font-semibold">2026-07-10</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-semibold text-slate-800">隐患问题列表</div>
+        <div class="text-xs text-slate-500" id="progressText">0/2 已整改</div>
+      </div>
+      <div class="space-y-3" id="hazardList"></div>
+    </div>
+  </main>
+
+
+  <script src="_shared_mobile.js"></script>
+  <script src="_rectify_data.js"></script>
+  <script>
+    const id = new URLSearchParams(location.search).get('id') || '1';
+    let record = JSON.parse(JSON.stringify(RECTIFY_RECORDS[id] || RECTIFY_RECORDS['1']));
+
+    // 从 sessionStorage 恢复已整改状态（原型演示）
+    const saved = sessionStorage.getItem('rectify_' + id);
+    if (saved) {
+      const doneIds = JSON.parse(saved);
+      record.hazards.forEach(h => {
+        if (doneIds.includes(h.id)) h.done = true;
+        const note = sessionStorage.getItem(`rectify_note_${id}_${h.id}`);
+        if (note) h.rectifyNote = note;
+      });
+    }
+
+    qs('#recordTitle').textContent = record.title;
+
+    function updateProgress() {
+      const total = record.hazards.length;
+      const done = record.hazards.filter(h => h.done).length;
+      qs('#progressText').textContent = `${done}/${total} 已整改`;
+    }
+
+    function renderHazards() {
+      qs('#hazardList').innerHTML = record.hazards.map(h => `
+        <div class="rounded-2xl border p-3 ${h.done ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="text-sm font-semibold text-slate-900">${h.title}</div>
+            <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full border ${h.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${h.done ? '已整改' : '待整改'}</span>
+          </div>
+          <div class="text-xs text-slate-500 mt-1">${h.meta}</div>
+          <div class="text-xs text-slate-600 mt-2">整改要求：${h.requirement}</div>
+          ${h.rectifyNote ? `<div class="text-xs text-emerald-700 mt-2">整改说明：${h.rectifyNote}</div>` : ''}
+          <div class="mt-3 flex justify-end">
+            ${h.done
+              ? `<button class="btn px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-600" onclick="navTo('安环检查_整改通知_hazard_form.html?record=${id}&hazard=${h.id}')">查看整改</button>`
+              : `<button class="btn px-3 py-2 rounded-2xl bg-slate-900 text-white text-xs font-semibold" onclick="navTo('安环检查_整改通知_hazard_form.html?record=${id}&hazard=${h.id}')">整改</button>`
+            }
+          </div>
+        </div>
+      `).join('');
+      updateProgress();
+      syncMobileLayout();
+    }
+
+    renderHazards();
+  </script>
+</body>
+</html>

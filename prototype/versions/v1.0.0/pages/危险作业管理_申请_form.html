@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>新增危险作业申请</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_mobile_layout.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
+    .btn { transition: transform 0.2s ease; }
+    .btn:active { transform: scale(0.95); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <header class="mobile-header px-5 pb-4">
+    <div class="flex items-center justify-between">
+      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+              onclick="navBack('危险作业管理_申请_list.html')">
+        <i class="fa-solid fa-angle-left text-slate-700"></i>
+      </button>
+      <div class="text-sm font-semibold text-slate-900">新增危险作业申请</div>
+      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200"
+              onclick="toast('草稿已保存')">
+        <i class="fa-regular fa-bookmark text-slate-700"></i>
+      </button>
+    </div>
+    <div id="typeHint" class="mt-3 text-xs text-slate-500 leading-relaxed"></div>
+  </header>
+
+  <form class="mobile-content space-y-4" onsubmit="event.preventDefault(); submitForm();">
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
+      <div class="text-sm font-semibold text-slate-800">申请信息</div>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block col-span-2">
+          <div class="text-xs text-slate-500 mb-1"><span class="text-rose-500">*</span>作业类型</div>
+          <select class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" id="permitType" onchange="renderForm()"></select>
+        </label>
+        <label class="block col-span-2">
+          <div class="text-xs text-slate-500 mb-1"><span class="text-rose-500">*</span>申请名称</div>
+          <input class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" id="applyName" placeholder="请输入申请名称">
+        </label>
+      </div>
+    </div>
+
+    <div id="dynamicForm" class="space-y-4"></div>
+  </form>
+
+
+  <div id="pickerRoot"></div>
+
+  <script src="_shared_mobile.js"></script>
+  <script src="_pc_permit_data.js"></script>
+  <script src="_mobile_permit.js"></script>
+  <script>
+    const typeSelect = qs('#permitType');
+    const dynamicForm = qs('#dynamicForm');
+    const typeHint = qs('#typeHint');
+    const applyName = qs('#applyName');
+
+    Object.entries(PERMIT_TYPES).forEach(([key, cfg]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = cfg.name;
+      typeSelect.appendChild(opt);
+    });
+
+    const urlType = new URLSearchParams(location.search).get('type');
+    if (urlType && PERMIT_TYPES[urlType]) typeSelect.value = urlType;
+
+    applyName.addEventListener('input', () => { applyName.dataset.auto = '0'; });
+
+    function renderForm() {
+      renderMobilePermitForm(typeSelect, dynamicForm, typeHint, applyName);
+    }
+
+    function submitForm() {
+      navTo(`危险作业管理_申请_detail.html?type=${typeSelect.value}`);
+    }
+
+    qs('#pickerRoot').innerHTML = mobilePickerHtml();
+    renderForm();
+  </script>
+</body>
+</html>

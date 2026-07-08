@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>危险作业申请 - 安环监测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_pc_layout.css">
+</head>
+<body>
+  <div class="pc-app">
+    <!-- 顶部导航 -->
+    <header class="pc-topnav">
+      <div class="pc-topnav-logo">
+        <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=80&h=28&q=80" alt="logo" style="height:28px;border-radius:2px;">
+        <span>智慧港口管理平台</span>
+      </div>
+      <nav class="pc-topnav-modules">
+        <a href="#">首页</a>
+        <a href="#">合同管理</a>
+        <a href="#">监控中心</a>
+        <a href="#">综合办公</a>
+        <a href="#">进度管理</a>
+        <a href="#">运营预算</a>
+        <a href="#">资源管理</a>
+        <a href="#">资料库</a>
+        <a href="#">基础信息管理</a>
+        <a href="#">运营管理</a>
+        <a href="#">商务管理</a>
+        <a href="#">其他</a>
+        <a href="#" class="active">安环监测</a>
+        <a href="#">设备管理</a>
+        <a href="#">大屏管理</a>
+      </nav>
+      <div class="pc-topnav-right">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span class="pc-badge" data-count="6"><i class="fa-regular fa-bell"></i></span>
+        <span class="pc-badge" data-count="7"><i class="fa-regular fa-envelope"></i></span>
+        <div class="pc-user">
+          <img class="pc-user-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=56&h=56&q=80" alt="">
+          <span>欢迎您，武大管理员</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <!-- 左侧菜单 -->
+      <aside class="pc-sidebar">
+        <div class="pc-sidebar-search">
+          <input type="text" placeholder="请输入关键词搜索">
+        </div>
+        <ul class="pc-menu">
+          <li class="pc-menu-group open">
+            <a class="pc-menu-item active" href="#"><span class="pc-menu-icon"><i class="fa-solid fa-helmet-safety"></i></span>危险作业管理<i class="fa-solid fa-chevron-right pc-menu-arrow"></i></a>
+            <ul class="pc-submenu">
+              <li><a href="pc_危险作业管理_申请_list.html" class="active">危险作业申请</a></li>
+            </ul>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- 主内容 -->
+      <main class="pc-main">
+        <div class="pc-tabs">
+          <a class="pc-tab active" href="pc_危险作业管理_申请_list.html">危险作业申请 <span class="close">×</span></a>
+        </div>
+
+        <div class="pc-content">
+          <!-- 工具栏 -->
+          <div class="pc-toolbar">
+            <div class="pc-toolbar-left">
+            <select class="pc-select">
+              <option>全部作业类型</option>
+              <option>动火作业</option>
+              <option>高处作业</option>
+              <option>吊装作业</option>
+              <option>有限空间作业</option>
+              <option>动土作业</option>
+              <option>临时用电作业</option>
+            </select>
+              <a class="pc-btn pc-btn-primary" href="pc_危险作业管理_申请_form.html"><i class="fa-solid fa-plus"></i> 新增</a>
+            </div>
+            <div class="pc-toolbar-right">
+              <input class="pc-search" type="text" placeholder="请输入关键词搜索">
+            </div>
+          </div>
+
+          <!-- 表格 -->
+          <div class="pc-table-wrap">
+            <table class="pc-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>申请编号</th>
+                  <th>申请名称</th>
+                  <th>作业类型</th>
+                  <th>作业日期</th>
+                  <th>作业区域</th>
+                  <th>申请人</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>WP-20260708-001</td>
+                  <td>动火作业申请（焊接检修）</td>
+                  <td>动火作业</td>
+                  <td>2026-07-08</td>
+                  <td>生产一车间</td>
+                  <td>张敏</td>
+                  <td><span class="pc-status pc-status-pending">待审批</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=hot_work">查看</a>
+                    <a class="link" href="pc_危险作业管理_申请_form.html?type=hot_work">编辑</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>WP-20260707-002</td>
+                  <td>高处作业申请（设备巡检）</td>
+                  <td>高处作业</td>
+                  <td>2026-07-07</td>
+                  <td>仓储区</td>
+                  <td>王强</td>
+                  <td><span class="pc-status pc-status-pass">已通过</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=high_altitude">查看</a>
+                    <a class="link" href="pc_危险作业管理_作业票_print.html?type=high_altitude">作业票</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>WP-20260706-003</td>
+                  <td>吊装作业申请（设备移位）</td>
+                  <td>吊装作业</td>
+                  <td>2026-07-06</td>
+                  <td>码头区</td>
+                  <td>李雷</td>
+                  <td><span class="pc-status pc-status-pending">待审批</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=lifting">查看</a>
+                    <a class="link" href="pc_危险作业管理_申请_form.html?type=lifting">编辑</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>WP-20260705-004</td>
+                  <td>有限空间作业申请（清罐）</td>
+                  <td>有限空间作业</td>
+                  <td>2026-07-05</td>
+                  <td>储罐区</td>
+                  <td>赵工</td>
+                  <td><span class="pc-status pc-status-pass">已通过</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=confined_space">查看</a>
+                    <a class="link" href="pc_危险作业管理_作业票_print.html?type=confined_space">作业票</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>WP-20260704-005</td>
+                  <td>动土作业申请（管道沟槽开挖）</td>
+                  <td>动土作业</td>
+                  <td>2026-07-04</td>
+                  <td>厂区东侧</td>
+                  <td>孙工</td>
+                  <td><span class="pc-status pc-status-draft">草稿</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=earthwork">查看</a>
+                    <a class="link" href="pc_危险作业管理_申请_form.html?type=earthwork">编辑</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>WP-20260703-006</td>
+                  <td>临时用电作业申请（焊接电源）</td>
+                  <td>临时用电作业</td>
+                  <td>2026-07-03</td>
+                  <td>维修车间</td>
+                  <td>周师傅</td>
+                  <td><span class="pc-status pc-status-reject">已驳回</span></td>
+                  <td>
+                    <a class="link" href="pc_危险作业管理_申请_detail.html?type=temp_electricity">查看</a>
+                    <a class="link" href="pc_危险作业管理_申请_form.html?type=temp_electricity">编辑</a>
+                    <a class="link link-danger" href="#" onclick="return confirm('确认删除？')">删除</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pc-pagination">
+              <span>共 6 条</span>
+              <select><option>50条/页</option><option>20条/页</option><option>10条/页</option></select>
+              <button class="pc-page-btn"><i class="fa-solid fa-angle-left"></i></button>
+              <button class="pc-page-btn active">1</button>
+              <button class="pc-page-btn"><i class="fa-solid fa-angle-right"></i></button>
+              <span class="pc-page-goto">前往 <input type="text" value="1"> 页</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

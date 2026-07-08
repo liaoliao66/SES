@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增危险作业申请 - 安环监测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_pc_layout.css">
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <div class="pc-topnav-logo">
+        <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=80&h=28&q=80" alt="logo" style="height:28px;border-radius:2px;">
+        <span>智慧港口管理平台</span>
+      </div>
+      <nav class="pc-topnav-modules">
+        <a href="#">首页</a><a href="#">合同管理</a><a href="#">监控中心</a><a href="#">综合办公</a>
+        <a href="#">进度管理</a><a href="#">运营预算</a><a href="#">资源管理</a><a href="#">资料库</a>
+        <a href="#">基础信息管理</a><a href="#">运营管理</a><a href="#">商务管理</a><a href="#">其他</a>
+        <a href="#" class="active">安环监测</a><a href="#">设备管理</a><a href="#">大屏管理</a>
+      </nav>
+      <div class="pc-topnav-right">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span class="pc-badge" data-count="6"><i class="fa-regular fa-bell"></i></span>
+        <span class="pc-badge" data-count="7"><i class="fa-regular fa-envelope"></i></span>
+        <div class="pc-user">
+          <img class="pc-user-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=56&h=56&q=80" alt="">
+          <span>欢迎您，武大管理员</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <aside class="pc-sidebar">
+        <div class="pc-sidebar-search"><input type="text" placeholder="请输入关键词搜索"></div>
+        <ul class="pc-menu">
+          <li class="pc-menu-group open">
+            <a class="pc-menu-item active" href="#"><span class="pc-menu-icon"><i class="fa-solid fa-helmet-safety"></i></span>危险作业管理<i class="fa-solid fa-chevron-right pc-menu-arrow"></i></a>
+            <ul class="pc-submenu">
+              <li><a href="pc_危险作业管理_申请_list.html" class="active">危险作业申请</a></li>
+            </ul>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="pc-main">
+        <div class="pc-tabs">
+          <a class="pc-tab" href="pc_危险作业管理_申请_list.html">危险作业申请 <span class="close">×</span></a>
+          <a class="pc-tab active" href="pc_危险作业管理_申请_form.html">新增危险作业申请 <span class="close">×</span></a>
+        </div>
+
+        <div class="pc-content">
+          <div class="pc-form-card">
+            <div class="pc-form-title">新增危险作业申请</div>
+
+            <!-- 作业类型选择 -->
+            <div class="pc-form-grid" style="margin-bottom:0;">
+              <div class="pc-form-item">
+                <label class="pc-form-label"><span class="req">*</span>作业类型</label>
+                <select class="pc-form-select" id="permitType" onchange="renderPermitForm()"></select>
+              </div>
+              <div class="pc-form-item">
+                <label class="pc-form-label"><span class="req">*</span>申请名称</label>
+                <input class="pc-form-input" id="applyName" type="text" placeholder="请输入申请名称">
+              </div>
+            </div>
+            <div id="typeHint" class="pc-type-hint" style="margin-top:12px;"></div>
+
+            <!-- 动态表单区域 -->
+            <div id="dynamicForm"></div>
+
+            <div class="pc-form-footer">
+              <a class="pc-btn" href="pc_危险作业管理_申请_list.html">取消</a>
+              <button class="pc-btn" type="button" onclick="alert('草稿已保存')">保存草稿</button>
+              <button class="pc-btn pc-btn-primary" type="button" onclick="submitForm()">确定</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="_pc_permit_data.js"></script>
+  <script>
+    const typeSelect = document.getElementById('permitType');
+    const dynamicForm = document.getElementById('dynamicForm');
+    const typeHint = document.getElementById('typeHint');
+    const applyName = document.getElementById('applyName');
+
+    // 初始化作业类型下拉
+    Object.entries(PERMIT_TYPES).forEach(([key, cfg]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = cfg.name;
+      typeSelect.appendChild(opt);
+    });
+
+    // URL 参数预选类型
+    const urlType = new URLSearchParams(location.search).get('type');
+    if (urlType && PERMIT_TYPES[urlType]) typeSelect.value = urlType;
+
+    const PERSON_OPTIONS = [
+      { value: 'wangqiang', label: '王强' },
+      { value: 'qianshifu', label: '钱师傅' },
+      { value: 'zhaogong', label: '赵工' },
+      { value: 'liming', label: '李明' },
+      { value: 'sunwei', label: '孙伟' },
+      { value: 'zhoujie', label: '周杰' }
+    ];
+
+    function fieldHtml(label, required, inputHtml, full) {
+      return `<div class="pc-form-item${full ? ' full' : ''}">
+        <label class="pc-form-label">${required ? '<span class="req">*</span>' : ''}${label}</label>
+        ${inputHtml}
+      </div>`;
+    }
+
+    function multiSelectHtml(id, placeholder, defaultValues = []) {
+      const options = PERSON_OPTIONS.map(p => {
+        const checked = defaultValues.includes(p.value) ? ' checked' : '';
+        return `<label class="pc-multiselect-option"><input type="checkbox" value="${p.value}" data-label="${p.label}"${checked}> ${p.label}</label>`;
+      }).join('');
+      return `<div class="pc-multiselect${defaultValues.length ? ' has-value' : ''}" data-id="${id}">
+        <div class="pc-multiselect-trigger" tabindex="0">
+          <span class="pc-multiselect-placeholder">${placeholder}</span>
+          <span class="pc-multiselect-tags"></span>
+          <i class="fa-solid fa-chevron-down pc-multiselect-arrow"></i>
+        </div>
+        <div class="pc-multiselect-panel">${options}</div>
+      </div>`;
+    }
+
+    function initMultiselects() {
+      document.querySelectorAll('.pc-multiselect').forEach(el => {
+        const trigger = el.querySelector('.pc-multiselect-trigger');
+        const panel = el.querySelector('.pc-multiselect-panel');
+        const tagsEl = el.querySelector('.pc-multiselect-tags');
+
+        function renderTags() {
+          const checked = panel.querySelectorAll('input:checked');
+          tagsEl.innerHTML = Array.from(checked).map(input =>
+            `<span class="pc-multiselect-tag" data-value="${input.value}">${input.dataset.label}<i class="fa-solid fa-xmark"></i></span>`
+          ).join('');
+          el.classList.toggle('has-value', checked.length > 0);
+        }
+
+        trigger.addEventListener('click', e => {
+          e.stopPropagation();
+          document.querySelectorAll('.pc-multiselect.open').forEach(m => {
+            if (m !== el) m.classList.remove('open');
+          });
+          el.classList.toggle('open');
+        });
+
+        panel.addEventListener('click', e => e.stopPropagation());
+        panel.querySelectorAll('input').forEach(input => {
+          input.addEventListener('change', renderTags);
+        });
+
+        tagsEl.addEventListener('click', e => {
+          const tag = e.target.closest('.pc-multiselect-tag');
+          if (!tag) return;
+          const input = panel.querySelector(`input[value="${tag.dataset.value}"]`);
+          if (input) {
+            input.checked = false;
+            renderTags();
+          }
+        });
+
+        renderTags();
+      });
+    }
+
+    if (!window._pcMultiselectBound) {
+      window._pcMultiselectBound = true;
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.pc-multiselect.open').forEach(el => el.classList.remove('open'));
+      });
+    }
+
+    function renderPermitForm() {
+      const type = typeSelect.value;
+      const cfg = PERMIT_TYPES[type];
+      typeHint.textContent = `当前填写：${cfg.licenseTitle} — 字段与《危险作业票》模板一致，切换作业类型将展示不同内容。`;
+      applyName.placeholder = `${cfg.name}申请（示例）`;
+      if (!applyName.value) applyName.value = `${cfg.name}申请`;
+
+      let html = '';
+
+      // 一、公共信息
+      html += `<div class="pc-form-section"><div class="pc-form-section-title">基本信息（公共字段）</div><div class="pc-form-grid">`;
+      html += fieldHtml('申请人员', false, `<input class="pc-form-input" value="张敏" readonly>`);
+      html += fieldHtml('所属部门', false, `<input class="pc-form-input" value="安全环保部" readonly>`);
+      if (cfg.contentLabel) {
+        html += fieldHtml(cfg.contentLabel, true, `<input class="pc-form-input" placeholder="请输入${cfg.contentLabel}">`);
+      }
+      if (cfg.locationLabel) {
+        html += fieldHtml(cfg.locationLabel, true, `<input class="pc-form-input" placeholder="请输入${cfg.locationLabel}">`);
+      }
+      html += fieldHtml('作业负责人', true, multiSelectHtml('leader', '请选择作业负责人（可多选）', ['wangqiang']));
+      html += fieldHtml('作业监护人', true, multiSelectHtml('guardian', '请选择作业监护人（可多选）', ['qianshifu', 'liming']));
+      html += fieldHtml('施工单位', true, `<input class="pc-form-input" placeholder="请输入施工单位">`);
+      html += `</div></div>`;
+
+      // 二、类型特有字段
+      if (cfg.extraFields || cfg.levelLabel || cfg.workersLabel) {
+        html += `<div class="pc-form-section"><div class="pc-form-section-title">${cfg.name}特有信息</div><div class="pc-form-grid">`;
+        if (cfg.extraFields) {
+          cfg.extraFields.forEach(f => {
+            const inp = f.textarea
+              ? `<textarea class="pc-form-textarea" placeholder="请输入${f.label}"></textarea>`
+              : `<input class="pc-form-input" placeholder="请输入${f.label}">`;
+            html += fieldHtml(f.label, f.required, inp, f.full);
+          });
+        }
+        if (cfg.levelLabel) {
+          let radios = cfg.levels.map((lv, i) =>
+            `<label><input type="radio" name="level" value="${lv.value}"${i === 0 ? ' checked' : ''}> ${lv.label}</label>`
+          ).join('');
+          html += fieldHtml(cfg.levelLabel, true, `<div class="pc-radio-group">${radios}</div>`, true);
+        }
+        if (cfg.workersLabel) {
+          html += fieldHtml(cfg.workersLabel, true,
+            `<textarea class="pc-form-textarea" placeholder="填写人员姓名及证书编号，多人换行"></textarea>`, true);
+        }
+        html += `</div></div>`;
+      }
+
+      // 三、计划作业时间
+      html += `<div class="pc-form-section"><div class="pc-form-section-title">${cfg.planTimeLabel}</div>
+        <div class="pc-time-range">
+          <span>自</span>
+          <input class="pc-form-input" type="datetime-local" value="2026-07-08T09:00">
+          <span>至</span>
+          <input class="pc-form-input" type="datetime-local" value="2026-07-08T17:00">
+          <span>止</span>
+        </div></div>`;
+
+      // 四、风险辨识
+      html += `<div class="pc-form-section"><div class="pc-form-section-title">风险辨识结果</div>
+        <div class="pc-checkbox-group">`;
+      cfg.risks.forEach(r => {
+        html += `<label><input type="checkbox" checked> ${r}</label>`;
+      });
+      html += `<label><input type="checkbox"> 其他：<input class="pc-form-input" style="width:120px;height:28px;display:inline-block;" placeholder="补充"></label>`;
+      html += `</div></div>`;
+
+      // 五、安全措施
+      html += `<div class="pc-form-section"><div class="pc-form-section-title">安全措施（作业负责人确认：涉及 / 不涉及）</div>
+        <table class="pc-measure-table"><thead><tr>
+          <th class="col-seq">序号</th><th>安全措施</th><th class="col-confirm">是否涉及</th>
+        </tr></thead><tbody>`;
+      cfg.measures.forEach((m, i) => {
+        html += `<tr><td class="col-seq">${i + 1}</td><td>${m}</td><td class="col-confirm">
+          <label style="margin-right:12px;"><input type="radio" name="m${i}" checked> 涉及</label>
+          <label><input type="radio" name="m${i}"> 不涉及</label>
+        </td></tr>`;
+      });
+      html += `<tr><td class="col-seq">${cfg.measures.length + 1}</td><td>
+        <input class="pc-form-input" placeholder="其他安全措施（选填）" style="width:100%;"></td><td></td></tr>`;
+      html += `</tbody></table></div>`;
+
+      // 六、有限空间 — 气体检测记录表
+      if (cfg.hasGasDetection) {
+        html += `<div class="pc-form-section"><div class="pc-form-section-title">有毒有害气体检测记录表</div>
+          <div class="pc-form-item" style="margin-bottom:12px;">
+            <label class="pc-form-label">开始通风时间</label>
+            <input class="pc-form-input" type="datetime-local" style="max-width:280px;">
+          </div>
+          <table class="pc-gas-table"><thead><tr>
+            <th>序号</th><th>检测时间</th>`;
+        GAS_DETECTION_COLUMNS.forEach(c => { html += `<th>${c}</th>`; });
+        html += `<th>作业监护人</th><th>作业负责人</th></tr></thead><tbody>`;
+        for (let i = 1; i <= 3; i++) {
+          html += `<tr><td>${i}</td><td><input class="pc-form-input" type="datetime-local" style="width:140px;height:28px;"></td>`;
+          GAS_DETECTION_COLUMNS.forEach(() => {
+            html += `<td><label><input type="radio" name="g${i}" checked> 正常</label> <label><input type="radio" name="g${i}b"> 不正常</label></td>`;
+          });
+          html += `<td><input class="pc-form-input" style="width:60px;height:28px;"></td><td><input class="pc-form-input" style="width:60px;height:28px;"></td></tr>`;
+        }
+        html += `</tbody></table>
+          <div style="font-size:12px;color:var(--pc-text-muted);margin-top:8px;">注：检测标准为参考值，具体以气体检测仪设定值为准。</div>
+        </div>`;
+      }
+
+      // 七、附件
+      html += `<div class="pc-form-section"><div class="pc-form-section-title">附件</div>
+        <button class="pc-btn" type="button"><i class="fa-solid fa-upload"></i> 上传附件</button>
+        <span style="font-size:12px;color:var(--pc-text-muted);margin-left:8px;">动土作业需上传简图；其他类型可上传现场照片等</span>
+      </div>`;
+
+      dynamicForm.innerHTML = html;
+      initMultiselects();
+    }
+
+    function submitForm() {
+      const type = typeSelect.value;
+      location.href = `pc_危险作业管理_申请_detail.html?type=${type}`;
+    }
+
+    renderPermitForm();
+  </script>
+</body>
+</html>

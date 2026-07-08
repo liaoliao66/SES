@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>作业票打印 - 安环监测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_pc_layout.css">
+  <style>
+    .print-sheet { background:#fff; border:1px solid var(--pc-border); padding:32px 40px; max-width:900px; margin:0 auto; }
+    .print-title { text-align:center; font-size:20px; font-weight:700; margin-bottom:24px; letter-spacing:2px; }
+    .print-meta { display:flex; justify-content:space-between; font-size:13px; margin-bottom:20px; color:var(--pc-text-secondary); }
+    .print-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+    .print-table td, .print-table th { border:1px solid #333; padding:8px 10px; vertical-align:top; }
+    .print-table .label { background:#fafafa; font-weight:500; width:120px; white-space:nowrap; }
+    .print-measures th { background:#fafafa; font-weight:500; text-align:center; }
+    .print-sign { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:24px; font-size:13px; }
+    .print-sign-box { border:1px solid #333; padding:12px; min-height:80px; }
+    .print-sign-box .title { font-weight:500; margin-bottom:40px; font-size:12px; }
+    .print-note { font-size:12px; color:var(--pc-text-muted); margin-top:16px; line-height:1.8; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav no-print">
+      <div class="pc-topnav-logo">
+        <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=80&h=28&q=80" alt="logo" style="height:28px;border-radius:2px;">
+        <span>智慧港口管理平台</span>
+      </div>
+      <nav class="pc-topnav-modules">
+        <a href="#" class="active">安环监测</a>
+      </nav>
+      <div class="pc-topnav-right">
+        <div class="pc-user"><span>欢迎您，武大管理员</span></div>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <aside class="pc-sidebar no-print">
+        <div class="pc-sidebar-search"><input type="text" placeholder="请输入关键词搜索"></div>
+        <ul class="pc-menu">
+          <li class="pc-menu-group open">
+            <a class="pc-menu-item active" href="#"><span class="pc-menu-icon"><i class="fa-solid fa-helmet-safety"></i></span>危险作业管理<i class="fa-solid fa-chevron-right pc-menu-arrow"></i></a>
+            <ul class="pc-submenu">
+              <li><a href="pc_危险作业管理_申请_list.html" class="active">危险作业申请</a></li>
+            </ul>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="pc-main">
+        <div class="pc-tabs no-print">
+          <a class="pc-tab" href="pc_危险作业管理_申请_detail.html">申请详情 <span class="close">×</span></a>
+          <a class="pc-tab active" href="#">作业票打印 <span class="close">×</span></a>
+        </div>
+
+        <div class="pc-content">
+          <div class="pc-toolbar no-print">
+            <div class="pc-toolbar-left">
+              <a class="pc-btn" href="pc_危险作业管理_申请_detail.html"><i class="fa-solid fa-arrow-left"></i> 返回详情</a>
+            </div>
+            <div class="pc-toolbar-right">
+              <select class="pc-select" id="printType" onchange="renderPrintSheet()"></select>
+              <button class="pc-btn pc-btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> 打印</button>
+              <button class="pc-btn" onclick="alert('导出 PDF（原型）')"><i class="fa-solid fa-file-arrow-down"></i> 导出 PDF</button>
+            </div>
+          </div>
+
+          <div id="printSheet" class="print-sheet"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="_pc_permit_data.js"></script>
+  <script>
+    const printType = document.getElementById('printType');
+    const printSheet = document.getElementById('printSheet');
+
+    Object.entries(PERMIT_TYPES).forEach(([key, cfg]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = cfg.licenseTitle;
+      printType.appendChild(opt);
+    });
+
+    const urlType = new URLSearchParams(location.search).get('type');
+    if (urlType && PERMIT_TYPES[urlType]) printType.value = urlType;
+
+    function renderPrintSheet() {
+      const type = printType.value;
+      const cfg = PERMIT_TYPES[type];
+      let html = `<div class="print-title">${cfg.licenseTitle}</div>`;
+      html += `<div class="print-meta"><span>申请时间：2026 年 07 月 07 日</span><span>编号：WP-20260707-001</span></div>`;
+
+      // 基本信息表格
+      html += `<table class="print-table"><tbody>`;
+      html += `<tr><td class="label">申请人员</td><td>张敏</td><td class="label">所属部门</td><td>安全环保部</td></tr>`;
+
+      if (cfg.contentLabel) {
+        html += `<tr><td class="label">${cfg.contentLabel}</td><td colspan="3">（示例内容）</td></tr>`;
+      }
+      if (cfg.locationLabel) {
+        html += `<tr><td class="label">${cfg.locationLabel}</td><td>生产一车间</td>`;
+        html += `<td class="label">施工单位</td><td>维修班</td></tr>`;
+      } else if (type === 'earthwork') {
+        html += `<tr><td class="label">施工机械</td><td>挖掘机</td><td class="label">施工单位</td><td>维修班</td></tr>`;
+      } else if (type === 'lifting') {
+        html += `<tr><td class="label">${cfg.contentLabel}</td><td>设备吊装</td><td class="label">${cfg.locationLabel}</td><td>仓储区</td></tr>`;
+        html += `<tr><td class="label">吊装机械</td><td>汽车吊 25t</td><td class="label">吊装司机</td><td>李师傅</td></tr>`;
+        html += `<tr><td class="label">指挥人员</td><td>王指挥</td><td class="label">证书编号</td><td>QZ-77120</td></tr>`;
+      }
+
+      html += `<tr><td class="label">作业负责人</td><td>王强</td><td class="label">作业监护人</td><td>钱师傅、李明</td></tr>`;
+
+      if (type === 'temp_electricity') {
+        html += `<tr><td class="label">电源接入点及许可用电功率</td><td>配电箱 A · 50kW</td><td class="label">工作电压</td><td>380V</td></tr>`;
+        html += `<tr><td class="label">用电设备名称及额定功率</td><td colspan="3">电焊机 15kW、照明 2kW</td></tr>`;
+        html += `<tr><td class="label">作业人员电工证号</td><td>DG-22018</td><td class="label">作业负责人电工证号</td><td>DG-33001</td></tr>`;
+      }
+
+      if (cfg.levelLabel) {
+        html += `<tr><td class="label">${cfg.levelLabel}</td><td colspan="3">${cfg.levels[0].label}</td></tr>`;
+      }
+
+      html += `<tr><td class="label">${cfg.planTimeLabel}</td><td colspan="3">自 2026 年 07 月 08 日 09 时 00 分 至 2026 年 07 月 08 日 17 时 00 分 止</td></tr>`;
+
+      if (cfg.workersLabel && type !== 'lifting') {
+        html += `<tr><td class="label">${cfg.workersLabel}</td><td colspan="3">赵工（WA-10293）</td></tr>`;
+      }
+      if (type === 'lifting') {
+        html += `<tr><td class="label">作业人员</td><td colspan="3">周师傅、孙工</td></tr>`;
+      }
+
+      if (type === 'earthwork') {
+        html += `<tr><td class="label">作业范围、内容、方式</td><td colspan="3">厂区东侧管道沟槽开挖，深度 1.5m，面积 20㎡（附简图）</td></tr>`;
+        html += `<tr><td class="label">相邻建筑设施和管线设施</td><td colspan="3">东侧 2m 处有给排水管线，已确认保护措施</td></tr>`;
+      }
+
+      html += `<tr><td class="label">风险辨识结果</td><td colspan="3">${cfg.risks.join(' / ')}</td></tr>`;
+      html += `</tbody></table>`;
+
+      // 安全措施
+      html += `<table class="print-table print-measures"><thead><tr>
+        <th style="width:40px;">序号</th><th>安全措施</th><th style="width:80px;">确认</th></tr></thead><tbody>`;
+      cfg.measures.forEach((m, i) => {
+        html += `<tr><td style="text-align:center;">${i + 1}</td><td>${m}</td><td style="text-align:center;">涉及</td></tr>`;
+      });
+      html += `<tr><td style="text-align:center;">${cfg.measures.length + 1}</td><td>其他安全措施：</td><td></td></tr>`;
+      html += `</tbody></table>`;
+
+      // 审批签字
+      html += `<div class="print-sign">`;
+      cfg.approvals.forEach(a => {
+        html += `<div class="print-sign-box"><div class="title">${a.node}${a.level ? '（' + a.level + '）' : ''}</div>
+          <div>年 &nbsp;&nbsp; 月 &nbsp;&nbsp; 日 &nbsp;&nbsp; 时 &nbsp;&nbsp; 分</div></div>`;
+      });
+      html += `</div>`;
+
+      // 交底与确认
+      html += `<table class="print-table" style="margin-top:20px;"><tbody>`;
+      html += `<tr><td class="label">现场安全交底人（作业负责人）</td><td></td><td class="label">接受交底人（作业监护人和作业人员）</td><td></td></tr>`;
+      html += `<tr><td class="label">${cfg.confirmLabel}</td><td colspan="3">年 &nbsp;&nbsp; 月 &nbsp;&nbsp; 日 &nbsp;&nbsp; 时 &nbsp;&nbsp; 分</td></tr>`;
+      html += `<tr><td class="label">${cfg.actualTimeLabel}</td><td colspan="3">自 &nbsp;&nbsp;&nbsp;&nbsp; 年 &nbsp; 月 &nbsp; 日 &nbsp; 时 &nbsp; 分 &nbsp; 至 &nbsp;&nbsp;&nbsp;&nbsp; 年 &nbsp; 月 &nbsp; 日 &nbsp; 时 &nbsp; 分 &nbsp; 止</td></tr>`;
+      html += `<tr><td class="label">作业负责人完工验收</td><td colspan="3">年 &nbsp;&nbsp; 月 &nbsp;&nbsp; 日 &nbsp;&nbsp; 时 &nbsp;&nbsp; 分</td></tr>`;
+      html += `</tbody></table>`;
+
+      // 有限空间气体检测表
+      if (cfg.hasGasDetection) {
+        html += `<div style="margin-top:24px;font-weight:600;text-align:center;">有毒有害气体检测记录表</div>`;
+        html += `<div style="font-size:13px;margin:8px 0;">开始通风时间：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>`;
+        html += `<table class="print-table print-measures"><thead><tr>
+          <th>序号</th><th>检测时间</th>`;
+        GAS_DETECTION_COLUMNS.forEach(c => { html += `<th>${c}</th>`; });
+        html += `<th>作业监护人</th><th>作业负责人</th></tr></thead><tbody>`;
+        for (let i = 1; i <= 2; i++) {
+          html += `<tr><td style="text-align:center;">${i}</td><td></td>`;
+          GAS_DETECTION_COLUMNS.forEach(() => { html += `<td style="text-align:center;">正常 □ 不正常 □</td>`; });
+          html += `<td></td><td></td></tr>`;
+        }
+        html += `</tbody></table>`;
+      }
+
+      // 备注
+      html += `<div class="print-note">注：${cfg.notes.map((n, i) => `${i + 1}.${n}`).join('；')}</div>`;
+
+      printSheet.innerHTML = html;
+    }
+
+    renderPrintSheet();
+  </script>
+</body>
+</html>

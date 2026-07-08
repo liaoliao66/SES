@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>申请详情</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_mobile_layout.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
+    .btn { transition: transform 0.2s ease; }
+    .btn:active { transform: scale(0.95); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <header class="mobile-header px-5 pb-4">
+    <div class="flex items-center justify-between">
+      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+              onclick="navBack('危险作业管理_申请_list.html')">
+        <i class="fa-solid fa-angle-left text-slate-700"></i>
+      </button>
+      <div class="text-sm font-semibold text-slate-900">申请详情</div>
+      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200"
+              id="printBtn">
+        <i class="fa-solid fa-file-lines text-slate-700"></i>
+      </button>
+    </div>
+    <div class="mt-3 flex items-center gap-2">
+      <span id="statusBadge"></span>
+      <span id="typeLabel" class="text-xs text-slate-500"></span>
+    </div>
+  </header>
+
+  <div class="mobile-content space-y-4" id="detailContent"></div>
+
+
+  <script src="_shared_mobile.js"></script>
+  <script src="_pc_permit_data.js"></script>
+  <script src="_mobile_permit.js"></script>
+  <script>
+    const type = new URLSearchParams(location.search).get('type') || 'hot_work';
+    const cfg = PERMIT_TYPES[type];
+    const listIndex = MOBILE_LIST_DATA.findIndex(d => d.type === type);
+    const listItem = listIndex >= 0 ? MOBILE_LIST_DATA[listIndex] : MOBILE_LIST_DATA[0];
+
+    qs('#typeLabel').textContent = cfg.licenseTitle;
+    qs('#statusBadge').innerHTML = statusBadge(listItem.status);
+    qs('#printBtn').onclick = () => navTo(`危险作业管理_作业票_preview.html?type=${type}`);
+
+    function detailRow(label, value) {
+      return `<div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
+        <div class="text-xs text-slate-500">${label}</div>
+        <div class="mt-1 text-sm font-semibold text-slate-800">${value}</div>
+      </div>`;
+    }
+
+    function section(title) {
+      return `<div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4">`;
+    }
+    function sectionClose() { return `</div>`; }
+
+    let html = '';
+
+    // ── 基本信息 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">基本信息</div>
+      <div class="grid grid-cols-2 gap-2">`;
+    html += detailRow('申请编号', listItem.id);
+    html += detailRow('申请名称', listItem.name);
+    html += detailRow('申请人员', '张敏');
+    html += detailRow('所属部门', '安全环保部');
+    if (cfg.contentLabel) {
+      const sampleContent = {
+        hot_work: '焊接检修（生产一车间设备焊接）',
+        high_altitude: '设备检修（仓储区外墙维修）',
+        lifting: '设备移位（码头区吊装作业）',
+        confined_space: '污水池清理作业',
+        earthwork: '管道敷设（厂区东侧）',
+        temp_electricity: '临时用电（维修车间接线）'
+      };
+      html += detailRow(cfg.contentLabel, sampleContent[type] || '（示例内容）');
+    }
+    if (cfg.locationLabel) {
+      html += detailRow(cfg.locationLabel, listItem.area);
+    }
+    html += detailRow('作业负责人', '王强');
+    html += detailRow('作业监护人', '钱师傅、李明');
+    html += detailRow('施工单位', '维修班');
+    if (cfg.levelLabel) {
+      html += detailRow(cfg.levelLabel, cfg.levels[0].label);
+    }
+    html += `<div class="col-span-2 rounded-2xl bg-slate-50 border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">作业区域</div>
+      <div class="mt-1 text-sm font-semibold text-slate-800">${listItem.area}</div>
+    </div>`;
+    html += `</div></div>`;
+
+    // ── 风险辨识结果 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">风险辨识结果</div>
+      <div class="flex flex-wrap gap-1.5">`;
+    cfg.risks.forEach(r => {
+      html += `<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-700"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i>${r}</span>`;
+    });
+    html += `</div></div>`;
+
+    // ── 作业时间 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">${cfg.planTimeLabel}</div>
+      <div class="grid grid-cols-2 gap-2">`;
+    html += detailRow('开始时间', '2026-07-08 09:00');
+    html += detailRow('结束时间', '2026-07-08 17:00');
+    html += `</div></div>`;
+
+    // ── 作业人员信息（仅当有 workersLabel） ──
+    if (cfg.workersLabel) {
+      html += section();
+      html += `<div class="text-sm font-semibold text-slate-800 mb-3">${cfg.workersLabel}</div>
+        <div class="space-y-2">`;
+      const workers = type === 'hot_work' ? [
+        { name: '赵工', cert: 'WA-10293' },
+        { name: '孙伟', cert: 'WA-10456' }
+      ] : type === 'high_altitude' ? [
+        { name: '周杰', cert: 'GA-20341' },
+        { name: '李明', cert: 'GA-20789' }
+      ] : [
+        { name: '赵工', cert: 'WA-10293' }
+      ];
+      workers.forEach(w => {
+        html += `<div class="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-3 py-2.5">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-user text-slate-400 text-xs"></i>
+            <span class="text-sm font-medium text-slate-800">${w.name}</span>
+          </div>
+          <span class="text-xs text-slate-500">证书编号：${w.cert}</span>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // ── 安全措施确认 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">安全措施确认</div>
+      <div class="space-y-2">`;
+    cfg.measures.forEach((m, i) => {
+      const isEven = i % 2 === 0;
+      html += `<div class="rounded-2xl ${isEven ? 'bg-emerald-50/40 border-emerald-200' : 'bg-slate-50 border-slate-200'} border p-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs text-slate-500">第 ${i + 1} 条</span>
+          <span class="inline-flex items-center gap-1 text-xs font-semibold ${isEven ? 'text-emerald-700' : 'text-slate-500'}">
+            <i class="fa-solid ${isEven ? 'fa-circle-check text-emerald-500' : 'fa-circle-minus text-slate-400'}"></i>
+            ${isEven ? '已确认' : '待确认'}
+          </span>
+        </div>
+        <div class="text-xs text-slate-700 leading-relaxed">${m}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    // ── 气体检测记录（有限空间专用） ──
+    if (cfg.hasGasDetection) {
+      html += section();
+      html += `<div class="text-sm font-semibold text-slate-800 mb-3">有毒有害气体检测记录</div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100">
+                <th class="border border-slate-200 px-2 py-1.5 text-left font-medium text-slate-600">检测项目</th>
+                <th class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-600">允许范围</th>
+                <th class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-600">检测值</th>
+                <th class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-600">结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border border-slate-200 px-2 py-1.5 text-slate-700">硫化氢（H₂S）</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center text-slate-500">＜4ppm</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-800">0.5ppm</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">合格</span></td>
+              </tr>
+              <tr>
+                <td class="border border-slate-200 px-2 py-1.5 text-slate-700">一氧化碳（CO）</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center text-slate-500">＜100ppm</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-800">12ppm</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">合格</span></td>
+              </tr>
+              <tr>
+                <td class="border border-slate-200 px-2 py-1.5 text-slate-700">氧气（O₂）</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center text-slate-500">19.5%-23.5%</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-800">20.8%</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">合格</span></td>
+              </tr>
+              <tr>
+                <td class="border border-slate-200 px-2 py-1.5 text-slate-700">可燃气（LEL）</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center text-slate-500">＜20% LEL</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center font-medium text-slate-800">3%</td>
+                <td class="border border-slate-200 px-2 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">合格</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-2 text-xs text-slate-500">检测人：李明 · 检测时间：2026-07-08 08:30</div>
+      </div>`;
+    }
+
+    // ── 附件 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">附件资料</div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-3 py-2.5">
+          <div class="flex items-center gap-2">
+            <i class="fa-regular fa-image text-slate-400"></i>
+            <span class="text-sm text-slate-700">现场照片_01.jpg</span>
+          </div>
+          <i class="fa-solid fa-eye text-slate-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-3 py-2.5">
+          <div class="flex items-center gap-2">
+            <i class="fa-regular fa-file-pdf text-slate-400"></i>
+            <span class="text-sm text-slate-700">作业方案.pdf</span>
+          </div>
+          <i class="fa-solid fa-eye text-slate-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-3 py-2.5">
+          <div class="flex items-center gap-2">
+            <i class="fa-regular fa-file-lines text-slate-400"></i>
+            <span class="text-sm text-slate-700">风险辨识表.docx</span>
+          </div>
+          <i class="fa-solid fa-eye text-slate-400 text-xs"></i>
+        </div>
+      </div></div>`;
+
+    // ── 审批记录 ──
+    html += section();
+    html += `<div class="text-sm font-semibold text-slate-800 mb-3">审批记录</div>
+      <div class="space-y-0">`;
+    cfg.approvals.forEach((a, i) => {
+      const isFirst = i === 0;
+      const approverNames = ['张主管', '李经理', '王总'];
+      const currentStatus = isFirst ? '待审批' : '未开始';
+      const currentColor = isFirst ? 'bg-amber-500' : 'bg-slate-300';
+      html += `<div class="flex items-start gap-3 ${i > 0 ? 'mt-4' : ''}">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 mt-0.5 rounded-full ${currentColor} shrink-0 border-2 border-white shadow-sm"></div>
+          ${i < cfg.approvals.length - 1 ? `<div class="w-0.5 h-8 bg-slate-200 mt-0.5"></div>` : ''}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold text-slate-800">${a.node}${a.level ? '<span class="text-xs text-slate-500 ml-1 font-normal">（' + a.level + '）</span>' : ''}</div>
+            <span class="text-[11px] px-2 py-0.5 rounded-full ${isFirst ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-50 text-slate-500 border border-slate-200'}">${currentStatus}</span>
+          </div>
+          <div class="mt-1 text-xs text-slate-500">审批人：${approverNames[i]} · 安全环保部</div>
+          ${isFirst ? '<div class="mt-1"><button class="btn inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-xs font-medium text-amber-700" onclick="toast(\'原型演示：审批操作\')"><i class="fa-solid fa-pen-to-square"></i>去审批</button></div>' : ''}
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    // ── 备注（如有） ──
+    if (cfg.notes && cfg.notes.length) {
+      html += section();
+      html += `<div class="text-sm font-semibold text-slate-800 mb-3">备注</div>
+        <ul class="space-y-1.5">`;
+      cfg.notes.forEach(n => {
+        html += `<li class="flex items-start gap-2 text-xs text-slate-600">
+          <i class="fa-regular fa-note-sticky text-slate-400 mt-0.5 shrink-0"></i>
+          <span>${n}</span>
+        </li>`;
+      });
+      html += `</ul></div>`;
+    }
+
+    qs('#detailContent').innerHTML = html;
+  </script>
+</body>
+</html>

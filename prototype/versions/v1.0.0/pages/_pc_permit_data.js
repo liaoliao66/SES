@@ -1,0 +1,214 @@
+/**
+ * 危险作业票类型配置 — 来源：《危险作业票.docx》
+ * 6 种作业类型，各类型字段/风险辨识/安全措施/审批节点不同
+ */
+const PERMIT_TYPES = {
+  hot_work: {
+    name: '动火作业',
+    licenseTitle: '动火作业许可证',
+    contentLabel: '作业内容',
+    locationLabel: '作业地点',
+    levelLabel: '动火级别',
+    levels: [
+      { value: '2', label: '二级（72 小时）' },
+      { value: '1', label: '一级（48 小时）' },
+      { value: '0', label: '特级（12 小时）' }
+    ],
+    planTimeLabel: '计划动火时间',
+    workersLabel: '动火作业人员及证书编号',
+    risks: ['火灾（爆炸）', '灼烫', '触电', '高处坠落'],
+    measures: [
+      '动火作业点周围 5m、高空作业动火点下方 10m 范围内无易燃易爆物品。作业完毕应清理现场，确认无残留火种方可离开。',
+      '氧气瓶与乙炔瓶保持 5m 以上距离，二者与动火点保持 10 米以上距离，夏季室外露天作业时采取防晒措施。',
+      '乙炔瓶直立放置，氧乙炔瓶落实防倾倒措施。氧乙炔瓶压力表等安全装置完好。现场配备消防器材。',
+      '现场用电接线规范，电器设备、线路无漏电、触电、短路等风险隐患。',
+      '作业人员熟悉安全作业措施、掌握应急管理要求，正确佩戴个体劳动防护用品。'
+    ],
+    approvals: [
+      { node: '项目实施部门领导审批意见', level: '二级' },
+      { node: '安全监督部领导审批意见', level: '一级' },
+      { node: '公司分管安全生产领导审批意见', level: '特级' }
+    ],
+    confirmLabel: '现场确认[安全监督部（一级、特级）]',
+    actualTimeLabel: '实际动火时间',
+    notes: ['火警电话 119', '此许可证由项目实施部门保存', '关联危险作业许可证号']
+  },
+  high_altitude: {
+    name: '高处作业',
+    licenseTitle: '高处作业许可证',
+    contentLabel: '作业内容',
+    locationLabel: '作业地点',
+    levelLabel: '高处作业级别',
+    levels: [
+      { value: '1', label: '一级（72 小时）' },
+      { value: '2', label: '二级（48 小时）' },
+      { value: '3', label: '三级（12 小时）' },
+      { value: '4', label: '四级（12 小时）' }
+    ],
+    planTimeLabel: '计划作业时间',
+    workersLabel: '高处作业人员及证书编号',
+    risks: ['高处坠落', '物体打击', '坍塌', '起重伤害'],
+    measures: [
+      '作业人员正确佩戴符合要求的安全带及安全绳、防坠落器具。',
+      '现场配备的作业平台、吊笼、梯子、挡脚板、跳板等符合安全要求。',
+      '作业现场四周已设警戒区并有专人看护。',
+      '露天作业，风力满足作业安全要求。四级高处作业，通信器材配置到位。',
+      '作业人员携带有工具袋，不应投掷工具、材料及其他物品。',
+      '使用梯子进行高处作业时有专人扶梯、看护，梯子保证完好。'
+    ],
+    approvals: [
+      { node: '项目实施部门领导审批意见', level: '一级' },
+      { node: '安全监督部领导审批意见', level: '二级' },
+      { node: '公司分管安全生产领导审批意见', level: '三级、四级' }
+    ],
+    confirmLabel: '安全职能部门人员现场确认（二级、三级、四级）',
+    actualTimeLabel: '实际作业时间',
+    notes: [
+      '一级高处作业：2m≤h≤5m；二级：5m＜h≤15m；三级：15m＜h≤30m；四级：h＞30m',
+      '此许可证由项目实施部门保存',
+      '关联危险作业许可证号'
+    ]
+  },
+  lifting: {
+    name: '吊装作业',
+    licenseTitle: '吊装作业许可证',
+    contentLabel: '吊装内容',
+    locationLabel: '吊装地点',
+    levelLabel: '作业级别',
+    levels: [
+      { value: '3', label: '三级（m＜10t）' },
+      { value: '2', label: '二级（10t≤m≤30t）' },
+      { value: '1', label: '一级（m＞30t）' }
+    ],
+    planTimeLabel: '计划吊装时间',
+    extraFields: [
+      { key: 'liftMachine', label: '吊装机械', required: true },
+      { key: 'liftDriver', label: '吊装司机', required: true },
+      { key: 'commander', label: '指挥人员', required: true },
+      { key: 'certNo', label: '证书编号', required: true }
+    ],
+    workersLabel: '作业人员',
+    risks: ['起重伤害', '物体打击', '坍塌'],
+    measures: [
+      '编制吊装作业方案，现场设置安全警戒区，并设专人监护。',
+      '按规定负荷选择吊具、索具；作业前，对起重设备、吊具、安全装置进行检查。',
+      '吊物捆扎牢固，吊点准确，绳索无缠绕，棱角处采取衬垫措施。',
+      '参与作业人员分工明确，指挥人员按规定的指挥联络信号进行指挥并佩戴明显的标志。',
+      '吊装司机遵守起重机械操作规程，按照指挥人员发出的指挥信号进行操作。',
+      '起吊物的质量已确认，在吊装机械的称重范围内。起吊前应进行试吊，确认正常后方可正式吊装。'
+    ],
+    approvals: [
+      { node: '项目实施部门领导审批意见', level: '三级' },
+      { node: '设备技术部领导审批意见', level: '二级' },
+      { node: '公司分管技术领导审批意见', level: '一级' }
+    ],
+    confirmLabel: '现场技术职能部门人员确认（二级、一级）',
+    actualTimeLabel: '实际吊装时间',
+    notes: ['此许可证一事一单审批，由项目实施部门保存', '关联危险作业许可证号']
+  },
+  confined_space: {
+    name: '有限空间作业',
+    licenseTitle: '有限空间作业许可证',
+    contentLabel: '作业内容',
+    locationLabel: '作业地点',
+    levelLabel: null,
+    planTimeLabel: '计划作业时间',
+    workersLabel: '作业人员',
+    risks: ['中毒窒息', '淹溺', '触电'],
+    measures: [
+      '有限空间外设置警戒区，保持出入口畅通，作业人员与外部有可靠的通信联络。',
+      '作业前采取通风措施，保持有限空间内空气流通良好。',
+      '对有限空间进行气体检测，并按要求做好相关记录。',
+      '作业人员已佩戴必要的个体防护装备，清楚有限空间内存在的危险因素。',
+      '现场配备空气呼吸器和灭火器等应急装备。'
+    ],
+    hasGasDetection: true,
+    approvals: [
+      { node: '项目实施部门领导审批意见', level: '' },
+      { node: '安全监督部审批意见', level: '' },
+      { node: '公司分管安全生产领导审批意见', level: '' }
+    ],
+    confirmLabel: '安全监督部管理人员现场确认',
+    actualTimeLabel: '实际作业时间',
+    notes: [
+      '检测分析数据见《有毒有害气体检测记录表》（反面）',
+      '此许可证有效期 24 小时，由项目实施部门保存',
+      '关联危险作业许可证号'
+    ]
+  },
+  earthwork: {
+    name: '动土作业',
+    licenseTitle: '动土作业许可证',
+    contentLabel: null,
+    locationLabel: null,
+    levelLabel: null,
+    planTimeLabel: '计划作业时间',
+    extraFields: [
+      { key: 'machine', label: '施工机械', required: true },
+      { key: 'scope', label: '作业范围、内容、方式（含地点、深度、面积，附简图）', required: true, full: true, textarea: true },
+      { key: 'adjacent', label: '相邻建筑设施和管线设施', required: true, full: true, textarea: true }
+    ],
+    risks: ['坍塌', '物体打击', '触电', '机械伤害'],
+    measures: [
+      '施工现场的作业告知牌、护栏、盖板和警示标志以及夜间红灯示警已根据实际需要设置到位。',
+      '电力电缆、地下给排水管线、工艺管线已确认，必要的保护措施已落实。',
+      '夜间施工作业保证充足的照明。',
+      '设置的安全边坡和固壁支架安全可靠。'
+    ],
+    approvals: [
+      { node: '区域管线管理员审批意见', level: '' },
+      { node: '设备技术部领导审批意见', level: '' }
+    ],
+    confirmLabel: '设备技术部管理人员现场确认',
+    actualTimeLabel: '实际作业时间',
+    notes: ['此许可证一事一单审批，由项目实施部门保存', '关联危险作业许可证号']
+  },
+  temp_electricity: {
+    name: '临时用电作业',
+    licenseTitle: '临时用电作业许可证',
+    contentLabel: '作业内容',
+    locationLabel: '作业地点',
+    levelLabel: null,
+    planTimeLabel: '计划作业时间',
+    extraFields: [
+      { key: 'powerPoint', label: '电源接入点及许可用电功率', required: true },
+      { key: 'voltage', label: '工作电压', required: true },
+      { key: 'equipment', label: '用电设备名称及额定功率', required: true, full: true },
+      { key: 'workerCert', label: '作业人员电工证号', required: true },
+      { key: 'leaderCert', label: '作业负责人电工证号', required: true }
+    ],
+    workersLabel: '作业人员',
+    risks: ['触电', '坍塌', '高处坠落', '机械伤害'],
+    measures: [
+      '电工作业时正确佩戴个人防护用品。',
+      '临时用电设备和线路符合国家相关产品标准及相关要求。',
+      '架空线路其最大弧垂与地面距离，在施工现场不低于 2.5m，穿越机动车道不低于 5m。',
+      '穿越道路或其他易受机械损伤的区域，采取防机械损伤的措施。',
+      '室外临时用电配电箱有防雨措施。',
+      '临时用电设施有漏电保护器，移动工具、手持式电动工具逐个配置漏电保护器和电源开关。'
+    ],
+    approvals: [
+      { node: '项目实施部门领导审批意见', level: '' },
+      { node: '设备技术部领导审批意见（现场接线）', level: '' },
+      { node: '公司分管技术领导审批意见（变电所接线）', level: '' }
+    ],
+    confirmLabel: '设备技术部管理人员现场确认',
+    actualTimeLabel: '实际作业时间',
+    notes: [
+      '此许可证有效期为 15 天，特殊情况不应超过 30 天，由项目实施部门保存',
+      '关联危险作业许可证号'
+    ]
+  }
+};
+
+/** 公共字段（所有类型共有） */
+const COMMON_FIELDS = [
+  { key: 'applyUser', label: '申请人员', auto: true },
+  { key: 'applyDept', label: '所属部门', auto: true },
+  { key: 'leader', label: '作业负责人', required: true },
+  { key: 'guardian', label: '作业监护人', required: true },
+  { key: 'contractor', label: '施工单位', required: true }
+];
+
+/** 气体检测记录表字段（有限空间专用） */
+const GAS_DETECTION_COLUMNS = ['硫化氢（4ppm以下）', '一氧化碳（100ppm以下）', '氧气（19.5%-23.5%）', '可燃气（20% LEL以下）'];

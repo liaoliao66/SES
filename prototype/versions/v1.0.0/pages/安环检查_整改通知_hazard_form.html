@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>整改</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="_mobile_layout.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .btn { transition: transform 0.2s ease; }
+    .btn:active { transform: scale(0.95); }
+    .form-label { font-size: 13px; color: #64748b; margin-bottom: 6px; }
+    .form-label .req { color: #ef4444; margin-right: 2px; }
+    .form-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid #f1f5f9; gap: 16px;
+    }
+    .form-row:last-child { border-bottom: none; }
+    .form-row-label { font-size: 13px; color: #64748b; flex-shrink: 0; min-width: 72px; }
+    .form-row-value { font-size: 13px; color: #0f172a; text-align: right; flex: 1; word-break: break-all; }
+    .upload-box {
+      width: 88px; height: 88px; border: 1px dashed #cbd5e1; border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; background: #fafafa; cursor: pointer;
+    }
+    .upload-box i { font-size: 20px; color: #94a3b8; }
+    .upload-box span { font-size: 11px; color: #64748b; }
+    .upload-box.has-img { border-style: solid; padding: 0; overflow: hidden; }
+    .upload-box.has-img img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-thumb {
+      width: 72px; height: 72px; border-radius: 6px; object-fit: cover;
+      border: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <header class="mobile-header px-5 pb-3 border-b border-slate-200">
+    <div class="flex items-center justify-between">
+      <div class="w-10"></div>
+      <div class="text-sm font-semibold text-slate-900">整改</div>
+      <button class="btn w-10 h-10 rounded-xl text-slate-500 flex items-center justify-center"
+              onclick="closeForm()">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="mobile-content space-y-3 pb-4">
+    <!-- 隐患问题（只读） -->
+    <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 text-sm font-semibold text-slate-800">隐患问题</div>
+      <div class="px-4">
+        <div class="form-row">
+          <span class="form-row-label">重大类型</span>
+          <span class="form-row-value" id="hazardType">—</span>
+        </div>
+        <div class="form-row">
+          <span class="form-row-label">重大隐患</span>
+          <span class="form-row-value" id="isMajor">—</span>
+        </div>
+        <div class="form-row">
+          <span class="form-row-label">隐患描述</span>
+          <span class="form-row-value" id="hazardDesc">—</span>
+        </div>
+        <div class="form-row">
+          <span class="form-row-label">整改要求</span>
+          <span class="form-row-value" id="hazardReq">—</span>
+        </div>
+        <div class="py-3 border-b border-slate-100">
+          <div class="form-row-label mb-2">问题照片</div>
+          <div class="flex gap-2 flex-wrap" id="problemPhotos"></div>
+        </div>
+        <div class="py-3">
+          <div class="form-row-label mb-2">附件</div>
+          <div id="problemAttachments" class="text-sm text-slate-600">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 隐患整改（填写） -->
+    <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 text-sm font-semibold text-slate-800">隐患整改</div>
+      <div class="px-4 py-4 space-y-5">
+        <!-- 整改说明 -->
+        <div>
+          <div class="form-label"><span class="req">*</span>整改说明</div>
+          <div class="relative">
+            <textarea id="rectifyNote" maxlength="300"
+                      class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm resize-none outline-none focus:border-blue-400"
+                      rows="5" placeholder="请输入"></textarea>
+            <div class="absolute bottom-2 right-3 text-xs text-slate-400" id="charCount">已输入0/300</div>
+          </div>
+        </div>
+
+        <!-- 整改照片 -->
+        <div>
+          <div class="form-label"><span class="req">*</span>整改照片</div>
+          <div class="flex gap-3 flex-wrap">
+            <button type="button" class="upload-box" id="btnUploadImg" onclick="mockUploadPhoto('upload')">
+              <i class="fa-solid fa-plus"></i>
+              <span>上传图片</span>
+            </button>
+            <button type="button" class="upload-box" id="btnSelectImg" onclick="mockUploadPhoto('select')">
+              <i class="fa-solid fa-plus"></i>
+              <span>选择图片</span>
+            </button>
+            <div id="rectifyPhotoPreview" class="hidden upload-box has-img">
+              <img id="rectifyPhotoImg" src="" alt="整改照片">
+            </div>
+          </div>
+        </div>
+
+        <!-- 附件 -->
+        <div>
+          <div class="form-label">附件</div>
+          <button type="button"
+                  class="btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-700"
+                  onclick="toast('原型演示：上传附件')">
+            <i class="fa-solid fa-cloud-arrow-up text-slate-500"></i>
+            上传文件
+          </button>
+          <p class="mt-2 text-xs text-slate-400 leading-relaxed">
+            支持文件格式：.rar .zip .doc .docx .pdf，单个文件不能超过500MB
+          </p>
+          <div id="rectifyFileList" class="mt-2 space-y-1"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+  <script src="_shared_mobile.js"></script>
+  <script src="_rectify_data.js"></script>
+  <script>
+    const recordId = new URLSearchParams(location.search).get('record') || '1';
+    const hazardId = new URLSearchParams(location.search).get('hazard') || 'h1';
+    const record = RECTIFY_RECORDS[recordId] || RECTIFY_RECORDS['1'];
+    const hazard = record.hazards.find(h => h.id === hazardId) || record.hazards[0];
+
+    let hasRectifyPhoto = false;
+
+    // 填充隐患问题（只读）
+    qs('#hazardType').textContent = hazard.hazardType || '安全隐患';
+    qs('#isMajor').textContent = hazard.isMajor ? '是' : '否';
+    qs('#hazardDesc').textContent = hazard.description || '—';
+    qs('#hazardReq').textContent = hazard.requirement || '—';
+
+    const photosEl = qs('#problemPhotos');
+    if (hazard.problemPhotos && hazard.problemPhotos.length) {
+      photosEl.innerHTML = hazard.problemPhotos.map(url =>
+        `<img class="photo-thumb" src="${url}" alt="问题照片">`
+      ).join('');
+    } else {
+      photosEl.innerHTML = '<span class="text-sm text-slate-400">暂无</span>';
+    }
+
+    const attachEl = qs('#problemAttachments');
+    if (hazard.attachments && hazard.attachments.length) {
+      attachEl.innerHTML = hazard.attachments.map(f =>
+        `<div class="flex items-center gap-2 py-1"><i class="fa-regular fa-file text-slate-400"></i>${f}</div>`
+      ).join('');
+    } else {
+      attachEl.innerHTML = '<span class="text-slate-400">暂无</span>';
+    }
+
+    // 整改说明字数统计
+    const noteEl = qs('#rectifyNote');
+    const savedNote = sessionStorage.getItem(`rectify_note_${recordId}_${hazardId}`);
+    if (savedNote) noteEl.value = savedNote;
+    else if (hazard.rectifyNote) noteEl.value = hazard.rectifyNote;
+
+    if (sessionStorage.getItem(`rectify_photo_${recordId}_${hazardId}`)) {
+      showRectifyPhoto(sessionStorage.getItem(`rectify_photo_${recordId}_${hazardId}`));
+    }
+
+    function updateCharCount() {
+      qs('#charCount').textContent = `已输入${noteEl.value.length}/300`;
+    }
+    noteEl.addEventListener('input', updateCharCount);
+    updateCharCount();
+
+    function mockUploadPhoto(type) {
+      const url = 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=200&h=200&q=80';
+      showRectifyPhoto(url);
+      toast(type === 'upload' ? '已上传图片（原型）' : '已选择图片（原型）');
+    }
+
+    function showRectifyPhoto(url) {
+      hasRectifyPhoto = true;
+      qs('#rectifyPhotoImg').src = url;
+      qs('#rectifyPhotoPreview').classList.remove('hidden');
+      sessionStorage.setItem(`rectify_photo_${recordId}_${hazardId}`, url);
+    }
+
+    function closeForm() {
+      if (history.length > 1) history.back();
+      else navTo(`安环检查_整改通知_rectify.html?id=${recordId}`);
+    }
+
+    function submitRectify() {
+      const note = noteEl.value.trim();
+      if (!note) {
+        toast('请填写整改说明');
+        noteEl.focus();
+        return;
+      }
+      if (!hasRectifyPhoto) {
+        toast('请上传整改照片');
+        return;
+      }
+      const key = 'rectify_' + recordId;
+      const doneIds = JSON.parse(sessionStorage.getItem(key) || '[]');
+      if (!doneIds.includes(hazardId)) doneIds.push(hazardId);
+      sessionStorage.setItem(key, JSON.stringify(doneIds));
+      sessionStorage.setItem(`rectify_note_${recordId}_${hazardId}`, note);
+      toast('整改信息已保存');
+      setTimeout(() => { if (history.length > 1) history.back(); else navTo('app_home.html'); }, 400);
+    }
+
+    syncMobileLayout();
+  </script>
+</body>
+</html>
