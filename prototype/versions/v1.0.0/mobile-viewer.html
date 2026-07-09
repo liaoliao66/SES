@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SES 安环监测 · App 端预览</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .phone {
+      width: 390px;
+      height: 844px;
+      border: 1px solid #e5e7eb;
+      border-radius: 48px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.10);
+      background: #0b1220;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.65);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      z-index: 20;
+    }
+    .phone iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+      border-radius: 48px;
+    }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .top-bar .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      background: #1e293b;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+    .top-bar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #475569;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .top-bar a:hover {
+      background: #f8fafc;
+    }
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 70px 20px 20px;
+      box-sizing: border-box;
+    }
+    .hint {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div>
+      <span class="title">SES 安环监测</span>
+      <span class="badge">v1.0.0</span>
+    </div>
+    <a href="javascript:void(0)" onclick="window.open(document.getElementById('mobileFrame').src, '_blank')">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v4h4M20 8V4h-4M4 4l6 6m10 10l-6-6"/>
+      </svg>
+      新窗口打开
+    </a>
+  </div>
+
+  <div class="page-container">
+    <div class="phone">
+      <div class="island"></div>
+      <iframe id="mobileFrame" title="mobile" src="pages/app_home.html"></iframe>
+    </div>
+    <div class="hint">手机壳内预览 App 端页面</div>
+  </div>
+
+</body>
+</html>
