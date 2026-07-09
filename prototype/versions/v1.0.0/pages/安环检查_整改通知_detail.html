@@ -6,7 +6,7 @@
   <title>整改通知详情</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="mobile-layout.css">
+  <style></style>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .btn { transition: transform 0.2s ease; }
@@ -29,16 +29,16 @@
   <main class="mobile-content space-y-4">
     <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
       <div class="flex items-center justify-between">
-        <div class="text-sm font-semibold text-slate-800">检查信�?/div>
+        <div class="text-sm font-semibold text-slate-800">检查信息</div>
         <span id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border"></span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">检查类�?/div>
-          <div class="mt-1 font-semibold text-slate-800">专项检�?/div>
+          <div class="text-slate-500">检查类型</div>
+          <div class="mt-1 font-semibold text-slate-800">专项检查</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">检查日�?/div>
+          <div class="text-slate-500">检查日期</div>
           <div class="mt-1 font-semibold text-slate-800">2026-07-06</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
@@ -46,11 +46,11 @@
           <div class="mt-1 font-semibold text-slate-800">张敏</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">被检查单�?/div>
-          <div class="mt-1 font-semibold text-slate-800">仓储�?/div>
+          <div class="text-slate-500">被检查单位</div>
+          <div class="mt-1 font-semibold text-slate-800">仓储区</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">整改责任�?/div>
+          <div class="text-slate-500">整改责任人</div>
           <div class="mt-1 font-semibold text-slate-800">王强</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
@@ -59,7 +59,7 @@
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 col-span-2">
           <div class="text-slate-500">风险等级</div>
-          <div class="mt-1 font-semibold text-slate-800">�?/div>
+          <div class="mt-1 font-semibold text-slate-800">中</div>
         </div>
       </div>
     </div>
@@ -71,8 +71,142 @@
   </main>
 
 
-  <script src="shared-mobile.js"></script>
-  <script src="rectify-data.js"></script>
+  <script>// Shared helpers for mobile prototype pages (vanilla JS, no build).
+function qs(sel, root) { return (root || document).querySelector(sel); }
+function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+
+function toast(message) {
+  const el = document.createElement('div');
+  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
+  setTimeout(() => el.remove(), 1700);
+}
+
+function navTo(page) {
+  window.location.href = page;
+}
+
+function navBack(fallback) {
+  if (history.length > 1) history.back();
+  else if (fallback) navTo(fallback);
+}
+
+/** 同步 fixed 顶栏高度，避免内容被遮挡 */
+function syncMobileLayout() {
+  const header = document.querySelector('.mobile-header');
+  if (header) {
+    document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
+  }
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', syncMobileLayout);
+  window.addEventListener('resize', syncMobileLayout);
+}
+
+function setActiveTab(tabId) {
+  const items = qsa('[data-tab]');
+  items.forEach(i => {
+    const active = i.dataset.tab === tabId;
+    i.classList.toggle('text-slate-900', active);
+    i.classList.toggle('text-slate-500', !active);
+    const dot = i.querySelector('[data-dot]');
+    if (dot) dot.classList.toggle('opacity-100', active);
+    if (dot) dot.classList.toggle('opacity-0', !active);
+  });
+}
+
+</script>
+  <script>/** 整改通知示例数据 */
+const RECTIFY_RECORDS = {
+  '1': {
+    title: '专项检查（仓储区）',
+    status: 'pending',
+    statusLabel: '待整改',
+    badge: 'bg-amber-50 text-amber-700 border-amber-200',
+    hazards: [
+      {
+        id: 'h1',
+        title: '隐患 1：配电箱门未闭合',
+        hazardType: '安全隐患',
+        isMajor: false,
+        description: '仓储区 A 栋配电箱门长期未闭合，存在触电及异物进入风险。',
+        requirement: '立即整改并张贴警示标识，确保配电箱门正常关闭并上锁。',
+        problemPhotos: [
+          'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=200&h=200&q=80',
+          'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=200&h=200&q=80'
+        ],
+        attachments: ['现场检查记录.pdf'],
+        done: false
+      },
+      {
+        id: 'h2',
+        title: '隐患 2：通道堆放杂物',
+        hazardType: '安全隐患',
+        isMajor: false,
+        description: '主通道两侧堆放纸箱及工具，影响人员疏散通行。',
+        requirement: '清理通道，确保疏散畅通，不得占用消防通道。',
+        problemPhotos: [
+          'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=200&h=200&q=80',
+          'https://images.unsplash.com/photo-1605745341112-85968b19335b?auto=format&fit=crop&w=200&h=200&q=80'
+        ],
+        attachments: [],
+        done: false
+      }
+    ]
+  },
+  '2': {
+    title: '日常巡检（码头区）',
+    status: 'review',
+    statusLabel: '待复核',
+    badge: 'bg-blue-50 text-blue-700 border-blue-200',
+    hazards: [
+      {
+        id: 'h3',
+        title: '隐患 1：消防器材过期',
+        hazardType: '安全隐患',
+        isMajor: true,
+        description: '码头区 3 号仓库灭火器已超过检验有效期。',
+        requirement: '更换过期器材并更新消防台账。',
+        problemPhotos: [
+          'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=200&h=200&q=80'
+        ],
+        attachments: ['器材清单.xlsx'],
+        done: true,
+        rectifyNote: '已更换 2 具灭火器，台账已更新。'
+      }
+    ]
+  },
+  '3': {
+    title: '综合检查（生产一车间）',
+    status: 'done',
+    statusLabel: '已复核',
+    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    hazards: [
+      {
+        id: 'h4', title: '隐患 1：安全标识缺失', hazardType: '安全隐患', isMajor: false,
+        description: '车间入口及作业区域缺少安全警示标识。', requirement: '补齐标识牌',
+        problemPhotos: ['https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=200&h=200&q=80'],
+        attachments: [], done: true, rectifyNote: '已补齐 3 处标识。'
+      },
+      {
+        id: 'h5', title: '隐患 2：防护栏损坏', hazardType: '安全隐患', isMajor: false,
+        description: '二层平台防护栏局部变形损坏。', requirement: '修复防护栏',
+        problemPhotos: ['https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=200&h=200&q=80'],
+        attachments: [], done: true, rectifyNote: '已完成焊接修复。'
+      },
+      {
+        id: 'h6', title: '隐患 3：地面油污', hazardType: '安全隐患', isMajor: false,
+        description: '设备下方地面存在油污，存在滑倒风险。', requirement: '清理并防滑处理',
+        problemPhotos: ['https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=200&h=200&q=80'],
+        attachments: [], done: true, rectifyNote: '已清理并铺设防滑垫。'
+      }
+    ]
+  }
+};
+</script>
   <script>
     const id = new URLSearchParams(location.search).get('id') || '1';
     const record = RECTIFY_RECORDS[id] || RECTIFY_RECORDS['1'];
@@ -85,11 +219,11 @@
       <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
         <div class="flex items-start justify-between gap-2">
           <div class="text-sm font-semibold text-slate-900">${h.title}</div>
-          <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full border ${h.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${h.done ? '已整�? : '待整�?}</span>
+          <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full border ${h.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${h.done ? '已整改' : '待整改'}</span>
         </div>
         <div class="text-xs text-slate-500 mt-1">${h.meta}</div>
-        <div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改要求�?/span>${h.requirement}</div>
-        ${h.rectifyNote ? `<div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改说明�?/span>${h.rectifyNote}</div>` : ''}
+        <div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改要求：</span>${h.requirement}</div>
+        ${h.rectifyNote ? `<div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改说明：</span>${h.rectifyNote}</div>` : ''}
       </div>
     `).join('');
 
