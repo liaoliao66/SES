@@ -6,7 +6,7 @@
   <title>整改通知详情</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="_mobile_layout.css">
+  <link rel="stylesheet" href="mobile-layout.css">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .btn { transition: transform 0.2s ease; }
@@ -29,16 +29,16 @@
   <main class="mobile-content space-y-4">
     <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
       <div class="flex items-center justify-between">
-        <div class="text-sm font-semibold text-slate-800">检查信息</div>
+        <div class="text-sm font-semibold text-slate-800">检查信�?/div>
         <span id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border"></span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">检查类型</div>
-          <div class="mt-1 font-semibold text-slate-800">专项检查</div>
+          <div class="text-slate-500">检查类�?/div>
+          <div class="mt-1 font-semibold text-slate-800">专项检�?/div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">检查日期</div>
+          <div class="text-slate-500">检查日�?/div>
           <div class="mt-1 font-semibold text-slate-800">2026-07-06</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
@@ -46,11 +46,11 @@
           <div class="mt-1 font-semibold text-slate-800">张敏</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">被检查单位</div>
-          <div class="mt-1 font-semibold text-slate-800">仓储区</div>
+          <div class="text-slate-500">被检查单�?/div>
+          <div class="mt-1 font-semibold text-slate-800">仓储�?/div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">整改责任人</div>
+          <div class="text-slate-500">整改责任�?/div>
           <div class="mt-1 font-semibold text-slate-800">王强</div>
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
@@ -59,7 +59,7 @@
         </div>
         <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 col-span-2">
           <div class="text-slate-500">风险等级</div>
-          <div class="mt-1 font-semibold text-slate-800">中</div>
+          <div class="mt-1 font-semibold text-slate-800">�?/div>
         </div>
       </div>
     </div>
@@ -71,8 +71,8 @@
   </main>
 
 
-  <script src="_shared_mobile.js"></script>
-  <script src="_rectify_data.js"></script>
+  <script src="shared-mobile.js"></script>
+  <script src="rectify-data.js"></script>
   <script>
     const id = new URLSearchParams(location.search).get('id') || '1';
     const record = RECTIFY_RECORDS[id] || RECTIFY_RECORDS['1'];
@@ -85,11 +85,11 @@
       <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
         <div class="flex items-start justify-between gap-2">
           <div class="text-sm font-semibold text-slate-900">${h.title}</div>
-          <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full border ${h.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${h.done ? '已整改' : '待整改'}</span>
+          <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full border ${h.done ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${h.done ? '已整�? : '待整�?}</span>
         </div>
         <div class="text-xs text-slate-500 mt-1">${h.meta}</div>
-        <div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改要求：</span>${h.requirement}</div>
-        ${h.rectifyNote ? `<div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改说明：</span>${h.rectifyNote}</div>` : ''}
+        <div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改要求�?/span>${h.requirement}</div>
+        ${h.rectifyNote ? `<div class="text-xs text-slate-600 mt-2"><span class="text-slate-500">整改说明�?/span>${h.rectifyNote}</div>` : ''}
       </div>
     `).join('');
 

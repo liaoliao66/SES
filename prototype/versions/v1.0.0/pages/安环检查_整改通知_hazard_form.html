@@ -6,7 +6,7 @@
   <title>整改</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="_mobile_layout.css">
+  <link rel="stylesheet" href="mobile-layout.css">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .btn { transition: transform 0.2s ease; }
@@ -54,19 +54,19 @@
       <div class="px-4">
         <div class="form-row">
           <span class="form-row-label">重大类型</span>
-          <span class="form-row-value" id="hazardType">—</span>
+          <span class="form-row-value" id="hazardType">�?/span>
         </div>
         <div class="form-row">
           <span class="form-row-label">重大隐患</span>
-          <span class="form-row-value" id="isMajor">—</span>
+          <span class="form-row-value" id="isMajor">�?/span>
         </div>
         <div class="form-row">
           <span class="form-row-label">隐患描述</span>
-          <span class="form-row-value" id="hazardDesc">—</span>
+          <span class="form-row-value" id="hazardDesc">�?/span>
         </div>
         <div class="form-row">
           <span class="form-row-label">整改要求</span>
-          <span class="form-row-value" id="hazardReq">—</span>
+          <span class="form-row-value" id="hazardReq">�?/span>
         </div>
         <div class="py-3 border-b border-slate-100">
           <div class="form-row-label mb-2">问题照片</div>
@@ -74,7 +74,7 @@
         </div>
         <div class="py-3">
           <div class="form-row-label mb-2">附件</div>
-          <div id="problemAttachments" class="text-sm text-slate-600">—</div>
+          <div id="problemAttachments" class="text-sm text-slate-600">�?/div>
         </div>
       </div>
     </div>
@@ -89,8 +89,8 @@
           <div class="relative">
             <textarea id="rectifyNote" maxlength="300"
                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm resize-none outline-none focus:border-blue-400"
-                      rows="5" placeholder="请输入"></textarea>
-            <div class="absolute bottom-2 right-3 text-xs text-slate-400" id="charCount">已输入0/300</div>
+                      rows="5" placeholder="请输�?></textarea>
+            <div class="absolute bottom-2 right-3 text-xs text-slate-400" id="charCount">已输�?/300</div>
           </div>
         </div>
 
@@ -117,12 +117,12 @@
           <div class="form-label">附件</div>
           <button type="button"
                   class="btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-700"
-                  onclick="toast('原型演示：上传附件')">
+                  onclick="toast('原型演示：上传附�?)">
             <i class="fa-solid fa-cloud-arrow-up text-slate-500"></i>
             上传文件
           </button>
           <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-            支持文件格式：.rar .zip .doc .docx .pdf，单个文件不能超过500MB
+            支持文件格式�?rar .zip .doc .docx .pdf，单个文件不能超�?00MB
           </p>
           <div id="rectifyFileList" class="mt-2 space-y-1"></div>
         </div>
@@ -131,8 +131,8 @@
   </main>
 
 
-  <script src="_shared_mobile.js"></script>
-  <script src="_rectify_data.js"></script>
+  <script src="shared-mobile.js"></script>
+  <script src="rectify-data.js"></script>
   <script>
     const recordId = new URLSearchParams(location.search).get('record') || '1';
     const hazardId = new URLSearchParams(location.search).get('hazard') || 'h1';
@@ -143,9 +143,9 @@
 
     // 填充隐患问题（只读）
     qs('#hazardType').textContent = hazard.hazardType || '安全隐患';
-    qs('#isMajor').textContent = hazard.isMajor ? '是' : '否';
-    qs('#hazardDesc').textContent = hazard.description || '—';
-    qs('#hazardReq').textContent = hazard.requirement || '—';
+    qs('#isMajor').textContent = hazard.isMajor ? '�? : '�?;
+    qs('#hazardDesc').textContent = hazard.description || '�?;
+    qs('#hazardReq').textContent = hazard.requirement || '�?;
 
     const photosEl = qs('#problemPhotos');
     if (hazard.problemPhotos && hazard.problemPhotos.length) {
@@ -176,7 +176,7 @@
     }
 
     function updateCharCount() {
-      qs('#charCount').textContent = `已输入${noteEl.value.length}/300`;
+      qs('#charCount').textContent = `已输�?{noteEl.value.length}/300`;
     }
     noteEl.addEventListener('input', updateCharCount);
     updateCharCount();
@@ -184,7 +184,7 @@
     function mockUploadPhoto(type) {
       const url = 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=200&h=200&q=80';
       showRectifyPhoto(url);
-      toast(type === 'upload' ? '已上传图片（原型）' : '已选择图片（原型）');
+      toast(type === 'upload' ? '已上传图片（原型�? : '已选择图片（原型）');
     }
 
     function showRectifyPhoto(url) {
@@ -202,12 +202,12 @@
     function submitRectify() {
       const note = noteEl.value.trim();
       if (!note) {
-        toast('请填写整改说明');
+        toast('请填写整改说�?);
         noteEl.focus();
         return;
       }
       if (!hasRectifyPhoto) {
-        toast('请上传整改照片');
+        toast('请上传整改照�?);
         return;
       }
       const key = 'rectify_' + recordId;
@@ -215,7 +215,7 @@
       if (!doneIds.includes(hazardId)) doneIds.push(hazardId);
       sessionStorage.setItem(key, JSON.stringify(doneIds));
       sessionStorage.setItem(`rectify_note_${recordId}_${hazardId}`, note);
-      toast('整改信息已保存');
+      toast('整改信息已保�?);
       setTimeout(() => { if (history.length > 1) history.back(); else navTo('app_home.html'); }, 400);
     }
 

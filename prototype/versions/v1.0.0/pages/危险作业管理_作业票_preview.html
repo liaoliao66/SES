@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>作业票预览</title>
+  <title>作业票预�?/title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="_mobile_layout.css">
+  <link rel="stylesheet" href="mobile-layout.css">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
@@ -24,9 +24,9 @@
               onclick="navBack('危险作业管理_申请_detail.html?type=' + currentType)">
         <i class="fa-solid fa-angle-left text-slate-700"></i>
       </button>
-      <div class="text-sm font-semibold text-slate-900">作业票预览</div>
+      <div class="text-sm font-semibold text-slate-900">作业票预�?/div>
       <button class="btn w-10 h-10 rounded-2xl bg-slate-900 text-white"
-              onclick="toast('原型演示：导出 PDF / 打印')">
+              onclick="toast('原型演示：导�?PDF / 打印')">
         <i class="fa-solid fa-share-from-square"></i>
       </button>
     </div>
@@ -38,8 +38,8 @@
   </div>
 
 
-  <script src="_shared_mobile.js"></script>
-  <script src="_pc_permit_data.js"></script>
+  <script src="shared-mobile.js"></script>
+  <script src="pc-permit-data.js"></script>
   <script>
     let currentType = new URLSearchParams(location.search).get('type') || 'hot_work';
 
@@ -48,22 +48,22 @@
       const cfg = PERMIT_TYPES[type];
       let html = `<div class="text-center font-bold text-base mb-3">${cfg.licenseTitle}</div>
         <div class="text-xs text-slate-500 mb-3 flex justify-between">
-          <span>申请时间：2026 年 07 月 08 日</span><span>编号：WP-20260708-001</span>
+          <span>申请时间�?026 �?07 �?08 �?/span><span>编号：WP-20260708-001</span>
         </div>
         <table class="ticket-table"><tbody>`;
-      html += `<tr><td class="label">申请人员</td><td>张敏</td><td class="label">所属部门</td><td>安全环保部</td></tr>`;
+      html += `<tr><td class="label">申请人员</td><td>张敏</td><td class="label">所属部�?/td><td>安全环保�?/td></tr>`;
       if (cfg.contentLabel) html += `<tr><td class="label">${cfg.contentLabel}</td><td colspan="3">（示例）</td></tr>`;
       if (cfg.locationLabel) html += `<tr><td class="label">${cfg.locationLabel}</td><td colspan="3">生产一车间</td></tr>`;
-      html += `<tr><td class="label">作业负责人</td><td>王强</td><td class="label">作业监护人</td><td>钱师傅、李明</td></tr>`;
-      html += `<tr><td class="label">施工单位</td><td colspan="3">维修班</td></tr>`;
+      html += `<tr><td class="label">作业负责�?/td><td>王强</td><td class="label">作业监护�?/td><td>钱师傅、李�?/td></tr>`;
+      html += `<tr><td class="label">施工单位</td><td colspan="3">维修�?/td></tr>`;
       if (cfg.levelLabel) {
         html += `<tr><td class="label">${cfg.levelLabel}</td><td colspan="3">${cfg.levels.map(l => l.label).join(' / ')}</td></tr>`;
       }
-      html += `<tr><td class="label">${cfg.planTimeLabel}</td><td colspan="3">2026-07-08 09:00 至 2026-07-08 17:00</td></tr>`;
+      html += `<tr><td class="label">${cfg.planTimeLabel}</td><td colspan="3">2026-07-08 09:00 �?2026-07-08 17:00</td></tr>`;
       if (cfg.workersLabel) {
-        html += `<tr><td class="label">${cfg.workersLabel}</td><td colspan="3">赵工（WA-10293）</td></tr>`;
+        html += `<tr><td class="label">${cfg.workersLabel}</td><td colspan="3">赵工（WA-10293�?/td></tr>`;
       }
-      html += `<tr><td class="label">风险辨识</td><td colspan="3">${cfg.risks.join('、')}</td></tr>`;
+      html += `<tr><td class="label">风险辨识</td><td colspan="3">${cfg.risks.join('�?)}</td></tr>`;
       html += `</tbody></table>`;
 
       html += `<div class="text-xs font-semibold mt-4 mb-2">安全措施</div><table class="ticket-table"><thead>
@@ -76,12 +76,12 @@
       html += `<div class="text-xs font-semibold mt-4 mb-2">审批意见</div>`;
       cfg.approvals.forEach(a => {
         html += `<div class="text-xs border border-slate-200 rounded-lg p-2 mb-2">
-          <div class="font-semibold">${a.node}${a.level ? '（' + a.level + '）' : ''}</div>
-          <div class="text-slate-400 mt-2">年 &nbsp; 月 &nbsp; 日 &nbsp; 时 &nbsp; 分</div></div>`;
+          <div class="font-semibold">${a.node}${a.level ? '�? + a.level + '�? : ''}</div>
+          <div class="text-slate-400 mt-2">�?&nbsp; �?&nbsp; �?&nbsp; �?&nbsp; �?/div></div>`;
       });
 
       if (cfg.notes) {
-        html += `<div class="text-[10px] text-slate-500 mt-3 leading-relaxed">注：${cfg.notes.join('；')}</div>`;
+        html += `<div class="text-[10px] text-slate-500 mt-3 leading-relaxed">注：${cfg.notes.join('�?)}</div>`;
       }
 
       qs('#ticketContent').innerHTML = html;
