@@ -72,6 +72,7 @@
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
+    <div class="mt-2 text-xs text-slate-500 text-center">审批过程中填写整改数据</div>
   </header>
 
   <main class="mobile-content space-y-3 pb-4">
@@ -376,7 +377,7 @@ const RECTIFY_RECORDS = {
       if (!doneIds.includes(hazardId)) doneIds.push(hazardId);
       sessionStorage.setItem(key, JSON.stringify(doneIds));
       sessionStorage.setItem(`rectify_note_${recordId}_${hazardId}`, note);
-      toast('整改信息已保存');
+      toast('审批过程中整改信息已保存');
       setTimeout(() => { if (history.length > 1) history.back(); else navTo('app_home.html'); }, 400);
     }
 

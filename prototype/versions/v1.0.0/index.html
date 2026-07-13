@@ -109,7 +109,7 @@
               </button>
               <button class="mobileLink rounded-xl px-3 py-2 bg-white border border-slate-200 text-left hover:bg-slate-50 transition" data-page="安环检查_检查记录_form.html">
                 <div class="text-sm font-semibold text-slate-800">新增检查记录</div>
-                <div class="text-xs text-slate-500">正常/异常分支 + 隐患项</div>
+                <div class="text-xs text-slate-500">异常提交自动发起审核 · 隐患库单选添加</div>
               </button>
               <button class="mobileLink rounded-xl px-3 py-2 bg-white border border-slate-200 text-left hover:bg-slate-50 transition" data-page="安环检查_整改通知_list.html">
                 <div class="text-sm font-semibold text-slate-800">整改通知（列表）</div>
@@ -121,7 +121,7 @@
               </button>
               <button class="mobileLink rounded-xl px-3 py-2 bg-white border border-slate-200 text-left hover:bg-slate-50 transition" data-page="安环检查_整改通知_rectify.html?id=1">
                 <div class="text-sm font-semibold text-slate-800">整改通知 · 整改</div>
-                <div class="text-xs text-slate-500">逐条整改 · 全部完成后发起审批</div>
+                <div class="text-xs text-slate-500">审批中填写整改 · 无需手动发起审批</div>
               </button>
               <button class="mobileLink rounded-xl px-3 py-2 bg-white border border-slate-200 text-left hover:bg-slate-50 transition" data-page="安环检查_整改通知_hazard_form.html?record=1&hazard=h1">
                 <div class="text-sm font-semibold text-slate-800">编辑隐患整改</div>
@@ -159,67 +159,20 @@
       <!-- Desktop Preview -->
       <div class="lg:col-span-7">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">💻 PC 端预览（危险作业管理）</h2>
-          <a id="openPcLink"
-             class="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition"
-             href="pages/pc_危险作业管理_申请_list.html" target="_blank" rel="noreferrer">
-            <i class="fa-solid fa-up-right-from-square text-slate-600"></i>
-            <span class="text-sm font-medium">新窗口打开</span>
-          </a>
+          <h2 class="text-lg font-semibold text-slate-900">💻 PC 端预览</h2>
         </div>
 
         <div class="mt-4 glass rounded-2xl border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-            <div>
-              <div class="text-sm font-semibold text-slate-800">PC 页面入口</div>
-              <div class="text-xs text-slate-500 mt-1">对齐现有后台样式：顶部导航 + 左侧菜单 + 页签 + 表格</div>
+          <div class="p-6">
+            <div class="text-sm font-semibold text-slate-800">统一入口</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">
+              PC 端仅保留一个预览入口：进入「安环门户」后，可通过左侧菜单进入危险作业管理等子模块。
             </div>
-            <div class="text-xs text-slate-500">点击下方按钮跳转</div>
-          </div>
-          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <a class="rounded-2xl bg-white border border-slate-200 p-4 hover:bg-slate-50 transition"
-               href="pages/pc_危险作业管理_申请_list.html" target="_blank" rel="noreferrer">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-800">申请台账（列表）</div>
-                <i class="fa-solid fa-angle-right text-slate-400"></i>
-              </div>
-              <div class="text-xs text-slate-500 mt-2">6 种作业类型 · 筛选/状态/批量操作</div>
+            <a class="mt-5 inline-flex items-center gap-2 rounded-xl px-5 py-3 bg-slate-900 text-white text-sm font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:opacity-95 transition"
+               href="pages/pc_安环门户_home.html" target="_blank" rel="noreferrer">
+              <i class="fa-solid fa-desktop"></i>
+              打开 PC 端原型
             </a>
-            <a class="rounded-2xl bg-white border border-slate-200 p-4 hover:bg-slate-50 transition"
-               href="pages/pc_危险作业管理_申请_detail.html?type=hot_work" target="_blank" rel="noreferrer">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-800">申请详情</div>
-                <i class="fa-solid fa-angle-right text-slate-400"></i>
-              </div>
-              <div class="text-xs text-slate-500 mt-2">按作业类型动态展示字段/措施/审批</div>
-            </a>
-            <a class="rounded-2xl bg-white border border-slate-200 p-4 hover:bg-slate-50 transition"
-               href="pages/pc_危险作业管理_申请_form.html" target="_blank" rel="noreferrer">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-800">新增/编辑申请</div>
-                <i class="fa-solid fa-angle-right text-slate-400"></i>
-              </div>
-              <div class="text-xs text-slate-500 mt-2">切换作业类型 · 动态表单字段</div>
-            </a>
-            <a class="rounded-2xl bg-white border border-slate-200 p-4 hover:bg-slate-50 transition"
-               href="pages/pc_危险作业管理_作业票_print.html?type=hot_work" target="_blank" rel="noreferrer">
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold text-slate-800">作业票打印预览</div>
-                <i class="fa-solid fa-angle-right text-slate-400"></i>
-              </div>
-              <div class="text-xs text-slate-500 mt-2">6 种许可证模板 · 可打印版式</div>
-            </a>
-          </div>
-          <div class="px-4 pb-4">
-            <div class="text-xs font-semibold text-slate-600 mb-2">按作业类型快速预览表单</div>
-            <div class="flex flex-wrap gap-2">
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=hot_work" target="_blank">动火</a>
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=high_altitude" target="_blank">高处</a>
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=lifting" target="_blank">吊装</a>
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=confined_space" target="_blank">有限空间</a>
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=earthwork" target="_blank">动土</a>
-              <a class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" href="pages/pc_危险作业管理_申请_form.html?type=temp_electricity" target="_blank">临时用电</a>
-            </div>
           </div>
         </div>
 
@@ -229,7 +182,6 @@
       </div>
     </div>
   </div>
-
   <script>
     const mobileFrame = document.getElementById('mobileFrame');
     const links = Array.from(document.querySelectorAll('.mobileLink'));

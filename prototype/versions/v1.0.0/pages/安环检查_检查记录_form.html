@@ -8,37 +8,39 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="mobile-layout.css">
   <style>
-/* App 端通用布局 — 避免 fixed 顶栏遮挡内容 */
 .mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  padding-top: 3rem;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid #e2e8f0;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40; padding-top: 3rem;
+  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid #e2e8f0;
 }
-
 .mobile-content {
-  padding-top: var(--mobile-header-h, 11.5rem);
-  padding-bottom: 1.5rem;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
+  padding-top: var(--mobile-header-h, 11.5rem); padding-bottom: 1.5rem;
+  padding-left: 1.25rem; padding-right: 1.25rem;
 }
-
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-</style>
-  
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
-    .btn { transition: transform 0.2s ease; }
-    .btn:active { transform: scale(0.95); }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+.btn { transition: transform 0.2s ease; }
+.btn:active { transform: scale(0.95); }
+.sheet-mask {
+  position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.45);
+}
+.sheet-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
+  max-height: 88vh; background: #fff; border-radius: 24px 24px 0 0;
+  display: flex; flex-direction: column;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
+  transform: translateY(100%); transition: transform 0.3s ease;
+}
+.sheet-panel.open { transform: translateY(0); }
+.hazard-card {
+  border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px;
+  background: #fff; cursor: pointer;
+}
+.hazard-card.selected {
+  border-color: #3b82f6; background: #eff6ff;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
@@ -55,11 +57,11 @@
       </button>
     </div>
     <div class="mt-3 text-xs text-slate-500 leading-relaxed">
-      来自手册：检查类型、检查日期、检查人/责任人/被检查单位、结果（正常/异常）；异常需填写整改责任人/截止日期/风险等级并添加隐患项目。
+      检查结果为「异常」时，提交后系统将自动创建整改通知并自动发起审核；整改责任人在审批过程中填写整改数据。
     </div>
   </header>
 
-  <form class="mobile-content space-y-4" onsubmit="event.preventDefault();">
+  <form class="mobile-content space-y-4" style="padding-bottom: 6rem;" onsubmit="event.preventDefault();">
     <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
       <div class="text-sm font-semibold text-slate-800">基础信息</div>
       <div class="grid grid-cols-2 gap-3">
@@ -133,89 +135,107 @@
         <div class="rounded-3xl bg-slate-50 border border-slate-200 p-3">
           <div class="flex items-center justify-between">
             <div class="text-sm font-semibold text-slate-800">风险隐患项目（可多条）</div>
-            <button type="button" class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700"
-                    onclick="toast('原型演示：新增隐患项目（从隐患库或手动录入）')">
+            <button type="button" id="btnAddHazard" class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
               <i class="fa-solid fa-plus mr-1"></i>添加
             </button>
           </div>
-          <div class="mt-3 space-y-2">
-            <div class="rounded-2xl bg-white border border-slate-200 p-3">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">隐患 1：配电箱门未闭合</div>
-                  <div class="text-xs text-slate-500 mt-1">类型：电气 · 一般隐患 · 来源：隐患库</div>
-                </div>
-                <button type="button" class="btn text-xs text-rose-700" onclick="toast('原型演示：删除隐患条目')">删除</button>
-              </div>
-              <div class="text-xs text-slate-600 mt-2">整改要求：立即整改并张贴警示标识（示例）。</div>
-            </div>
-            <div class="rounded-2xl bg-white border border-slate-200 p-3">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">隐患 2：通道堆放杂物</div>
-                  <div class="text-xs text-slate-500 mt-1">类型：现场管理 · 一般隐患 · 来源：手动录入</div>
-                </div>
-                <button type="button" class="btn text-xs text-rose-700" onclick="toast('原型演示：删除隐患条目')">删除</button>
-              </div>
-              <div class="text-xs text-slate-600 mt-2">整改要求：清理通道，确保疏散畅通（示例）。</div>
-            </div>
-          </div>
-          <div class="mt-3 text-xs text-slate-500">提示：隐患条目支持上传隐患照片及资料（原型略）。</div>
+          <div class="mt-3 space-y-2" id="hazardList"></div>
+          <div class="mt-3 text-xs text-slate-500">点击「添加」从隐患库选择；支持上传隐患照片及资料（原型略）。</div>
         </div>
       </div>
     </div>
   </form>
 
+  <div class="fixed bottom-0 left-0 right-0 z-40 px-5 pb-6">
+    <button type="button" id="btnSubmit" class="btn w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+      提交检查记录
+    </button>
+  </div>
 
-  <script>// Shared helpers for mobile prototype pages (vanilla JS, no build).
+  <!-- 隐患库选择面板（对齐 PC 隐患库弹窗，单选） -->
+  <div id="libMask" class="sheet-mask hidden" onclick="closeHazardLib()"></div>
+  <div id="libSheet" class="sheet-panel">
+    <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
+      <div class="text-sm font-semibold text-slate-900">隐患库</div>
+      <button type="button" class="btn w-9 h-9 rounded-xl text-slate-500" onclick="closeHazardLib()">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="px-4 py-3 border-b border-slate-100 shrink-0 space-y-2">
+      <select id="libCategory" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm">
+        <option value="全部">全部类型</option>
+        <option value="物资本体隐患" selected>物资本体隐患</option>
+        <option value="电气隐患">电气隐患</option>
+        <option value="现场管理隐患">现场管理隐患</option>
+      </select>
+      <div class="flex gap-2">
+        <button type="button" class="btn flex-1 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm text-slate-700" onclick="resetLibFilter()">
+          <i class="fa-solid fa-rotate-right mr-1"></i>重置
+        </button>
+        <button type="button" class="btn flex-1 py-2.5 rounded-2xl bg-blue-600 text-white text-sm font-semibold" onclick="searchLib()">
+          <i class="fa-solid fa-magnifying-glass mr-1"></i>查询
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2" id="libList"></div>
+
+    <div class="px-4 py-2 text-xs text-slate-500 border-t border-slate-100 shrink-0" id="libCount">共 0 条</div>
+
+    <div class="px-4 py-4 border-t border-slate-200 flex gap-3 shrink-0 pb-6">
+      <button type="button" class="btn flex-1 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-semibold text-slate-700" onclick="closeHazardLib()">取消</button>
+      <button type="button" class="btn flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold" onclick="confirmHazardLib()">确定</button>
+    </div>
+  </div>
+
+  <script>
 function qs(sel, root) { return (root || document).querySelector(sel); }
 function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
 function toast(message) {
   const el = document.createElement('div');
-  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
+  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
   el.textContent = message;
   document.body.appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
   setTimeout(() => el.remove(), 1700);
 }
 
-function navTo(page) {
-  window.location.href = page;
-}
-
+function navTo(page) { window.location.href = page; }
 function navBack(fallback) {
   if (history.length > 1) history.back();
   else if (fallback) navTo(fallback);
 }
 
-/** 同步 fixed 顶栏高度，避免内容被遮挡 */
 function syncMobileLayout() {
   const header = document.querySelector('.mobile-header');
-  if (header) {
-    document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
-  }
+  if (header) document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
 }
-
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', syncMobileLayout);
-  window.addEventListener('resize', syncMobileLayout);
-}
-
-function setActiveTab(tabId) {
-  const items = qsa('[data-tab]');
-  items.forEach(i => {
-    const active = i.dataset.tab === tabId;
-    i.classList.toggle('text-slate-900', active);
-    i.classList.toggle('text-slate-500', !active);
-    const dot = i.querySelector('[data-dot]');
-    if (dot) dot.classList.toggle('opacity-100', active);
-    if (dot) dot.classList.toggle('opacity-0', !active);
-  });
-}
-
-</script>
+document.addEventListener('DOMContentLoaded', syncMobileLayout);
+window.addEventListener('resize', syncMobileLayout);
+  </script>
   <script>
+    /** 隐患库示例数据（对齐 PC 隐患库字段） */
+    const HAZARD_LIB = [
+      { id: 'L1', category: '电气隐患', type: '电气', title: '配电箱门未闭合', major: false, requirement: '立即整改并张贴警示标识，确保配电箱门正常关闭并上锁。' },
+      { id: 'L2', category: '现场管理隐患', type: '现场管理', title: '通道堆放杂物', major: false, requirement: '清理通道，确保疏散畅通，不得占用消防通道。' },
+      { id: 'L3', category: '物资本体隐患', type: '物资本体', title: '灭火器压力不足', major: false, requirement: '更换或充压灭火器，并做好点检记录。' },
+      { id: 'L4', category: '物资本体隐患', type: '物资本体', title: '护栏缺失或松动', major: true, requirement: '立即修复护栏，作业区域设置警戒，禁止人员靠近。' },
+      { id: 'L5', category: '电气隐患', type: '电气', title: '临时用电未接漏保', major: true, requirement: '加装漏电保护器，规范接线后方可继续作业。' },
+      { id: 'L6', category: '现场管理隐患', type: '现场管理', title: '安全警示标识缺失', major: false, requirement: '按规范补设安全警示标识并拍照留存。' }
+    ];
+
+    /** 当前已添加的隐患列表 */
+    let selectedHazards = [
+      { id: 'L1', type: '电气', title: '配电箱门未闭合', major: false, requirement: '立即整改并张贴警示标识（示例）。', source: '隐患库' },
+      { id: 'M1', type: '现场管理', title: '通道堆放杂物', major: false, requirement: '清理通道，确保疏散畅通（示例）。', source: '手动录入' }
+    ];
+
+    let libFilterCategory = '物资本体隐患';
+    let libPickId = null;
+    let libFiltered = [];
+
     const normal = qs('#btnNormal');
     const abnormal = qs('#btnAbnormal');
     const normalPanel = qs('#normalPanel');
@@ -227,12 +247,142 @@ function setActiveTab(tabId) {
       abnormal.className = 'btn px-3 py-1.5 rounded-xl text-xs font-semibold ' + (!isNormal ? 'bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)]' : 'text-slate-600');
       normalPanel.classList.toggle('hidden', !isNormal);
       abnormalPanel.classList.toggle('hidden', isNormal);
+      const btn = qs('#btnSubmit');
+      if (btn) btn.textContent = isNormal ? '提交检查记录' : '提交并自动发起审核';
     }
 
-    normal.addEventListener('click', () => setMode('normal'));
-    abnormal.addEventListener('click', () => setMode('abnormal'));
+    let currentMode = 'normal';
+    normal.addEventListener('click', () => { currentMode = 'normal'; setMode('normal'); });
+    abnormal.addEventListener('click', () => { currentMode = 'abnormal'; setMode('abnormal'); });
     setMode('normal');
+
+    function renderHazardList() {
+      const root = qs('#hazardList');
+      if (!selectedHazards.length) {
+        root.innerHTML = '<div class="text-center text-xs text-slate-400 py-6">暂无隐患，请点击「添加」从隐患库选择</div>';
+        return;
+      }
+      root.innerHTML = selectedHazards.map((h, idx) => `
+        <div class="rounded-2xl bg-white border border-slate-200 p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-sm font-semibold text-slate-900">隐患 ${idx + 1}：${h.title}</div>
+              <div class="text-xs text-slate-500 mt-1">类型：${h.type} · ${h.major ? '重大隐患' : '一般隐患'} · 来源：${h.source}</div>
+            </div>
+            <button type="button" class="btn text-xs text-rose-700 shrink-0" onclick="removeHazard('${h.id}')">删除</button>
+          </div>
+          <div class="text-xs text-slate-600 mt-2">整改要求：${h.requirement}</div>
+        </div>
+      `).join('');
+    }
+
+    function removeHazard(id) {
+      selectedHazards = selectedHazards.filter(h => h.id !== id);
+      renderHazardList();
+      toast('已删除隐患条目');
+    }
+
+    function openHazardLib() {
+      libPickId = null;
+      qs('#libCategory').value = '物资本体隐患';
+      libFilterCategory = '物资本体隐患';
+      searchLib();
+      qs('#libMask').classList.remove('hidden');
+      requestAnimationFrame(() => qs('#libSheet').classList.add('open'));
+    }
+
+    function closeHazardLib() {
+      qs('#libSheet').classList.remove('open');
+      setTimeout(() => qs('#libMask').classList.add('hidden'), 280);
+    }
+
+    function resetLibFilter() {
+      qs('#libCategory').value = '全部';
+      libFilterCategory = '全部';
+      libPickId = null;
+      searchLib();
+    }
+
+    function searchLib() {
+      libFilterCategory = qs('#libCategory').value;
+      libFiltered = HAZARD_LIB.filter(h => libFilterCategory === '全部' || h.category === libFilterCategory);
+      renderLibList();
+    }
+
+    function renderLibList() {
+      const root = qs('#libList');
+      qs('#libCount').textContent = `共 ${libFiltered.length} 条 · 单选`;
+      if (!libFiltered.length) {
+        root.innerHTML = '<div class="text-center text-sm text-slate-400 py-16">暂无数据</div>';
+        return;
+      }
+      root.innerHTML = libFiltered.map(h => `
+        <div class="hazard-card ${libPickId === h.id ? 'selected' : ''}" onclick="pickLibItem('${h.id}')">
+          <div class="flex items-start gap-3">
+            <div class="shrink-0 w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center ${libPickId === h.id ? 'border-blue-500 bg-blue-500' : 'border-slate-300'}">
+              ${libPickId === h.id ? '<i class="fa-solid fa-check text-white text-[10px]"></i>' : ''}
+            </div>
+            <div class="min-w-0 flex-1 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-xs text-slate-500">隐患类型：<span class="font-medium text-slate-800">${h.type}</span></div>
+                <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${h.major ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-slate-50 text-slate-600 border-slate-200'}">${h.major ? '重大隐患' : '一般隐患'}</span>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-400 mb-0.5">隐患描述</div>
+                <div class="text-sm text-slate-900 leading-relaxed line-clamp-3">${h.title}</div>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-400 mb-0.5">整改要求</div>
+                <div class="text-xs text-slate-600 leading-relaxed line-clamp-3">${h.requirement}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function pickLibItem(id) {
+      libPickId = id;
+      renderLibList();
+    }
+
+    function confirmHazardLib() {
+      if (!libPickId) {
+        toast('请选择一条隐患');
+        return;
+      }
+      const item = HAZARD_LIB.find(h => h.id === libPickId);
+      if (!item) return;
+      if (selectedHazards.some(h => h.id === item.id)) {
+        toast('该隐患已添加，请勿重复选择');
+        closeHazardLib();
+        return;
+      }
+      selectedHazards.push({
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        major: item.major,
+        requirement: item.requirement,
+        source: '隐患库'
+      });
+      renderHazardList();
+      closeHazardLib();
+      toast('已从隐患库添加：' + item.title);
+    }
+
+    qs('#btnAddHazard').addEventListener('click', openHazardLib);
+    qs('#btnSubmit').addEventListener('click', () => {
+      if (currentMode === 'abnormal') {
+        toast('已提交：系统已自动创建整改通知并发起审核');
+        setTimeout(() => navTo('安环检查_整改通知_list.html'), 900);
+      } else {
+        toast('检查记录已提交（正常）');
+        setTimeout(() => navBack('安环检查_检查记录_list.html'), 900);
+      }
+    });
+
+    renderHazardList();
   </script>
 </body>
 </html>
-
