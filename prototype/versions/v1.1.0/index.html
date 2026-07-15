@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SES v1.1.0 原型入口</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <div class="max-w-3xl mx-auto px-6 py-10">
+    <div class="mb-6">
+      <div class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 bg-white shadow text-sm font-semibold">SES 安环监测 · v1.1.0</div>
+      <p class="text-xs text-slate-500 mt-3">迭代说明：新增「使用监督统计」独立菜单（日/周/月模块有效点击、用户明细、三条业务闭环、Excel 导出）。本版本仅交付 PC 统计原型。</p>
+    </div>
+
+    <div class="rounded-3xl bg-white border border-slate-200 shadow overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50">
+            <th class="text-left px-5 py-3.5 font-semibold text-slate-700">页面</th>
+            <th class="text-left px-5 py-3.5 font-semibold text-slate-700">说明</th>
+            <th class="text-center px-4 py-3.5 font-semibold text-slate-700">打开</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="px-5 py-4 font-medium">使用监督统计 · 主页面</td>
+            <td class="px-5 py-4 text-slate-600">筛选、总览、功能模块树形展开、用户使用降序表、闭环看板、导出、用户明细抽屉</td>
+            <td class="px-4 py-4 text-center">
+              <a class="inline-flex px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs" href="pages/pc_使用监督统计_主页面.html">预览</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="px-5 py-4 font-medium">模块用户明细 · 子页</td>
+            <td class="px-5 py-4 text-slate-600">独立子页形态（与抽屉口径一致）</td>
+            <td class="px-4 py-4 text-center">
+              <a class="inline-flex px-3 py-1.5 rounded-xl border border-slate-200 text-xs" href="pages/pc_使用监督统计_用户明细.html?module=安环门户&client=PC">预览</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-6 text-xs text-slate-500">
+      PRD：<a class="text-sky-700 underline" href="../../../docs/versions/v1.1.0/prd.md">docs/versions/v1.1.0/prd.md</a>
+      · <a class="text-sky-700 underline" href="../../../index.html">返回全局总入口</a>
+    </p>
+  </div>
+</body>
+</html>

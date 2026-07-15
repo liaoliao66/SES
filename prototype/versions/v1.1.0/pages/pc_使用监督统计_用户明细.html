@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>模块用户明细 · v1.1.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --pc-top: #1f3f7a; --pc-primary: #1890ff; --pc-bg: #f8fafc; --pc-border: #e2e8f0;
+      --pc-text: #0f172a; --pc-text-secondary: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 14px; color: var(--pc-text); background: var(--pc-bg); line-height: 1.6;
+    }
+    .top {
+      height: 48px; background: var(--pc-top); color: #fff; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 16px;
+    }
+    .top a { color: #fff; text-decoration: none; font-size: 13px; }
+    .wrap { max-width: 1100px; margin: 20px auto; padding: 0 16px 40px; }
+    .card {
+      background: #fff; border: 1px solid var(--pc-border); border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;
+    }
+    .head { padding: 16px 18px; border-bottom: 1px solid var(--pc-border); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .head h1 { margin: 0; font-size: 18px; }
+    .head p { margin: 4px 0 0; font-size: 12px; color: var(--pc-text-secondary); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px;
+      border-radius: 12px; border: 1px solid var(--pc-border); background: #fff; cursor: pointer; font-size: 13px;
+    }
+    .btn-primary { background: var(--pc-primary); border-color: var(--pc-primary); color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--pc-border); text-align: left; }
+    th { background: #f8fafc; color: #475569; font-size: 12px; }
+    tr:hover td { background: #f8fafc; }
+    .empty { padding: 48px; text-align: center; color: #94a3b8; }
+    .ver { font-size: 12px; opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div>安环监测 · <span class="ver">v1.1.0 · 使用监督统计</span></div>
+    <a href="pc_使用监督统计_主页面.html"><i class="fa-solid fa-arrow-left"></i> 返回统计主页面</a>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="head">
+        <div>
+          <h1 id="title">模块用户明细</h1>
+          <p>子页面形态。字段口径：有效操作、有效用户。已排除管理员 / admin。</p>
+        </div>
+        <a class="btn btn-primary" href="pc_使用监督统计_主页面.html">返回主页面</a>
+      </div>
+      <div id="body"></div>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const moduleName = params.get('module') || '安环门户';
+    const client = params.get('client') || 'PC';
+    document.getElementById('title').textContent = moduleName + ' · 用户明细（' + client + '）';
+
+    const demo = {
+      '安环门户': [
+        { account: 'zhangwei', name: '张伟', dept: '生产一部', ops: 12, last: '2026-07-14 09:21' },
+        { account: 'liuna', name: '刘娜', dept: '安环部', ops: 9, last: '2026-07-14 15:03' }
+      ],
+      '门户首页': [
+        { account: 'zhangwei', name: '张伟', dept: '生产一部', ops: 12, last: '2026-07-14 09:21' },
+        { account: 'liuna', name: '刘娜', dept: '安环部', ops: 9, last: '2026-07-14 15:03' }
+      ],
+      '隐患公示': [
+        { account: 'chenhao', name: '陈浩', dept: '生产二部', ops: 7, last: '2026-07-13 18:40' }
+      ],
+      '检查记录': [
+        { account: 'wangfang', name: '王芳', dept: '安环部', ops: 15, last: '2026-07-14 10:12' },
+        { account: 'sunqi', name: '孙琪', dept: '生产二部', ops: 18, last: '2026-07-14 08:55' }
+      ],
+      '安环检查': [
+        { account: 'wangfang', name: '王芳', dept: '安环部', ops: 15, last: '2026-07-14 10:12' },
+        { account: 'zhaolei', name: '赵磊', dept: '生产一部', ops: 8, last: '2026-07-14 11:05' }
+      ]
+    };
+    const rows = (demo[moduleName] || demo['安环门户']).slice().sort((a, b) => b.ops - a.ops);
+    const el = document.getElementById('body');
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">该功能本期无有效用户</div>';
+    } else {
+      el.innerHTML =
+        '<table><thead><tr><th>用户账号</th><th>姓名</th><th>部门</th><th>有效操作</th><th>最近操作时间</th></tr></thead><tbody>' +
+        rows.map((u) => '<tr><td>' + u.account + '</td><td>' + u.name + '</td><td>' + u.dept + '</td><td>' + u.ops + '</td><td>' + u.last + '</td></tr>').join('') +
+        '</tbody></table>';
+    }
+  </script>
+</body>
+</html>

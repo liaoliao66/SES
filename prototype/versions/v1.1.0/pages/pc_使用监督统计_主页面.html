@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>使用监督统计 · v1.1.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --pc-top: #1f3f7a;
+      --pc-top-active: #4a7fd4;
+      --pc-primary: #1890ff;
+      --pc-primary-hover: #40a9ff;
+      --pc-bg: #f8fafc;
+      --pc-sidebar: #1e293b;
+      --pc-border: #e2e8f0;
+      --pc-text: #0f172a;
+      --pc-text-secondary: #64748b;
+      --pc-text-muted: #94a3b8;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 14px; color: var(--pc-text); background: var(--pc-bg); line-height: 1.6;
+    }
+    .pc-app { min-height: 100vh; display: flex; flex-direction: column; }
+    .pc-topnav {
+      height: 48px; background: var(--pc-top); display: flex; align-items: center;
+      padding: 0 16px; color: #fff; flex-shrink: 0;
+    }
+    .pc-topnav-logo { display: flex; align-items: center; gap: 8px; margin-right: 24px; }
+    .pc-topnav-logo span { font-size: 15px; font-weight: 600; }
+    .ver-badge {
+      margin-left: 8px; font-size: 12px; background: rgba(255,255,255,0.15);
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .pc-topnav-modules { display: flex; gap: 2px; flex: 1; overflow: hidden; }
+    .pc-topnav-modules a {
+      color: rgba(255,255,255,0.85); text-decoration: none; padding: 6px 14px;
+      border-radius: 8px; font-size: 13px; white-space: nowrap;
+    }
+    .pc-topnav-modules a.active { background: var(--pc-top-active); color: #fff; }
+    .pc-topnav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+    .pc-user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #93c5fd, #3b82f6);
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+    }
+    .pc-body { display: flex; flex: 1; min-height: 0; }
+    .pc-sidebar {
+      width: 220px; background: var(--pc-sidebar); color: #cbd5e1; flex-shrink: 0; overflow-y: auto;
+    }
+    .pc-sidebar-title { padding: 16px 16px 8px; font-size: 12px; color: #64748b; }
+    .pc-menu { list-style: none; margin: 0; padding: 8px; }
+    .pc-menu a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 4px;
+      border-radius: 12px; color: #cbd5e1; text-decoration: none; font-size: 13px;
+    }
+    .pc-menu a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .pc-menu a.active { background: rgba(24,144,255,0.2); color: #93c5fd; font-weight: 600; }
+    .pc-menu a i { width: 18px; text-align: center; }
+    .pc-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .pc-tabs {
+      display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
+      padding: 0 12px; height: 40px;
+    }
+    .pc-tab {
+      display: flex; align-items: center; gap: 6px; padding: 0 14px; height: 40px;
+      font-size: 13px; color: var(--pc-text-secondary); border-bottom: 2px solid transparent;
+    }
+    .pc-tab.active { color: var(--pc-primary); border-bottom-color: var(--pc-primary); font-weight: 600; }
+    .pc-content { flex: 1; overflow: auto; padding: 16px 20px 32px; }
+    .content-wrap { max-width: 1280px; margin: 0 auto; }
+
+    .page-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .page-head h1 { margin: 0; font-size: 20px; font-weight: 700; }
+    .page-head p { margin: 6px 0 0; color: var(--pc-text-secondary); font-size: 13px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px;
+      border-radius: 12px; border: 1px solid var(--pc-border); background: #fff;
+      color: var(--pc-text); font-size: 13px; cursor: pointer; transition: all .15s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .btn:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--pc-primary); border-color: var(--pc-primary); color: #fff; }
+    .btn-primary:hover { background: var(--pc-primary-hover); }
+    .btn-ghost { background: transparent; box-shadow: none; }
+
+    .filter-card, .panel, .stat-card {
+      background: #fff; border: 1px solid var(--pc-border); border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .filter-card { padding: 14px 16px; margin-bottom: 16px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 140px; }
+    .field label { font-size: 12px; color: var(--pc-text-secondary); }
+    .field select, .field input {
+      height: 36px; border: 1px solid var(--pc-border); border-radius: 10px;
+      padding: 0 10px; font-size: 13px; outline: none; background: #fff;
+    }
+    .seg { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+    .seg button {
+      border: 0; background: transparent; height: 30px; padding: 0 14px; border-radius: 8px;
+      font-size: 13px; color: var(--pc-text-secondary); cursor: pointer;
+    }
+    .seg button.active { background: #fff; color: var(--pc-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px;
+    }
+    @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 720px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { padding: 14px 16px; transition: transform .15s, box-shadow .15s; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .stat-label { font-size: 12px; color: var(--pc-text-secondary); }
+    .stat-value { margin-top: 6px; font-size: 24px; font-weight: 700; }
+    .stat-hint { margin-top: 4px; font-size: 12px; color: var(--pc-text-muted); }
+    .stat-cold .stat-value { color: var(--warn); }
+
+    .panel { margin-bottom: 16px; overflow: hidden; }
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid var(--pc-border); flex-wrap: wrap;
+    }
+    .panel-head h2 { margin: 0; font-size: 15px; font-weight: 700; }
+    .panel-body { padding: 0; }
+    .panel-body.padded { padding: 16px; }
+
+    .crumb {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--pc-text-secondary);
+    }
+    .crumb button {
+      border: 0; background: none; color: var(--pc-primary); cursor: pointer; font-size: 12px; padding: 0;
+    }
+    .crumb .cur { color: var(--pc-text); font-weight: 600; }
+
+    table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.data th, table.data td {
+      padding: 12px 14px; border-bottom: 1px solid var(--pc-border); text-align: left; vertical-align: middle;
+    }
+    table.data th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 12px; }
+    table.data tbody tr:hover { background: #f8fafc; }
+    table.data .cold { background: #fffbeb; }
+    table.data .rank {
+      display: inline-flex; width: 22px; height: 22px; border-radius: 50%; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; background: #f1f5f9; color: #64748b;
+    }
+    table.data .rank.top { background: #fff7ed; color: #c2410c; }
+    .tree-cell {
+      display: flex; align-items: center; gap: 6px; min-width: 0;
+    }
+    .tree-toggle {
+      width: 22px; height: 22px; border: 0; border-radius: 6px; background: #f1f5f9;
+      color: #64748b; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; padding: 0; font-size: 11px; transition: background .15s, transform .15s;
+    }
+    .tree-toggle:hover { background: #e2e8f0; color: #0f172a; }
+    .tree-toggle:active { transform: scale(0.95); }
+    .tree-toggle.is-leaf {
+      visibility: hidden; pointer-events: none;
+    }
+    .tree-indent { display: inline-block; width: 18px; flex-shrink: 0; }
+    .tree-name { font-weight: 500; color: #0f172a; }
+    .tree-name.is-menu { font-weight: 400; color: #334155; }
+    .tree-row-child { background: #fbfdff; }
+    .tree-row-child:hover { background: #f1f5f9 !important; }
+    .link-btn {
+      border: 0; background: none; color: var(--pc-primary); cursor: pointer; font-size: 13px; padding: 0;
+    }
+    .link-btn:hover { text-decoration: underline; }
+    .tag {
+      display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+      border-radius: 999px; font-size: 12px; background: #f1f5f9; color: #475569;
+    }
+    .tag-warn { background: #fff7ed; color: #c2410c; }
+    .tag-muted { background: #f1f5f9; color: #94a3b8; }
+    .tag-ok { background: #ecfdf5; color: #047857; }
+    .tag-menu { background: #eff6ff; color: #1d4ed8; }
+
+    .loop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 980px) { .loop-grid { grid-template-columns: 1fr; } }
+    .loop-card {
+      border: 1px solid var(--pc-border); border-radius: 14px; padding: 14px; background: #fff;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .loop-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .loop-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .loop-main { font-size: 28px; font-weight: 700; color: var(--pc-primary); }
+    .loop-main span { font-size: 13px; color: var(--pc-text-secondary); font-weight: 500; margin-left: 4px; }
+    .loop-meta { margin-top: 10px; display: grid; gap: 6px; font-size: 12px; color: var(--pc-text-secondary); }
+    .loop-meta div { display: flex; justify-content: space-between; gap: 8px; }
+    .footnote { margin-top: 8px; font-size: 12px; color: var(--pc-text-muted); }
+
+    .drawer-mask {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.35); z-index: 80;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .drawer-mask.show { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed; top: 0; right: 0; width: min(520px, 100%); height: 100%;
+      background: #fff; z-index: 90; transform: translateX(100%);
+      transition: transform .25s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      display: flex; flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-head {
+      padding: 16px 18px; border-bottom: 1px solid var(--pc-border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .drawer-head h3 { margin: 0; font-size: 16px; }
+    .drawer-head p { margin: 4px 0 0; font-size: 12px; color: var(--pc-text-secondary); }
+    .drawer-body { flex: 1; overflow: auto; padding: 12px 16px 24px; }
+    .empty { text-align: center; padding: 40px 16px; color: var(--pc-text-muted); font-size: 13px; }
+    .empty i { font-size: 28px; margin-bottom: 8px; display: block; }
+    .toast {
+      position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-12px);
+      background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 12px;
+      font-size: 13px; opacity: 0; pointer-events: none; transition: all .2s; z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: #b91c1c; }
+    .state-bar {
+      display: none; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 12px;
+      border-radius: 12px; font-size: 13px;
+    }
+    .state-bar.show { display: flex; }
+    .state-bar.loading { background: #eff6ff; color: #1d4ed8; }
+    .state-bar.error { background: #fef2f2; color: #b91c1c; }
+    .pager {
+      display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+      padding: 12px 14px; font-size: 12px; color: var(--pc-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <div class="pc-topnav-logo">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>安环监测</span>
+        <span class="ver-badge">v1.1.0 · 使用监督统计</span>
+      </div>
+      <nav class="pc-topnav-modules" aria-label="业务域">
+        <a href="javascript:void(0)" class="active">安环监测</a>
+        <a href="javascript:void(0)">一体化入口</a>
+      </nav>
+      <div class="pc-topnav-right">
+        <span>安环负责人 · 李敏</span>
+        <div class="pc-user-avatar">李</div>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <aside class="pc-sidebar">
+        <div class="pc-sidebar-title">安环业务菜单</div>
+        <ul class="pc-menu">
+          <li><a href="javascript:void(0)"><i class="fa-solid fa-house"></i>安环门户</a></li>
+          <li><a href="javascript:void(0)"><i class="fa-solid fa-clipboard-check"></i>安环检查</a></li>
+          <li><a href="javascript:void(0)"><i class="fa-solid fa-triangle-exclamation"></i>违章管理</a></li>
+          <li><a href="javascript:void(0)"><i class="fa-solid fa-hard-hat"></i>危险作业管理</a></li>
+          <li><a class="active" href="pc_使用监督统计_主页面.html"><i class="fa-solid fa-chart-line"></i>使用监督统计</a></li>
+        </ul>
+      </aside>
+
+      <div class="pc-main">
+        <div class="pc-tabs">
+          <div class="pc-tab active"><i class="fa-solid fa-chart-column"></i>使用监督统计</div>
+        </div>
+
+        <div class="pc-content">
+          <div class="content-wrap">
+            <div class="page-head">
+              <div>
+                <h1>使用监督统计</h1>
+                <p>按日/周/月查看功能模块有效操作、有效用户数、用户使用排行与业务闭环；功能模块以树形展开查看菜单明细。不含登录统计与消息推送。</p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn" type="button" id="btnRefresh"><i class="fa-solid fa-rotate"></i>刷新</button>
+                <button class="btn btn-primary" type="button" id="btnExport"><i class="fa-solid fa-file-excel"></i>导出 Excel</button>
+              </div>
+            </div>
+
+            <div class="state-bar loading" id="stateBar"><i class="fa-solid fa-spinner fa-spin"></i><span id="stateText">正在汇总数据…</span></div>
+
+            <section class="filter-card">
+              <div class="filter-row">
+                <div class="field">
+                  <label>统计粒度</label>
+                  <div class="seg" id="grainSeg">
+                    <button type="button" data-grain="day">日</button>
+                    <button type="button" class="active" data-grain="week">周</button>
+                    <button type="button" data-grain="month">月</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label id="periodLabel">统计周期</label>
+                  <input type="week" id="periodWeek" value="2026-W28" />
+                  <input type="date" id="periodDay" value="2026-07-14" style="display:none;" />
+                  <input type="month" id="periodMonth" value="2026-07" style="display:none;" />
+                </div>
+                <div class="field">
+                  <label>端</label>
+                  <select id="clientFilter">
+                    <option value="all">全部</option>
+                    <option value="PC">PC</option>
+                    <option value="App">App</option>
+                  </select>
+                </div>
+                <div class="field" style="min-width:180px;">
+                  <label>部门（P1 示意）</label>
+                  <select id="deptFilter" disabled>
+                    <option>全部部门</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" type="button" id="btnQuery"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                <button class="btn btn-ghost" type="button" id="btnReset">重置</button>
+              </div>
+              <div class="footnote">口径说明：同一用户同一功能菜单 10 分钟内仅计 1 次有效操作；已排除管理员 / admin；基础配置不纳入统计。</div>
+            </section>
+
+            <section class="stat-grid">
+              <div class="stat-card">
+                <div class="stat-label">有效操作合计</div>
+                <div class="stat-value" id="sOps">—</div>
+                <div class="stat-hint">含 10 分钟排重</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">有效用户数</div>
+                <div class="stat-value" id="sUsers">—</div>
+                <div class="stat-hint">周期内去重用户</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">检查整改已复核</div>
+                <div class="stat-value" id="sLoop1">—</div>
+                <div class="stat-hint">闭环完成量</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">违章处理审核通过</div>
+                <div class="stat-value" id="sLoop2">—</div>
+                <div class="stat-hint">闭环完成量</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">危险作业审核通过</div>
+                <div class="stat-value" id="sLoop3">—</div>
+                <div class="stat-hint">闭环完成量</div>
+              </div>
+              <div class="stat-card stat-cold">
+                <div class="stat-label">冷模块数</div>
+                <div class="stat-value" id="sCold">—</div>
+                <div class="stat-hint">本期有效操作=0（不含未接入）</div>
+              </div>
+            </section>
+
+            <!-- 功能模块使用表（树形展开） -->
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>功能模块使用表</h2>
+                  <p class="footnote" style="margin:4px 0 0;">树形结构，默认全部收起；点击模块前箭头逐层展开功能菜单。</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="btn btn-ghost" type="button" id="btnExpandAll" style="height:30px;padding:0 10px;font-size:12px;">全部展开</button>
+                  <button class="btn btn-ghost" type="button" id="btnCollapseAll" style="height:30px;padding:0 10px;font-size:12px;">全部收起</button>
+                  <span class="tag" id="moduleCountTag">0 个模块</span>
+                </div>
+              </div>
+              <div class="panel-body">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>功能模块</th>
+                      <th>类型</th>
+                      <th>端</th>
+                      <th>有效操作</th>
+                      <th>有效用户数</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="moduleTbody"></tbody>
+                </table>
+                <div class="empty" id="moduleEmpty" style="display:none;">
+                  <i class="fa-regular fa-folder-open"></i>
+                  当前筛选下暂无模块数据
+                </div>
+                <div class="pager">共 <span id="moduleTotal">0</span> 条（含子菜单可见行）</div>
+              </div>
+            </section>
+
+            <!-- 用户使用表（降序） -->
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>用户使用表</h2>
+                  <p class="footnote" style="margin:4px 0 0;">按当前统计时间范围内的有效操作降序排列；点击「使用明细」查看该用户在一级功能模块的使用情况（不含下级菜单）。已排除管理员 / admin。</p>
+                </div>
+                <span class="tag tag-ok">按有效操作 ↓</span>
+              </div>
+              <div class="panel-body">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>排名</th>
+                      <th>用户账号</th>
+                      <th>姓名</th>
+                      <th>部门</th>
+                      <th>有效操作</th>
+                      <th>触达功能模块数</th>
+                      <th>最近使用时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usageTbody"></tbody>
+                </table>
+                <div class="empty" id="usageEmpty" style="display:none;">
+                  <i class="fa-regular fa-user"></i>
+                  当前周期暂无用户使用数据
+                </div>
+                <div class="pager">共 <span id="usageTotal">0</span> 人 · 已按有效操作降序</div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>业务闭环看板</h2>
+                <span class="tag tag-ok">与上方筛选条件一致</span>
+              </div>
+              <div class="panel-body padded">
+                <div class="loop-grid" id="loopGrid"></div>
+                <div class="footnote">完成计入以状态首次变为「已复核 / 审核通过」的时间所属周期为准；不以作业票导出/打印为准。</div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="drawer" aria-label="明细抽屉">
+    <div class="drawer-head">
+      <div>
+        <h3 id="drawerTitle">明细</h3>
+        <p id="drawerSub">已排除管理员 / admin</p>
+      </div>
+      <button class="btn" type="button" id="btnCloseDrawer"><i class="fa-solid fa-xmark"></i>关闭</button>
+    </div>
+    <div class="drawer-body">
+      <table class="data">
+        <thead>
+          <tr id="drawerHeadRow"></tr>
+        </thead>
+        <tbody id="userTbody"></tbody>
+      </table>
+      <div class="empty" id="userEmpty" style="display:none;">
+        <i class="fa-regular fa-folder-open"></i>
+        <span id="userEmptyText">暂无数据</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /**
+     * 功能模块树：一级模块 → 功能菜单（树形展开，默认收起）
+     * ops=有效操作，users=有效用户数
+     */
+    const MODULE_TREE = [
+      {
+        id: 'portal', name: '安环门户', client: 'PC', ops: 128, users: 36, status: 'normal',
+        menus: [
+          { id: 'portal_home', name: '门户首页', client: 'PC', ops: 96, users: 30, status: 'normal' },
+          { id: 'portal_hazard', name: '隐患公示', client: 'PC', ops: 32, users: 18, status: 'normal' }
+        ]
+      },
+      {
+        id: 'check', name: '安环检查', client: '全部', ops: 310, users: 64, status: 'normal',
+        menus: [
+          { id: 'check_record', name: '检查记录', client: '全部', ops: 180, users: 48, status: 'normal' },
+          { id: 'check_rectify', name: '整改通知', client: '全部', ops: 130, users: 39, status: 'normal' }
+        ]
+      },
+      {
+        id: 'violation', name: '违章管理', client: '全部', ops: 108, users: 30, status: 'normal',
+        menus: [
+          { id: 'vio_reg', name: '违章登记', client: '全部', ops: 61, users: 24, status: 'normal' },
+          { id: 'vio_handle', name: '违章处理', client: '全部', ops: 47, users: 18, status: 'normal' }
+        ]
+      },
+      {
+        id: 'permit', name: '危险作业管理', client: '全部', ops: 131, users: 33, status: 'normal',
+        menus: [
+          { id: 'permit_apply', name: '危险作业申请', client: '全部', ops: 98, users: 29, status: 'normal' },
+          { id: 'permit_ticket', name: '作业票预览/打印', client: '全部', ops: 33, users: 16, status: 'normal' }
+        ]
+      },
+      {
+        id: 'risk', name: '风险分级管控', client: 'PC', ops: 0, users: 0, status: 'cold',
+        menus: [
+          { id: 'risk_map', name: '风险四色图', client: 'PC', ops: 0, users: 0, status: 'cold' }
+        ]
+      },
+      {
+        id: 'train', name: '安全教育培训', client: 'PC', ops: null, users: null, status: 'pending',
+        menus: []
+      }
+    ];
+
+    const MENU_USERS = {
+      portal_home: [
+        { account: 'zhangwei', name: '张伟', dept: '生产一部', ops: 12, last: '2026-07-14 09:21' },
+        { account: 'liuna', name: '刘娜', dept: '安环部', ops: 9, last: '2026-07-14 15:03' }
+      ],
+      portal_hazard: [
+        { account: 'chenhao', name: '陈浩', dept: '生产二部', ops: 7, last: '2026-07-13 18:40' },
+        { account: 'liuna', name: '刘娜', dept: '安环部', ops: 5, last: '2026-07-14 11:20' }
+      ],
+      check_record: [
+        { account: 'wangfang', name: '王芳', dept: '安环部', ops: 15, last: '2026-07-14 10:12' },
+        { account: 'sunqi', name: '孙琪', dept: '生产二部', ops: 18, last: '2026-07-14 08:55' },
+        { account: 'zhaolei', name: '赵磊', dept: '生产一部', ops: 8, last: '2026-07-14 11:05' }
+      ],
+      check_rectify: [
+        { account: 'zhoujia', name: '周佳', dept: '生产一部', ops: 11, last: '2026-07-14 16:22' },
+        { account: 'wumin', name: '吴敏', dept: '维修班', ops: 6, last: '2026-07-13 20:10' }
+      ],
+      vio_reg: [
+        { account: 'liuna', name: '刘娜', dept: '安环部', ops: 5, last: '2026-07-14 14:18' },
+        { account: 'chenhao', name: '陈浩', dept: '生产二部', ops: 8, last: '2026-07-14 13:02' }
+      ],
+      vio_handle: [
+        { account: 'zhangwei', name: '张伟', dept: '生产一部', ops: 4, last: '2026-07-12 17:36' }
+      ],
+      permit_apply: [
+        { account: 'wangfang', name: '王芳', dept: '安环部', ops: 6, last: '2026-07-14 09:48' },
+        { account: 'sunqi', name: '孙琪', dept: '生产二部', ops: 9, last: '2026-07-14 07:50' }
+      ],
+      permit_ticket: [
+        { account: 'zhaolei', name: '赵磊', dept: '生产一部', ops: 3, last: '2026-07-13 11:27' }
+      ],
+      risk_map: []
+    };
+
+    /** 用户使用总表（全局），按有效操作降序；modules 仅统计一级功能模块 */
+    const USER_USAGE = [
+      {
+        account: 'sunqi', name: '孙琪', dept: '生产二部', ops: 42, modules: 3, last: '2026-07-14 16:40',
+        moduleDetails: [
+          { name: '安环检查', ops: 22, last: '2026-07-14 16:40' },
+          { name: '危险作业管理', ops: 12, last: '2026-07-14 07:50' },
+          { name: '违章管理', ops: 8, last: '2026-07-14 13:10' }
+        ]
+      },
+      {
+        account: 'wangfang', name: '王芳', dept: '安环部', ops: 38, modules: 3, last: '2026-07-14 15:12',
+        moduleDetails: [
+          { name: '安环检查', ops: 18, last: '2026-07-14 15:12' },
+          { name: '危险作业管理', ops: 12, last: '2026-07-14 09:48' },
+          { name: '安环门户', ops: 8, last: '2026-07-14 10:05' }
+        ]
+      },
+      {
+        account: 'liuna', name: '刘娜', dept: '安环部', ops: 35, modules: 4, last: '2026-07-14 15:03',
+        moduleDetails: [
+          { name: '安环门户', ops: 14, last: '2026-07-14 15:03' },
+          { name: '违章管理', ops: 10, last: '2026-07-14 14:18' },
+          { name: '安环检查', ops: 7, last: '2026-07-14 11:40' },
+          { name: '危险作业管理', ops: 4, last: '2026-07-13 16:20' }
+        ]
+      },
+      {
+        account: 'zhangwei', name: '张伟', dept: '生产一部', ops: 31, modules: 3, last: '2026-07-14 14:20',
+        moduleDetails: [
+          { name: '安环门户', ops: 15, last: '2026-07-14 14:20' },
+          { name: '违章管理', ops: 9, last: '2026-07-12 17:36' },
+          { name: '安环检查', ops: 7, last: '2026-07-14 09:21' }
+        ]
+      },
+      {
+        account: 'chenhao', name: '陈浩', dept: '生产二部', ops: 28, modules: 3, last: '2026-07-14 13:02',
+        moduleDetails: [
+          { name: '违章管理', ops: 12, last: '2026-07-14 13:02' },
+          { name: '安环门户', ops: 10, last: '2026-07-13 18:40' },
+          { name: '安环检查', ops: 6, last: '2026-07-14 08:30' }
+        ]
+      },
+      {
+        account: 'zhoujia', name: '周佳', dept: '生产一部', ops: 22, modules: 2, last: '2026-07-14 16:22',
+        moduleDetails: [
+          { name: '安环检查', ops: 16, last: '2026-07-14 16:22' },
+          { name: '安环门户', ops: 6, last: '2026-07-14 12:11' }
+        ]
+      },
+      {
+        account: 'zhaolei', name: '赵磊', dept: '生产一部', ops: 19, modules: 3, last: '2026-07-14 11:05',
+        moduleDetails: [
+          { name: '安环检查', ops: 10, last: '2026-07-14 11:05' },
+          { name: '危险作业管理', ops: 6, last: '2026-07-13 11:27' },
+          { name: '安环门户', ops: 3, last: '2026-07-13 09:15' }
+        ]
+      },
+      {
+        account: 'wumin', name: '吴敏', dept: '维修班', ops: 12, modules: 2, last: '2026-07-13 20:10',
+        moduleDetails: [
+          { name: '安环检查', ops: 8, last: '2026-07-13 20:10' },
+          { name: '违章管理', ops: 4, last: '2026-07-13 19:02' }
+        ]
+      }
+    ].sort((a, b) => b.ops - a.ops);
+
+    const LOOPS = [
+      {
+        title: '检查记录 → 整改通知 → 已复核',
+        done: 27,
+        metas: [['检查记录提交数', 63], ['整改通知生成数', 41], ['待整改存量', 9], ['待复核存量', 5]]
+      },
+      {
+        title: '违章登记 → 违章处理 → 审核通过',
+        done: 14,
+        metas: [['违章登记数', 22], ['处理提交数', 18], ['待审数', 3]]
+      },
+      {
+        title: '危险作业申请 → 审核通过',
+        done: 19,
+        metas: [['申请提交数', 31], ['待审数', 4], ['驳回数', 2]]
+      }
+    ];
+
+    let grain = 'week';
+    let client = 'all';
+    /** 已展开的一级模块 id 集合；默认全部收起 */
+    const expandedIds = new Set();
+
+    const toastEl = document.getElementById('toast');
+    function toast(msg, type) {
+      toastEl.textContent = msg;
+      toastEl.className = 'toast show' + (type === 'error' ? ' error' : '');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2400);
+    }
+
+    function setState(type, text) {
+      const bar = document.getElementById('stateBar');
+      document.getElementById('stateText').textContent = text;
+      bar.className = 'state-bar show ' + type;
+      if (type === 'ready') setTimeout(() => bar.classList.remove('show'), 600);
+    }
+
+    function matchClient(c) {
+      if (client === 'all') return true;
+      return c === client || c === '全部';
+    }
+
+    function statusTag(m) {
+      if (m.status === 'pending') return '<span class="tag tag-muted">未接入</span>';
+      if (m.status === 'cold' || m.ops === 0) return '<span class="tag tag-warn">冷模块</span>';
+      return '<span class="tag tag-ok">正常</span>';
+    }
+
+    function filteredRoots() {
+      return MODULE_TREE.filter((m) => matchClient(m.client));
+    }
+
+    /** 树形可见行：一级默认展示；仅 expanded 时展示其子菜单 */
+    function buildTreeRows() {
+      const rows = [];
+      filteredRoots().forEach((m) => {
+        const children = (m.menus || []).filter((x) => matchClient(x.client));
+        rows.push({
+          ...m,
+          level: 'module',
+          depth: 0,
+          hasChildren: children.length > 0,
+          expanded: expandedIds.has(m.id)
+        });
+        if (expandedIds.has(m.id)) {
+          children.forEach((menu) => {
+            rows.push({
+              ...menu,
+              level: 'menu',
+              depth: 1,
+              hasChildren: false,
+              expanded: false,
+              parentId: m.id
+            });
+          });
+        }
+      });
+      return rows;
+    }
+
+    function renderStats() {
+      const roots = filteredRoots().filter((m) => m.status !== 'pending');
+      const ops = roots.reduce((s, m) => s + (m.ops || 0), 0);
+      const users = USER_USAGE.length;
+      const cold = roots.filter((m) => m.status === 'cold' || m.ops === 0).length;
+      document.getElementById('sOps').textContent = ops;
+      document.getElementById('sUsers').textContent = users;
+      document.getElementById('sLoop1').textContent = LOOPS[0].done;
+      document.getElementById('sLoop2').textContent = LOOPS[1].done;
+      document.getElementById('sLoop3').textContent = LOOPS[2].done;
+      document.getElementById('sCold').textContent = cold;
+    }
+
+    function renderModules() {
+      const list = buildTreeRows();
+      const roots = filteredRoots();
+      const tbody = document.getElementById('moduleTbody');
+      const empty = document.getElementById('moduleEmpty');
+      document.getElementById('moduleCountTag').textContent = roots.length + ' 个模块';
+      document.getElementById('moduleTotal').textContent = list.length;
+
+      if (!roots.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = list.map((m) => {
+        const coldClass = (m.status === 'cold' || m.ops === 0) && m.status !== 'pending' ? 'cold' : '';
+        const childClass = m.level === 'menu' ? 'tree-row-child' : '';
+        const opsText = m.status === 'pending' ? '—' : m.ops;
+        const usersText = m.status === 'pending' ? '—' : m.users;
+        const typeTag = m.level === 'menu'
+          ? '<span class="tag tag-menu">功能菜单</span>'
+          : '<span class="tag">功能模块</span>';
+
+        const indent = m.depth > 0 ? '<span class="tree-indent"></span>' : '';
+        let toggle = '';
+        if (m.level === 'module' && m.hasChildren) {
+          toggle =
+            '<button class="tree-toggle" type="button" data-toggle="' + m.id + '" aria-expanded="' + (m.expanded ? 'true' : 'false') + '" title="' + (m.expanded ? '收起' : '展开') + '">' +
+            '<i class="fa-solid ' + (m.expanded ? 'fa-chevron-down' : 'fa-chevron-right') + '"></i></button>';
+        } else {
+          toggle = '<button class="tree-toggle is-leaf" type="button" tabindex="-1" aria-hidden="true"></button>';
+        }
+        const nameClass = m.level === 'menu' ? 'tree-name is-menu' : 'tree-name';
+        const nameCell =
+          '<div class="tree-cell">' + indent + toggle +
+          '<span class="' + nameClass + '">' + m.name + '</span></div>';
+
+        let actions = '';
+        if (m.status === 'pending') {
+          actions = '<span class="tag tag-muted">未接入</span>';
+        } else {
+          const parts = [
+            '<button class="link-btn" type="button" data-detail="' + m.id + '" data-name="' + m.name + '" data-level="' + m.level + '" data-client="' + m.client + '">用户明细</button>'
+          ];
+          if (m.level === 'menu') {
+            parts.push(
+              '<a class="link-btn" href="pc_使用监督统计_用户明细.html?module=' + encodeURIComponent(m.name) + '&client=' + encodeURIComponent(m.client) + '">打开子页</a>'
+            );
+          }
+          actions = parts.join(' · ');
+        }
+
+        return (
+          '<tr class="' + coldClass + ' ' + childClass + '">' +
+          '<td>' + nameCell + '</td>' +
+          '<td>' + typeTag + '</td>' +
+          '<td>' + m.client + '</td>' +
+          '<td>' + opsText + '</td>' +
+          '<td>' + usersText + '</td>' +
+          '<td>' + statusTag(m) + '</td>' +
+          '<td>' + actions + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+    }
+
+    function renderUsage() {
+      const tbody = document.getElementById('usageTbody');
+      const empty = document.getElementById('usageEmpty');
+      const rows = USER_USAGE.slice().sort((a, b) => b.ops - a.ops);
+      document.getElementById('usageTotal').textContent = rows.length;
+      if (!rows.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = rows.map((u, idx) => {
+        const rankClass = idx < 3 ? 'rank top' : 'rank';
+        const moduleCount = (u.moduleDetails && u.moduleDetails.length) || u.modules || 0;
+        return (
+          '<tr>' +
+          '<td><span class="' + rankClass + '">' + (idx + 1) + '</span></td>' +
+          '<td>' + u.account + '</td>' +
+          '<td>' + u.name + '</td>' +
+          '<td>' + u.dept + '</td>' +
+          '<td><strong>' + u.ops + '</strong></td>' +
+          '<td>' + moduleCount + '</td>' +
+          '<td>' + u.last + '</td>' +
+          '<td><button class="link-btn" type="button" data-usage-detail="' + u.account + '">使用明细</button></td>' +
+          '</tr>'
+        );
+      }).join('');
+    }
+
+    function showDrawerTable(headHtml, rowsHtml, emptyText) {
+      document.getElementById('drawerHeadRow').innerHTML = headHtml;
+      const tbody = document.getElementById('userTbody');
+      const empty = document.getElementById('userEmpty');
+      if (!rowsHtml) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        document.getElementById('userEmptyText').textContent = emptyText || '暂无数据';
+      } else {
+        empty.style.display = 'none';
+        tbody.innerHTML = rowsHtml;
+      }
+      document.getElementById('drawerMask').classList.add('show');
+      document.getElementById('drawer').classList.add('show');
+    }
+
+    function openUsageDetail(account) {
+      const user = USER_USAGE.find((u) => u.account === account);
+      if (!user) {
+        toast('未找到该用户使用数据', 'error');
+        return;
+      }
+      // 仅一级功能模块，按有效操作降序
+      const details = (user.moduleDetails || []).slice().sort((a, b) => b.ops - a.ops);
+      document.getElementById('drawerTitle').textContent = user.name + ' · 使用明细';
+      document.getElementById('drawerSub').textContent =
+        '账号 ' + user.account + ' · 仅统计一级功能模块 · 有效操作合计 ' + user.ops;
+      const head = '<th>功能模块</th><th>有效操作</th><th>占个人总操作比</th><th>最近使用时间</th>';
+      const rowsHtml = details.length
+        ? details.map((m) => {
+            const pct = user.ops ? Math.round((m.ops / user.ops) * 100) + '%' : '—';
+            return (
+              '<tr>' +
+              '<td>' + m.name + '</td>' +
+              '<td><strong>' + m.ops + '</strong></td>' +
+              '<td>' + pct + '</td>' +
+              '<td>' + m.last + '</td>' +
+              '</tr>'
+            );
+          }).join('')
+        : '';
+      showDrawerTable(head, rowsHtml, '该用户本期无一级功能模块使用记录');
+    }
+
+    function renderLoops() {
+      document.getElementById('loopGrid').innerHTML = LOOPS.map((l) => {
+        const metas = l.metas.map((x) => '<div><span>' + x[0] + '</span><strong>' + x[1] + '</strong></div>').join('');
+        return (
+          '<div class="loop-card">' +
+          '<div class="loop-title">' + l.title + '</div>' +
+          '<div class="loop-main">' + l.done + '<span>完成量</span></div>' +
+          '<div class="loop-meta">' + metas + '</div></div>'
+        );
+      }).join('');
+    }
+
+    function openDrawer(id, name, clientName, level) {
+      let rows = MENU_USERS[id] || [];
+      if (level === 'module') {
+        const parent = MODULE_TREE.find((m) => m.id === id);
+        if (parent && parent.menus) {
+          const map = {};
+          parent.menus.forEach((menu) => {
+            (MENU_USERS[menu.id] || []).forEach((u) => {
+              if (!map[u.account]) map[u.account] = { ...u, ops: 0 };
+              map[u.account].ops += u.ops;
+              if (u.last > map[u.account].last) map[u.account].last = u.last;
+            });
+          });
+          rows = Object.values(map).sort((a, b) => b.ops - a.ops);
+        }
+      } else {
+        rows = (rows || []).slice().sort((a, b) => b.ops - a.ops);
+      }
+
+      document.getElementById('drawerTitle').textContent = name + ' · 用户明细';
+      document.getElementById('drawerSub').textContent =
+        '端：' + clientName + ' · ' + (level === 'menu' ? '功能菜单' : '功能模块') + ' · 有效操作口径';
+      const head = '<th>用户账号</th><th>姓名</th><th>部门</th><th>有效操作</th><th>最近操作时间</th>';
+      const rowsHtml = rows.length
+        ? rows.map((u) => (
+            '<tr><td>' + u.account + '</td><td>' + u.name + '</td><td>' + u.dept + '</td><td>' + u.ops + '</td><td>' + u.last + '</td></tr>'
+          )).join('')
+        : '';
+      showDrawerTable(head, rowsHtml, '该功能本期无有效用户');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('show');
+      document.getElementById('drawer').classList.remove('show');
+    }
+
+    function syncPeriodInputs() {
+      document.getElementById('periodDay').style.display = grain === 'day' ? '' : 'none';
+      document.getElementById('periodWeek').style.display = grain === 'week' ? '' : 'none';
+      document.getElementById('periodMonth').style.display = grain === 'month' ? '' : 'none';
+      document.getElementById('periodLabel').textContent =
+        grain === 'day' ? '选择日期' : grain === 'week' ? '选择自然周' : '选择月份';
+    }
+
+    function queryData(showToast) {
+      setState('loading', '正在汇总数据…');
+      setTimeout(() => {
+        client = document.getElementById('clientFilter').value;
+        renderStats();
+        renderModules();
+        renderUsage();
+        renderLoops();
+        setState('ready', '数据已更新');
+        if (showToast) toast('查询完成');
+      }, 400);
+    }
+
+    function exportExcel() {
+      setState('loading', '正在生成导出文件…');
+      setTimeout(() => {
+        const map = { day: '日', week: '周', month: '月' };
+        const period =
+          grain === 'day' ? document.getElementById('periodDay').value :
+          grain === 'week' ? document.getElementById('periodWeek').value :
+          document.getElementById('periodMonth').value;
+        const name = '安环使用监督统计_' + map[grain] + '_' + period + '.xlsx';
+        setState('ready', '导出完成');
+        toast('已生成导出（示意）：' + name + '（含功能模块/用户使用/用户明细/闭环）');
+      }, 650);
+    }
+
+    document.getElementById('grainSeg').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-grain]');
+      if (!btn) return;
+      document.querySelectorAll('#grainSeg button').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      grain = btn.dataset.grain;
+      syncPeriodInputs();
+    });
+
+    document.getElementById('moduleTbody').addEventListener('click', (e) => {
+      const toggle = e.target.closest('[data-toggle]');
+      if (toggle) {
+        const id = toggle.dataset.toggle;
+        if (expandedIds.has(id)) expandedIds.delete(id);
+        else expandedIds.add(id);
+        renderModules();
+        return;
+      }
+      const detail = e.target.closest('[data-detail]');
+      if (detail) {
+        openDrawer(detail.dataset.detail, detail.dataset.name, detail.dataset.client, detail.dataset.level);
+      }
+    });
+
+    document.getElementById('usageTbody').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-usage-detail]');
+      if (!btn) return;
+      openUsageDetail(btn.dataset.usageDetail);
+    });
+
+    document.getElementById('btnExpandAll').addEventListener('click', () => {
+      filteredRoots().forEach((m) => {
+        if (m.menus && m.menus.length) expandedIds.add(m.id);
+      });
+      renderModules();
+      toast('已全部展开');
+    });
+    document.getElementById('btnCollapseAll').addEventListener('click', () => {
+      expandedIds.clear();
+      renderModules();
+      toast('已全部收起');
+    });
+
+    document.getElementById('btnCloseDrawer').addEventListener('click', closeDrawer);
+    document.getElementById('drawerMask').addEventListener('click', closeDrawer);
+    document.getElementById('btnQuery').addEventListener('click', () => queryData(true));
+    document.getElementById('btnRefresh').addEventListener('click', () => queryData(true));
+    document.getElementById('btnExport').addEventListener('click', exportExcel);
+    document.getElementById('btnReset').addEventListener('click', () => {
+      grain = 'week';
+      expandedIds.clear();
+      document.querySelectorAll('#grainSeg button').forEach((b) => b.classList.toggle('active', b.dataset.grain === 'week'));
+      document.getElementById('clientFilter').value = 'all';
+      document.getElementById('periodWeek').value = '2026-W28';
+      syncPeriodInputs();
+      queryData(true);
+    });
+    document.getElementById('btnExport').addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      setState('error', '导出失败，请稍后重试');
+      toast('导出失败，请重试', 'error');
+    });
+
+    syncPeriodInputs();
+    queryData(false);
+  </script>
+</body>
+</html>
