@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>违章处理 · 企微H5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f5f7fa;
+      color: #0f172a;
+      margin: 0;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .wecom-content {
+      padding: calc(var(--wecom-header-h, 56px) + 12px) 16px 96px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .section-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 14px 6px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    }
+    .section-title {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 650;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: #3b82f6;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+    .field { margin-bottom: 12px; }
+    .field-label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+    .req::after { content: " *"; color: #ef4444; }
+    .ctrl {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 40px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #0f172a;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .ctrl:focus { border-color: #93c5fd; background: #fff; }
+    .ctrl[readonly], .ctrl:disabled {
+      color: #64748b;
+      background: #f1f5f9;
+    }
+    .ctrl.editable { background: #fff; color: #0f172a; }
+    .ctrl.error { border-color: #f87171; background: #fff1f2; }
+    .err-msg { font-size: 12px; color: #ef4444; margin-top: 4px; display: none; }
+    .err-msg.show { display: block; }
+    textarea.ctrl { min-height: 96px; resize: vertical; line-height: 1.5; }
+    .counter { text-align: right; font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .upload-row {
+      display: -webkit-box;
+      display: flex;
+      gap: 10px;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+    }
+    .upload-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+      height: 88px;
+      width: 88px;
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      -webkit-box-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      justify-content: center;
+      color: #64748b;
+      font-size: 12px;
+      gap: 6px;
+    }
+    .btn { -webkit-transition: transform 0.15s ease; transition: transform 0.15s ease; }
+    .btn:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+    .footer-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+      background: rgba(255,255,255,0.98);
+      border-top: 1px solid #e2e8f0;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: -webkit-box;
+      display: flex;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .footer-bar .btn {
+      -webkit-box-flex: 1;
+      flex: 1;
+      min-height: 44px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .ver-tag { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <header class="wecom-header" id="wecomHeader">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:480px;margin:0 auto;">
+      <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;"
+              onclick="navBack('违章管理_违章处理_list.html')" aria-label="返回">
+        <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
+      </button>
+      <div style="text-align:center;">
+        <div style="font-size:15px;font-weight:650;">违章处理</div>
+        <div class="ver-tag">v1.0.0 · 企微H5</div>
+      </div>
+      <div style="width:36px;"></div>
+    </div>
+  </header>
+
+  <form class="wecom-content" id="handleForm" novalidate>
+    <section class="section-card">
+      <div class="section-title">违章处理</div>
+
+      <div class="field">
+        <div class="field-label">处理编号</div>
+        <input class="ctrl" type="text" value="202607010004" readonly disabled />
+      </div>
+
+      <div class="field">
+        <div class="field-label req">违章类目</div>
+        <select class="ctrl editable" id="violCategory" required>
+          <option value="">请选择</option>
+          <option>一般违章</option>
+          <option>严重违章</option>
+          <option>重大违章</option>
+        </select>
+        <div class="err-msg" id="errCategory">请选择违章类目</div>
+      </div>
+
+      <div class="field">
+        <div class="field-label req">违章内容</div>
+        <select class="ctrl editable" id="violContent" required>
+          <option value="">请选择</option>
+          <option selected>2</option>
+          <option>未佩戴安全帽</option>
+          <option>违规动火作业</option>
+          <option>进入受限空间未登记</option>
+        </select>
+        <div class="err-msg" id="errContent">请选择违章内容</div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">考核（元）</div>
+        <input class="ctrl" type="text" id="assessAmt" value="100" readonly />
+      </div>
+
+      <div class="field">
+        <div class="field-label req">扣除金额</div>
+        <input class="ctrl editable" type="number" id="deductAmt" value="99" min="0" step="0.01" required />
+        <div class="err-msg" id="errDeduct">请输入扣除金额</div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">违章处罚单位</div>
+        <input class="ctrl" type="text" value="默认部门" readonly />
+      </div>
+
+      <div class="field">
+        <div class="field-label">违章处罚人员</div>
+        <input class="ctrl" type="text" value="武穴管理员" readonly />
+      </div>
+
+      <div class="field">
+        <div class="field-label">处理说明</div>
+        <textarea class="ctrl editable" id="handleDesc" maxlength="500" placeholder="请输入" rows="4"></textarea>
+        <div class="counter"><span id="descCount">0</span> / 500</div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">处理文件</div>
+        <div class="upload-row">
+          <button type="button" class="upload-box btn" onclick="toast('原型演示：上传文件')">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:18px;color:#94a3b8;"></i>
+            <span>上传文件</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">处理照片</div>
+        <div class="upload-row">
+          <button type="button" class="upload-box btn" onclick="toast('原型演示：上传照片')">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:18px;color:#94a3b8;"></i>
+            <span>上传图片</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </form>
+
+  <div class="footer-bar">
+    <button type="button" class="btn" style="border:1px solid #e2e8f0;background:#fff;color:#334155;"
+            onclick="navBack('违章管理_违章处理_list.html')">
+      <i class="fa-solid fa-xmark" style="margin-right:6px;"></i>取消
+    </button>
+    <button type="button" class="btn" style="border:none;background:#2563eb;color:#fff;"
+            onclick="submitForm()">
+      <i class="fa-solid fa-check" style="margin-right:6px;"></i>确定
+    </button>
+  </div>
+
+  <script>
+    function toast(message) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;left:50%;bottom:96px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:rgba(15,23,42,0.9);box-shadow:0 8px 24px rgba(0,0,0,0.18);max-width:86%;';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
+      setTimeout(function () { el.remove(); }, 1700);
+    }
+    function navTo(page) { window.location.href = page; }
+    function navBack(fallback) {
+      if (history.length > 1) history.back();
+      else if (fallback) navTo(fallback);
+    }
+    function syncHeaderH() {
+      var h = document.getElementById('wecomHeader');
+      if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
+    }
+    function setErr(inputId, errId, show) {
+      var input = document.getElementById(inputId);
+      var err = document.getElementById(errId);
+      if (input) input.classList.toggle('error', !!show);
+      if (err) err.classList.toggle('show', !!show);
+    }
+    function submitForm() {
+      var catOk = !!document.getElementById('violCategory').value;
+      var contentOk = !!document.getElementById('violContent').value;
+      var deductVal = document.getElementById('deductAmt').value;
+      var deductOk = deductVal !== '' && !isNaN(Number(deductVal)) && Number(deductVal) >= 0;
+      setErr('violCategory', 'errCategory', !catOk);
+      setErr('violContent', 'errContent', !contentOk);
+      setErr('deductAmt', 'errDeduct', !deductOk);
+      if (!(catOk && contentOk && deductOk)) {
+        toast('请完善必填项');
+        return;
+      }
+      toast('已提交违章处理');
+      setTimeout(function () { navTo('违章管理_违章处理_list.html'); }, 700);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      syncHeaderH();
+      var desc = document.getElementById('handleDesc');
+      var count = document.getElementById('descCount');
+      desc.addEventListener('input', function () { count.textContent = desc.value.length; });
+      ['violCategory', 'violContent', 'deductAmt'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.addEventListener('change', function () { this.classList.remove('error'); });
+        el.addEventListener('input', function () { this.classList.remove('error'); });
+      });
+    });
+    window.addEventListener('resize', syncHeaderH);
+  </script>
+</body>
+</html>

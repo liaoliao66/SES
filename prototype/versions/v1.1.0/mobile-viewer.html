@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SES v1.1.0 · 企微H5 手机壳预览</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .phone {
+      width: 390px;
+      height: 844px;
+      border: 1px solid #e5e7eb;
+      border-radius: 48px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.10);
+      background: #0b1220;
+      position: relative;
+      overflow: hidden;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+    .island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      -webkit-transform: translateX(-50%);
+      transform: translateX(-50%);
+      width: 120px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.65);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      z-index: 20;
+    }
+    .phone iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+      border-radius: 48px;
+    }
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.9);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 16px;
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      -webkit-box-pack: justify;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .page-container {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      flex-direction: column;
+      -webkit-box-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 70px 20px 24px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="text-sm font-semibold text-slate-800">企微 H5 手机壳预览</span>
+      <span class="inline-flex rounded-full bg-slate-900 px-2.5 py-0.5 text-[11px] font-semibold text-white">v1.1.0</span>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <a class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 no-underline" href="index.html">版本入口</a>
+      <a id="openRaw" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 no-underline" href="#" target="_blank" rel="noreferrer">新窗口打开页面</a>
+    </div>
+  </div>
+
+  <div class="page-container">
+    <div class="phone">
+      <div class="island"></div>
+      <iframe id="mobileFrame" title="wecom-h5" src="pages/违章管理_违章登记_list.html"></iframe>
+    </div>
+    <p class="mt-4 text-xs text-slate-400 text-center">手机壳 390×844 · 页面本身仍为企微 H5（无壳内再套壳）</p>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var page = params.get('page') || '违章管理_违章登记_list.html';
+      var src = 'pages/' + page;
+      var frame = document.getElementById('mobileFrame');
+      var openRaw = document.getElementById('openRaw');
+      frame.src = src;
+      openRaw.href = src;
+    })();
+  </script>
+</body>
+</html>
