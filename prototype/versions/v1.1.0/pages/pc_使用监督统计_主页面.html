@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>使用监督统计 · v1.1.0</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="pc-biz-shell.css" />
   <style>
     :root {
       --pc-top: #1f3f7a;
       --pc-top-active: #4a7fd4;
       --pc-primary: #1890ff;
       --pc-primary-hover: #40a9ff;
-      --pc-bg: #f8fafc;
-      --pc-sidebar: #1e293b;
+      --pc-bg: #eef3fb;
+      --pc-sidebar: #f7f9fc;
       --pc-border: #e2e8f0;
       --pc-text: #0f172a;
       --pc-text-secondary: #64748b;
@@ -49,18 +50,6 @@
       display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
     }
     .pc-body { display: flex; flex: 1; min-height: 0; }
-    .pc-sidebar {
-      width: 220px; background: var(--pc-sidebar); color: #cbd5e1; flex-shrink: 0; overflow-y: auto;
-    }
-    .pc-sidebar-title { padding: 16px 16px 8px; font-size: 12px; color: #64748b; }
-    .pc-menu { list-style: none; margin: 0; padding: 8px; }
-    .pc-menu a {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 4px;
-      border-radius: 12px; color: #cbd5e1; text-decoration: none; font-size: 13px;
-    }
-    .pc-menu a:hover { background: rgba(255,255,255,0.06); color: #fff; }
-    .pc-menu a.active { background: rgba(24,144,255,0.2); color: #93c5fd; font-weight: 600; }
-    .pc-menu a i { width: 18px; text-align: center; }
     .pc-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .pc-tabs {
       display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
@@ -245,7 +234,7 @@
       <div class="pc-topnav-logo">
         <i class="fa-solid fa-shield-halved"></i>
         <span>安环监测</span>
-        <span class="ver-badge">v1.1.0 · 使用监督统计</span>
+        <span class="ver-badge">v1.1.0 · 使用监督</span>
       </div>
       <nav class="pc-topnav-modules" aria-label="业务域">
         <a href="javascript:void(0)" class="active">安环监测</a>
@@ -258,20 +247,11 @@
     </header>
 
     <div class="pc-body">
-      <aside class="pc-sidebar">
-        <div class="pc-sidebar-title">安环业务菜单</div>
-        <ul class="pc-menu">
-          <li><a href="javascript:void(0)"><i class="fa-solid fa-house"></i>安环门户</a></li>
-          <li><a href="javascript:void(0)"><i class="fa-solid fa-clipboard-check"></i>安环检查</a></li>
-          <li><a href="javascript:void(0)"><i class="fa-solid fa-triangle-exclamation"></i>违章管理</a></li>
-          <li><a href="javascript:void(0)"><i class="fa-solid fa-hard-hat"></i>危险作业管理</a></li>
-          <li><a class="active" href="pc_使用监督统计_主页面.html"><i class="fa-solid fa-chart-line"></i>使用监督统计</a></li>
-        </ul>
-      </aside>
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
 
       <div class="pc-main">
         <div class="pc-tabs">
-          <div class="pc-tab active"><i class="fa-solid fa-chart-column"></i>使用监督统计</div>
+          <div class="pc-tab active"><i class="fa-solid fa-chart-column"></i>使用监督</div>
         </div>
 
         <div class="pc-content">
@@ -468,7 +448,9 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="pc-biz-shell.js"></script>
   <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'supervise');
     /**
      * 功能模块树：一级模块 → 功能菜单（树形展开，默认收起）
      * ops=有效操作，users=有效用户数

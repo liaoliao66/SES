@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>重要通知 · 详情</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #eef3fb; color: #334155;
+    }
+    .tip { text-align: center; font-size: 13px; color: #64748b; }
+    .tip a { color: #1890ff; }
+  </style>
+</head>
+<body>
+  <div class="tip">
+    <p>详情已改为弹窗展示，正在打开…</p>
+    <p><a href="pc_消息公告_list.html">进入重要通知列表</a> · <a href="pc_安环门户_home.html">返回安环门户</a></p>
+  </div>
+  <script src="notice-data.js"></script>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    var id = new URLSearchParams(location.search).get('id');
+    var n = PcBizShell.findNoticeById(id);
+    if (n) {
+      PcBizShell.openNoticeModal(n);
+      document.getElementById('noticeModalOk').addEventListener('click', function () {
+        location.href = 'pc_消息公告_list.html';
+      });
+      document.getElementById('noticeModalClose').addEventListener('click', function () {
+        location.href = 'pc_消息公告_list.html';
+      });
+    } else {
+      document.querySelector('.tip p').textContent = '未找到该通知，请从列表重新打开。';
+    }
+  </script>
+</body>
+</html>

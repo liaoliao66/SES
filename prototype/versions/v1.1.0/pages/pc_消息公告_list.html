@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>重要通知 · 列表</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px; color: var(--pc-text); background: var(--pc-bg);
+    }
+    .pc-app { min-height: 100vh; display: flex; flex-direction: column; }
+    .pc-topnav {
+      height: 48px; background: var(--pc-top); color: #fff; display: flex; align-items: center;
+      padding: 0 16px; flex-shrink: 0; gap: 12px;
+    }
+    .pc-topnav strong { font-size: 15px; }
+    .pc-topnav .ver { font-size: 12px; opacity: .85; }
+    .pc-topnav .user { margin-left: auto; font-size: 13px; }
+    .pc-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+    .pc-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .pc-tabs {
+      display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
+      padding: 0 8px; height: 36px; flex-shrink: 0;
+    }
+    .pc-tab {
+      display: flex; align-items: center; padding: 0 14px; height: 36px; font-size: 13px;
+      color: var(--pc-text-secondary); border-bottom: 2px solid transparent;
+    }
+    .pc-tab.active { color: var(--pc-primary); border-bottom-color: var(--pc-primary); font-weight: 500; }
+    .pc-content { flex: 1; overflow: auto; padding: 12px 16px 40px; }
+    .card {
+      background: #fff; border: 1px solid var(--pc-border); border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05); overflow: hidden; max-width: 1100px;
+    }
+    .hd {
+      padding: 14px 16px; border-bottom: 1px solid var(--pc-border);
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hd h1 { margin: 0; font-size: 16px; }
+    .hd .sub { font-size: 12px; color: #999; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--pc-border); text-align: left; font-size: 13px; }
+    th { background: #f7f9fc; color: #666; font-weight: 600; }
+    tr:hover td { background: #fafcff; }
+    .lv { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .lv-urgent { background: #fee2e2; color: #b91c1c; }
+    .lv-imp { background: #ffedd5; color: #c2410c; }
+    .lv-normal { background: #e2e8f0; color: #475569; }
+    .link {
+      color: var(--pc-primary); text-decoration: none; background: none; border: 0;
+      cursor: pointer; font-size: 13px; font-family: inherit; padding: 0;
+    }
+    .link:hover { text-decoration: underline; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px;
+      border-radius: 6px; border: 1px solid var(--pc-border); background: #fff;
+      font-size: 13px; cursor: pointer; text-decoration: none; color: #333; font-family: inherit;
+    }
+    .btn:active { transform: scale(.97); }
+    .empty {
+      text-align: center; padding: 48px 16px; color: #94a3b8; font-size: 13px;
+    }
+    .empty i { display: block; font-size: 28px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <strong>安环监测</strong>
+      <span class="ver">v1.1.0 · 重要通知（只读列表）</span>
+      <span class="user">欢迎您，门户用户</span>
+    </header>
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+      <main class="pc-main">
+        <div class="pc-tabs"><div class="pc-tab active">重要通知</div></div>
+        <div class="pc-content">
+          <div class="card">
+            <div class="hd">
+              <div>
+                <h1>重要通知列表</h1>
+                <div class="sub">展示已发布且未过期通知；点击标题以弹窗查看详情</div>
+              </div>
+              <a class="btn" href="pc_安环门户_home.html"><i class="fa-solid fa-angle-left"></i> 返回门户</a>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:80px;">级别</th>
+                  <th>标题</th>
+                  <th style="width:120px;">发布单位</th>
+                  <th style="width:150px;">发布时间</th>
+                  <th style="width:72px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="notice-data.js"></script>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'portal');
+
+    function lvClass(level) {
+      if (level === '紧急') return 'lv-urgent';
+      if (level === '重要') return 'lv-imp';
+      return 'lv-normal';
+    }
+
+    var rows = PcBizShell.publishedNotices();
+    var tbody = document.getElementById('tbody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><i class="fa-regular fa-folder-open"></i>暂无重要通知</div></td></tr>';
+    } else {
+      tbody.innerHTML = rows.map(function (n) {
+        return '<tr>' +
+          '<td><span class="lv ' + lvClass(n.level) + '">' + n.level + '</span></td>' +
+          '<td>' + (n.pinned ? '<i class="fa-solid fa-thumbtack" style="color:#ea580c;margin-right:6px;"></i>' : '') +
+            '<button type="button" class="link" data-id="' + n.id + '">' + n.title + '</button></td>' +
+          '<td>' + n.unit + '</td>' +
+          '<td>' + n.publishAt + '</td>' +
+          '<td><button type="button" class="link" data-id="' + n.id + '">查看</button></td>' +
+          '</tr>';
+      }).join('');
+      tbody.querySelectorAll('[data-id]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          PcBizShell.openNoticeModal(PcBizShell.findNoticeById(el.getAttribute('data-id')));
+        });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>重要通知 · 跳转</title>
+  <meta http-equiv="refresh" content="0;url=pc_消息公告_管理_list.html">
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var id = q.get('id');
+      var target = 'pc_消息公告_管理_list.html';
+      if (id) target += '?edit=' + encodeURIComponent(id);
+      else target += '?new=1';
+      location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:sans-serif;padding:24px;color:#64748b;font-size:13px;">
+    新建/编辑已改为列表页中央弹窗，正在跳转…
+    <a href="pc_消息公告_管理_list.html">进入重要通知管理</a>
+  </p>
+</body>
+</html>

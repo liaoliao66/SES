@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>重要通知 · 管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    :root { --pc-top:#1f3f7a; --pc-primary:#1890ff; --pc-bg:#eef3fb; --pc-sidebar:#f7f9fc; --pc-border:#e2e8f0; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; font-size:14px; color:#0f172a; background:var(--pc-bg); }
+    .pc-app { min-height:100vh; display:flex; flex-direction:column; }
+    .pc-topnav { height:48px; background:var(--pc-top); color:#fff; display:flex; align-items:center; padding:0 16px; gap:12px; }
+    .pc-body { display:flex; flex:1; min-height:0; }
+    .pc-main { flex:1; padding:16px 20px 40px; overflow:auto; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+    .toolbar h1 { margin:0; font-size:18px; }
+    .btn { height:34px; padding:0 14px; border-radius:10px; border:1px solid var(--pc-border); background:#fff; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px; text-decoration:none; color:#0f172a; box-shadow:0 4px 12px rgba(0,0,0,.05); font-family:inherit; }
+    .btn:active { transform:scale(.97); }
+    .btn-primary { background:var(--pc-primary); border-color:var(--pc-primary); color:#fff; }
+    .card { background:#fff; border:1px solid var(--pc-border); border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.05); overflow:hidden; }
+    .tabs { display:flex; gap:4px; padding:10px 12px; border-bottom:1px solid var(--pc-border); background:#f8fafc; }
+    .tabs button { border:0; background:transparent; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; color:#64748b; font-family:inherit; }
+    .tabs button.active { background:#fff; color:var(--pc-primary); font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:12px 14px; border-bottom:1px solid var(--pc-border); text-align:left; font-size:13px; }
+    th { background:#f8fafc; color:#64748b; }
+    .lv { padding:1px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+    .lv-urgent { background:#fee2e2; color:#b91c1c; }
+    .lv-imp { background:#ffedd5; color:#c2410c; }
+    .lv-normal { background:#e2e8f0; color:#475569; }
+    .st { font-size:12px; }
+    .st-pub { color:#059669; }
+    .st-draft { color:#d97706; }
+    .st-off { color:#94a3b8; }
+    .ops a, .ops button { color:var(--pc-primary); background:none; border:0; cursor:pointer; font-size:13px; margin-right:8px; text-decoration:none; font-family:inherit; padding:0; }
+    .toast { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(15,23,42,.9); color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:300; }
+    .toast.show { opacity:1; }
+
+    /* 新建/编辑 · 标准灯箱弹窗 */
+    .form-mask {
+      position:fixed; inset:0; background:rgba(15,23,42,.45); z-index:220;
+      display:none; align-items:center; justify-content:center; padding:24px;
+    }
+    .form-mask.show { display:flex; }
+    .form-modal {
+      width:min(720px, 100%); max-height:min(88vh, 820px); background:#fff;
+      border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,.14);
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    .form-modal-hd {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:16px 20px; border-bottom:1px solid var(--pc-border);
+    }
+    .form-modal-hd h2 { margin:0; font-size:16px; }
+    .form-modal-close {
+      width:32px; height:32px; border:0; border-radius:8px; background:#f1f5f9;
+      color:#64748b; cursor:pointer;
+    }
+    .form-modal-close:hover { background:#e2e8f0; color:#0f172a; }
+    .form-modal-bd { flex:1; overflow:auto; padding:16px 20px; }
+    .form-modal-ft {
+      padding:12px 20px; border-top:1px solid var(--pc-border);
+      display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+    }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:12px; color:#64748b; margin-bottom:6px; }
+    .req::after { content:" *"; color:#ef4444; }
+    .ctrl {
+      width:100%; min-height:36px; border:1px solid var(--pc-border); border-radius:10px;
+      padding:8px 12px; font-size:14px; background:#f8fafc; font-family:inherit;
+    }
+    .ctrl:focus { outline:none; border-color:#93c5fd; background:#fff; }
+    textarea.ctrl { min-height:120px; resize:vertical; line-height:1.6; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:640px) { .row { grid-template-columns:1fr; } }
+    .push-box {
+      border:1px solid var(--pc-border); border-radius:12px; padding:12px 14px; background:#f8fafc;
+    }
+    .push-box .hint { font-size:12px; color:#94a3b8; margin-top:8px; line-height:1.5; }
+    .push-radios { display:flex; flex-wrap:wrap; gap:14px 20px; font-size:13px; }
+    .push-radios label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#334155; }
+    .pick-row { display:none; margin-top:10px; align-items:center; gap:10px; flex-wrap:wrap; }
+    .pick-row.show { display:flex; }
+    .pick-summary { font-size:13px; color:#475569; }
+    .tag-push { font-size:12px; }
+    .tag-push.none { color:#94a3b8; }
+    .tag-push.all { color:#059669; }
+    .tag-push.partial { color:#c2410c; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <div class="pc-topnav">
+      <strong style="font-size:15px;">安环监测</strong>
+      <span style="font-size:12px;opacity:.85;">v1.1.0 · 重要通知管理</span>
+      <span style="margin-left:auto;font-size:13px;">武大管理员</span>
+    </div>
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+      <main class="pc-main">
+        <div class="toolbar">
+          <div>
+            <h1>重要通知管理</h1>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">发布后门户全员可见；企微推送可选不推送 / 全部 / 部分（选人调平台组织架构，不自研选人页）</div>
+          </div>
+          <button type="button" class="btn btn-primary" id="btnCreate"><i class="fa-solid fa-plus"></i>新建公告</button>
+        </div>
+        <div class="card">
+          <div class="tabs" id="tabs">
+            <button type="button" class="active" data-f="全部">全部</button>
+            <button type="button" data-f="已发布">已发布</button>
+            <button type="button" data-f="草稿">草稿</button>
+            <button type="button" data-f="已下架">已下架</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:72px;">级别</th>
+                <th>标题</th>
+                <th style="width:72px;">置顶</th>
+                <th style="width:90px;">状态</th>
+                <th style="width:110px;">企微推送</th>
+                <th style="width:140px;">发布时间</th>
+                <th style="width:180px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 新建/编辑弹窗 -->
+  <div class="form-mask" id="formMask" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="form-modal" onclick="event.stopPropagation()">
+      <div class="form-modal-hd">
+        <h2 id="formTitle">新建公告</h2>
+        <button type="button" class="form-modal-close" id="formClose" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-modal-bd">
+        <form id="noticeForm" onsubmit="return false;">
+          <div class="field">
+            <label class="req">标题</label>
+            <input class="ctrl" id="fTitle" maxlength="30" placeholder="请输入公告标题（建议不超过30字）" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="req">重要级别</label>
+              <select class="ctrl" id="fLevel">
+                <option>一般</option>
+                <option selected>重要</option>
+                <option>紧急</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>是否置顶</label>
+              <select class="ctrl" id="fPinned">
+                <option value="0">否</option>
+                <option value="1">是</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label class="req">生效时间</label>
+              <input class="ctrl" type="datetime-local" id="fEffectiveAt" />
+            </div>
+            <div class="field">
+              <label class="req">失效时间</label>
+              <input class="ctrl" type="datetime-local" id="fExpireAt" />
+            </div>
+          </div>
+          <div class="field">
+            <label>发布单位</label>
+            <input class="ctrl" id="fUnit" value="安全管理部" />
+          </div>
+          <div class="field">
+            <label class="req">正文</label>
+            <textarea class="ctrl" id="fBody" placeholder="请输入公告正文"></textarea>
+          </div>
+          <div class="field">
+            <label>发起企微消息</label>
+            <div class="push-box">
+              <div class="push-radios">
+                <label><input type="radio" name="pushMode" value="none" checked> 不推送</label>
+                <label><input type="radio" name="pushMode" value="all"> 全部推送</label>
+                <label><input type="radio" name="pushMode" value="partial"> 部分推送</label>
+              </div>
+              <div class="pick-row" id="pickRow">
+                <button type="button" class="btn" id="btnPickPeople"><i class="fa-solid fa-sitemap"></i>选择接收人</button>
+                <span class="pick-summary" id="pickSummary">未选择（将调用平台组织架构选人，本产品不自研选人界面）</span>
+              </div>
+              <div class="hint">门户展示与推送范围无关：发布后仍全员可在安环门户查看。推送仅影响企微消息接收人。不采用紧急强制推送。</div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="form-modal-ft">
+        <button type="button" class="btn" id="btnCancel">取消</button>
+        <button type="button" class="btn" id="btnDraft">存草稿</button>
+        <button type="button" class="btn btn-primary" id="btnPublish">发布</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="notice-data.js"></script>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'notice-admin');
+
+    var filter = '全部';
+    var editingId = 0;
+    var selectedCount = 0;
+
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1800);
+    }
+
+    function stClass(s) {
+      if (s === '已发布') return 'st-pub';
+      if (s === '草稿') return 'st-draft';
+      return 'st-off';
+    }
+
+    function pushLabel(n) {
+      var mode = n.pushMode || (n.pushWecom ? 'all' : 'none');
+      if (mode === 'all') return '<span class="tag-push all">全部推送</span>';
+      if (mode === 'partial') {
+        var c = n.pushReceiverCount || 0;
+        return '<span class="tag-push partial">部分（' + c + '人）</span>';
+      }
+      return '<span class="tag-push none">不推送</span>';
+    }
+
+    function getPushMode() {
+      var el = document.querySelector('input[name="pushMode"]:checked');
+      return el ? el.value : 'none';
+    }
+
+    function syncPickRow() {
+      var mode = getPushMode();
+      document.getElementById('pickRow').classList.toggle('show', mode === 'partial');
+    }
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    function toLocal(d) {
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function resetForm() {
+      editingId = 0;
+      selectedCount = 0;
+      document.getElementById('formTitle').textContent = '新建公告';
+      document.getElementById('fTitle').value = '';
+      document.getElementById('fLevel').value = '重要';
+      document.getElementById('fPinned').value = '0';
+      document.getElementById('fUnit').value = '安全管理部';
+      document.getElementById('fBody').value = '';
+      document.querySelector('input[name="pushMode"][value="none"]').checked = true;
+      document.getElementById('pickSummary').textContent = '未选择（将调用平台组织架构选人，本产品不自研选人界面）';
+      var now = new Date();
+      var end = new Date(now.getTime() + 14 * 86400000);
+      document.getElementById('fEffectiveAt').value = toLocal(now);
+      document.getElementById('fExpireAt').value = toLocal(end);
+      syncPickRow();
+    }
+
+    function fillForm(n) {
+      editingId = n.id;
+      selectedCount = n.pushReceiverCount || 0;
+      document.getElementById('formTitle').textContent = '编辑公告';
+      document.getElementById('fTitle').value = n.title || '';
+      document.getElementById('fLevel').value = n.level || '重要';
+      document.getElementById('fPinned').value = n.pinned ? '1' : '0';
+      document.getElementById('fUnit').value = n.unit || '';
+      document.getElementById('fBody').value = n.body || '';
+      var mode = n.pushMode || (n.pushWecom ? 'all' : 'none');
+      var radio = document.querySelector('input[name="pushMode"][value="' + mode + '"]');
+      if (radio) radio.checked = true;
+      document.getElementById('pickSummary').textContent = selectedCount
+        ? ('已选 ' + selectedCount + ' 人（平台组织架构回写，演示数据）')
+        : '未选择（将调用平台组织架构选人，本产品不自研选人界面）';
+      syncPickRow();
+    }
+
+    function openForm(n) {
+      if (n) fillForm(n); else resetForm();
+      document.getElementById('formMask').classList.add('show');
+    }
+
+    function closeForm() {
+      document.getElementById('formMask').classList.remove('show');
+    }
+
+    function validate() {
+      if (!document.getElementById('fTitle').value.trim()) { toast('请填写标题'); return false; }
+      if (!document.getElementById('fBody').value.trim()) { toast('请填写正文'); return false; }
+      if (getPushMode() === 'partial' && selectedCount < 1) {
+        toast('部分推送请先通过平台组织架构选择至少 1 名接收人');
+        return false;
+      }
+      return true;
+    }
+
+    function pushDesc() {
+      var mode = getPushMode();
+      if (mode === 'all') return '企微全部推送';
+      if (mode === 'partial') return '企微部分推送（' + selectedCount + '人，平台组织架构）';
+      return '不推送企微';
+    }
+
+    function render() {
+      var list = NOTICE_DATA.filter(function (n) { return filter === '全部' || n.status === filter; });
+      document.getElementById('tbody').innerHTML = list.map(function (n) {
+        var ops = '<button type="button" data-edit="' + n.id + '">编辑</button>';
+        if (n.status === '草稿') {
+          ops += '<button type="button" data-act="publish">发布</button>';
+          ops += '<button type="button" data-act="del">删除</button>';
+        }
+        if (n.status === '已发布') {
+          ops += '<button type="button" data-act="off">下架</button>';
+          ops += '<button type="button" data-preview="' + n.id + '">预览</button>';
+        }
+        return '<tr data-id="' + n.id + '">' +
+          '<td><span class="lv ' + noticeLevelClass(n.level) + '">' + n.level + '</span></td>' +
+          '<td>' + n.title + '</td>' +
+          '<td>' + (n.pinned ? '是' : '否') + '</td>' +
+          '<td class="st ' + stClass(n.status) + '">' + n.status + '</td>' +
+          '<td>' + pushLabel(n) + '</td>' +
+          '<td>' + (n.publishAt || '—') + '</td>' +
+          '<td class="ops">' + ops + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:28px;">暂无数据</td></tr>';
+    }
+
+    document.getElementById('tabs').addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      filter = btn.getAttribute('data-f');
+      Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      render();
+    });
+
+    document.getElementById('tbody').addEventListener('click', function (e) {
+      var edit = e.target.getAttribute('data-edit');
+      if (edit) {
+        openForm(PcBizShell.findNoticeById(edit));
+        return;
+      }
+      var preview = e.target.getAttribute('data-preview');
+      if (preview) {
+        PcBizShell.openNoticeModal(PcBizShell.findNoticeById(preview));
+        return;
+      }
+      var act = e.target.getAttribute('data-act');
+      if (act === 'publish') toast('原型演示：已发布（门户全员可见；' + pushDesc() + '以表单配置为准）');
+      if (act === 'del') toast('原型演示：已删除草稿');
+      if (act === 'off') toast('原型演示：已下架，门户不再展示');
+    });
+
+    document.getElementById('btnCreate').addEventListener('click', function () { openForm(null); });
+    document.getElementById('formClose').addEventListener('click', closeForm);
+    document.getElementById('btnCancel').addEventListener('click', closeForm);
+    document.getElementById('formMask').addEventListener('click', closeForm);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && document.getElementById('formMask').classList.contains('show')) closeForm();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="pushMode"]'), function (r) {
+      r.addEventListener('change', syncPickRow);
+    });
+
+    document.getElementById('btnPickPeople').addEventListener('click', function () {
+      // 正式环境：统一调用平台组织架构选人组件；原型不绘制选人界面
+      selectedCount = 3;
+      document.getElementById('pickSummary').textContent = '已选 3 人（演示：已回调平台组织架构，不自研选人页）';
+      toast('已调用平台组织架构选人（原型仅示意回写结果）');
+    });
+
+    document.getElementById('btnDraft').addEventListener('click', function () {
+      if (!validate()) return;
+      toast('已保存草稿 · ' + pushDesc());
+      closeForm();
+    });
+
+    document.getElementById('btnPublish').addEventListener('click', function () {
+      if (!validate()) return;
+      toast('已发布：门户全员可见；' + pushDesc());
+      closeForm();
+    });
+
+    // 兼容旧表单页入口：?new=1 / ?edit=id
+    (function () {
+      var q = new URLSearchParams(location.search);
+      if (q.get('new') === '1') openForm(null);
+      var eid = Number(q.get('edit') || 0);
+      if (eid) openForm(PcBizShell.findNoticeById(eid));
+    })();
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>安环门户 - 安环监测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+/* PC 管理后台通用布局 — 对齐现有安环监测后台样式 */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--pc-text);
+  background: var(--pc-bg);
+}
+.pc-app { min-height: 100vh; display: flex; flex-direction: column; }
+.pc-topnav {
+  height: 48px; background: var(--pc-top); display: flex; align-items: center;
+  padding: 0 16px; color: #fff; flex-shrink: 0;
+}
+.pc-topnav-logo { display: flex; align-items: center; gap: 8px; margin-right: 24px; flex-shrink: 0; }
+.pc-topnav-logo img { height: 28px; border-radius: 2px; }
+.pc-topnav-logo span { font-size: 15px; font-weight: 600; white-space: nowrap; }
+.pc-topnav-modules { display: flex; align-items: center; gap: 2px; flex: 1; overflow: hidden; }
+.pc-topnav-modules a {
+  color: rgba(255,255,255,0.85); text-decoration: none; padding: 6px 14px;
+  border-radius: 4px; font-size: 13px; white-space: nowrap;
+}
+.pc-topnav-modules a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.pc-topnav-modules a.active { background: var(--pc-top-active); color: #fff; }
+.pc-topnav-right { display: flex; align-items: center; gap: 16px; margin-left: auto; flex-shrink: 0; }
+.pc-user { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pc-user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #ccc; }
+.pc-body { display: flex; flex: 1; overflow: hidden; }
+.pc-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--pc-bg); }
+.pc-tabs {
+  display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
+  padding: 0 8px; height: 36px; flex-shrink: 0;
+}
+.pc-tab {
+  display: flex; align-items: center; gap: 6px; padding: 0 14px; height: 36px;
+  font-size: 13px; color: var(--pc-text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.pc-tab.active { color: var(--pc-primary); border-bottom-color: var(--pc-primary); font-weight: 500; }
+.pc-content { flex: 1; overflow: auto; padding: 12px 16px; }
+.pc-select {
+  height: 28px; border: 1px solid var(--pc-border); border-radius: 4px;
+  padding: 0 24px 0 8px; font-size: 12px; background: #fff; outline: none;
+}
+.portal-banner {
+  height: 88px; border-radius: 4px; overflow: hidden; margin-bottom: 12px;
+  background: linear-gradient(90deg, #0b3a7a 0%, #1a6bb5 55%, #2f8fd6 100%);
+  display: flex; align-items: center; padding: 0 28px; color: #fff;
+  position: relative;
+}
+.portal-banner::after {
+  content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 42%;
+  background: url("https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=60") center/cover no-repeat;
+  opacity: 0.35; mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+.portal-banner h2 { margin: 0; font-size: 28px; letter-spacing: 2px; position: relative; z-index: 1; }
+.portal-banner p { margin: 8px 0 0; font-size: 13px; opacity: 0.9; position: relative; z-index: 1; }
+.notice-bar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  background: #fff7ed; border: 1px solid #fdba74; border-radius: 4px;
+  padding: 0 12px; height: 40px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(249,115,22,0.12);
+}
+.notice-bar .tag {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
+  background: #ea580c; color: #fff; font-size: 12px; font-weight: 600;
+  padding: 2px 10px; border-radius: 4px; height: 24px;
+}
+.notice-bar .tag.urgent { background: #dc2626; }
+.notice-track { flex: 1; overflow: hidden; position: relative; height: 24px; }
+.notice-marquee {
+  display: inline-flex; align-items: center; gap: 48px; white-space: nowrap;
+  position: absolute; left: 0; top: 0; height: 24px;
+  animation: notice-scroll 22s linear infinite;
+}
+.notice-marquee:hover { animation-play-state: paused; }
+.notice-item {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
+  color: #9a3412; text-decoration: none; cursor: pointer;
+}
+.notice-item:hover { color: #c2410c; text-decoration: underline; }
+.notice-badge {
+  font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 3px;
+  background: #fecaca; color: #b91c1c;
+}
+.notice-badge.urgent { background: #fecaca; color: #b91c1c; }
+.notice-badge.imp { background: #fed7aa; color: #c2410c; }
+.notice-badge.normal { background: #e2e8f0; color: #475569; }
+.notice-more {
+  flex-shrink: 0; font-size: 12px; color: #ea580c; text-decoration: none; font-weight: 500;
+}
+.notice-more:hover { color: #c2410c; }
+@keyframes notice-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+.stat-card {
+  background: #fff; border: 1px solid var(--pc-border); border-radius: 4px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+}
+.stat-icon {
+  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 18px; flex-shrink: 0;
+}
+.stat-icon.blue { background: linear-gradient(135deg, #4aa3ff, #1890ff); }
+.stat-icon.cyan { background: linear-gradient(135deg, #36cfc9, #13c2c2); }
+.stat-icon.orange { background: linear-gradient(135deg, #ffc069, #fa8c16); }
+.stat-icon.green { background: linear-gradient(135deg, #73d13d, #52c41a); }
+.stat-label { font-size: 12px; color: var(--pc-text-muted); }
+.stat-value { font-size: 22px; font-weight: 600; margin-top: 2px; }
+.stat-unit { font-size: 12px; color: var(--pc-text-secondary); margin-left: 2px; }
+.panel-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; }
+.panel {
+  background: #fff; border: 1px solid var(--pc-border); border-radius: 4px; overflow: hidden;
+}
+.panel-hd {
+  height: 40px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--pc-border); font-size: 14px; font-weight: 600;
+}
+.panel-hd .more { font-size: 12px; color: var(--pc-text-muted); cursor: pointer; font-weight: 400; }
+.panel-bd { padding: 10px 12px; }
+.hazard-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.hazard-table th {
+  text-align: left; padding: 8px 6px; color: var(--pc-text-secondary); font-weight: 500;
+  border-bottom: 1px solid var(--pc-border); white-space: nowrap;
+}
+.hazard-table td {
+  padding: 10px 6px; border-bottom: 1px solid #f0f0f0; color: var(--pc-text-secondary);
+  vertical-align: middle;
+}
+.hazard-table tbody tr:hover { background: #fafcff; }
+.tag-general {
+  display: inline-block; padding: 1px 8px; border-radius: 2px; font-size: 12px;
+  background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591;
+}
+.status-done { color: #52c41a; }
+.status-pending { color: #fa8c16; }
+.op-link {
+  color: var(--pc-primary); cursor: pointer; text-decoration: none; margin-right: 10px;
+  background: none; border: none; padding: 0; font-size: 12px; font-family: inherit;
+}
+.op-link:hover { text-decoration: underline; }
+.op-link:last-child { margin-right: 0; }
+.toolbar-tip {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  font-size: 12px; color: var(--pc-text-secondary);
+}
+.chart-placeholder {
+  height: 220px; display: flex; align-items: center; justify-content: center; gap: 20px;
+}
+.pie {
+  width: 140px; height: 140px; border-radius: 50%;
+  background: conic-gradient(#5b8ff9 0 42%, #5ad8a6 42% 68%, #5d7092 68% 86%, #f6bd16 86% 100%);
+  position: relative;
+}
+.pie::after {
+  content: ""; position: absolute; inset: 28px; background: #fff; border-radius: 50%;
+}
+.legend { font-size: 12px; color: var(--pc-text-secondary); line-height: 1.9; }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.toast {
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+  background: rgba(0,0,0,0.82); color: #fff; padding: 10px 18px; border-radius: 6px;
+  font-size: 13px; z-index: 999; opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.risk-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.risk-table th, .risk-table td { border: 1px solid var(--pc-border); padding: 6px 8px; text-align: center; }
+.risk-table th { background: #fafafa; }
+.risk-r { background: #ffccc7; }
+.risk-o { background: #ffe7ba; }
+.risk-y { background: #fff1b8; }
+.risk-b { background: #bae0ff; }
+.map-box {
+  height: 160px; border: 1px dashed #91d5ff; border-radius: 4px; background: #f0f9ff;
+  display: flex; align-items: center; justify-content: center; color: #69c0ff; font-size: 13px;
+}
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <div class="pc-topnav-logo">
+        <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=80&h=28&q=80" alt="logo">
+        <span>智慧港口管理平台</span>
+      </div>
+      <nav class="pc-topnav-modules">
+        <a href="#">首页</a>
+        <a href="#">合同管理</a>
+        <a href="#">监控中心</a>
+        <a href="#">综合办公</a>
+        <a href="#">进度管理</a>
+        <a href="#">运营预算</a>
+        <a href="#">资源管理</a>
+        <a href="#">资料库</a>
+        <a href="#">基础信息管理</a>
+        <a href="#">运营管理</a>
+        <a href="#">商务管理</a>
+        <a href="#">其他</a>
+        <a href="#" class="active">安环监测</a>
+        <a href="#">设备管理</a>
+        <a href="#">大屏管理</a>
+      </nav>
+      <div class="pc-topnav-right">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <div class="pc-user">
+          <img class="pc-user-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=56&h=56&q=80" alt="">
+          <span id="userLabel">欢迎您，武大管理员</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+
+      <main class="pc-main">
+        <div class="pc-tabs">
+          <a class="pc-tab active" href="pc_安环门户_home.html">安环门户</a>
+          <span style="margin-left:auto;font-size:11px;color:#999;padding-right:8px;">v1.1.0 · 全员可见重要通知</span>
+        </div>
+
+        <div class="pc-content">
+          <div class="portal-banner">
+            <div>
+              <h2>安全第一 · 预防为主 · 综合治理</h2>
+              <p>安环监测门户 · 重要通知强化提醒（Banner 通告条）</p>
+            </div>
+          </div>
+
+          <div class="notice-bar" id="noticeBar" aria-label="重要通知" style="display:none;">
+            <span class="tag urgent"><i class="fa-solid fa-bullhorn"></i> 重要通知</span>
+            <div class="notice-track">
+              <div class="notice-marquee" id="noticeMarquee"></div>
+            </div>
+            <a class="notice-more" href="pc_消息公告_list.html">更多 &gt;</a>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-card">
+              <div class="stat-icon blue"><i class="fa-solid fa-calendar-check"></i></div>
+              <div><div class="stat-label">安全运行天数</div><div class="stat-value">193<span class="stat-unit">天</span></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon cyan"><i class="fa-solid fa-clipboard-list"></i></div>
+              <div><div class="stat-label">本月检查次数</div><div class="stat-value">4<span class="stat-unit">次</span></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div><div class="stat-label">待处理隐患</div><div class="stat-value">1<span class="stat-unit">个</span></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+              <div><div class="stat-label">已整改隐患</div><div class="stat-value">3<span class="stat-unit">个</span></div></div>
+            </div>
+          </div>
+
+          <div class="toolbar-tip">
+            <span>权限演示（原型）：</span>
+            <select class="pc-select" id="roleSelect">
+              <option value="admin">安全管理员（可查看 + 处理）</option>
+              <option value="viewer">普通用户（仅查看）</option>
+              <option value="none">无权限（不显示操作）</option>
+            </select>
+            <span style="margin-left:12px;">重要通知空态：</span>
+            <select class="pc-select" id="noticeEmptyDemo">
+              <option value="has">有生效通知（展示通告条）</option>
+              <option value="empty">无生效通知（整模块隐藏）</option>
+            </select>
+            <span style="color:#999;">正式环境权限由平台统一控制；空态：无通知时不占位。</span>
+          </div>
+
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-hd">
+                <span>隐患公示</span>
+                <span class="more">更多 &gt;</span>
+              </div>
+              <div class="panel-bd">
+                <table class="hazard-table">
+                  <thead>
+                    <tr>
+                      <th style="width:88px;">隐患等级</th>
+                      <th>来源/名称</th>
+                      <th style="width:96px;">日期</th>
+                      <th>责任部门</th>
+                      <th style="width:72px;">状态</th>
+                      <th style="width:110px;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hazardBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-hd">
+                <span>隐患分析</span>
+                <span class="more">更多 &gt;</span>
+              </div>
+              <div class="panel-bd">
+                <div class="chart-placeholder">
+                  <div class="pie"></div>
+                  <div class="legend">
+                    <div><i style="background:#5b8ff9"></i>生产事业部 42%</div>
+                    <div><i style="background:#5ad8a6"></i>设备技术部 26%</div>
+                    <div><i style="background:#5d7092"></i>项目建设事业部 18%</div>
+                    <div><i style="background:#f6bd16"></i>其他 14%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-grid">
+            <div class="panel">
+              <div class="panel-hd"><span>违章公告</span><span class="more">更多 &gt;</span></div>
+              <div class="panel-bd" style="font-size:12px;color:#666;line-height:2;">
+                <div>默认部门 · 人员操作违章 · 张三 · 2026-07-10 09:21</div>
+                <div>默认部门 · 人员操作违章 · 李四 · 2026-07-09 14:08</div>
+                <div>默认部门 · 现场管理违章 · 王五 · 2026-07-08 16:33</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-hd"><span>安全风险四色图及应急疏散图</span><span class="more">更多 &gt;</span></div>
+              <div class="panel-bd">
+                <table class="risk-table" style="margin-bottom:10px;">
+                  <thead><tr><th>风险等级</th><th>重大</th><th>较大</th><th>一般</th><th>低</th></tr></thead>
+                  <tbody><tr><td>数量</td><td class="risk-r">0</td><td class="risk-o">1</td><td class="risk-y">3</td><td class="risk-b">5</td></tr></tbody>
+                </table>
+                <div class="map-box"><i class="fa-solid fa-map-location-dot" style="margin-right:8px;"></i>应急疏散示意图（原型占位）</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="notice-data.js"></script>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'portal');
+
+    /** 隐患公示示例数据（对齐门户现有列表样式） */
+    const HAZARDS = [
+      { id: 1, level: '一般隐患', name: '季度检查计划', date: '2026-07-02', dept: '项目建设事业部-疏浚项目组', status: 'done', statusLabel: '已整改' },
+      { id: 2, level: '一般隐患', name: '月度检查计划', date: '2026-07-02', dept: '项目建设事业部-疏浚项目组', status: 'done', statusLabel: '已整改' },
+      { id: 3, level: '一般隐患', name: '专项检查（仓储区配电箱）', date: '2026-07-06', dept: '生产事业部-仓储组', status: 'pending', statusLabel: '待整改' },
+      { id: 4, level: '一般隐患', name: '日常巡检（通道堆放杂物）', date: '2026-07-05', dept: '设备技术部', status: 'done', statusLabel: '已整改' }
+    ];
+
+    /** 权限：canView / canHandle（原型演示，正式由平台控制） */
+    const ROLE_PERMS = {
+      admin:  { canView: true,  canHandle: true,  label: '欢迎您，武大管理员' },
+      viewer: { canView: true,  canHandle: false, label: '欢迎您，普通用户' },
+      none:   { canView: false, canHandle: false, label: '欢迎您，访客' }
+    };
+
+    let currentRole = 'admin';
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    /**
+     * 查看 / 处理：原型仅提供操作入口，不渲染弹窗。
+     * 实际打开的弹窗与「整改通知」隐患整改弹窗一致（见 PRD）。
+     */
+    function onView(id) {
+      const item = HAZARDS.find(h => h.id === id);
+      toast('打开查看弹窗（与整改通知查看弹窗一致）：' + (item ? item.name : id));
+    }
+
+    function onHandle(id) {
+      const item = HAZARDS.find(h => h.id === id);
+      toast('打开处理弹窗（与整改通知隐患整改弹窗一致）：' + (item ? item.name : id));
+    }
+
+    function renderOps(item, perm) {
+      if (!perm.canView && !perm.canHandle) return '<span style="color:#bbb;">—</span>';
+      let html = '';
+      if (perm.canView) {
+        html += `<button type="button" class="op-link" onclick="onView(${item.id})">查看</button>`;
+      }
+      // 已整改：仅展示查看；待整改且有处理权限：展示处理
+      if (perm.canHandle && item.status === 'pending') {
+        html += `<button type="button" class="op-link" onclick="onHandle(${item.id})">处理</button>`;
+      }
+      return html || '<span style="color:#bbb;">—</span>';
+    }
+
+    function renderTable() {
+      const perm = ROLE_PERMS[currentRole];
+      document.getElementById('userLabel').textContent = perm.label;
+      document.getElementById('hazardBody').innerHTML = HAZARDS.map(item => `
+        <tr>
+          <td><span class="tag-general">${item.level}</span></td>
+          <td>${item.name}</td>
+          <td>${item.date}</td>
+          <td>${item.dept}</td>
+          <td class="${item.status === 'done' ? 'status-done' : 'status-pending'}">${item.statusLabel}</td>
+          <td>${renderOps(item, perm)}</td>
+        </tr>
+      `).join('');
+    }
+
+    /** 重要通知通告条：无生效数据时整模块隐藏；点击单条弹窗；「更多」进列表 */
+    function renderNoticeBar() {
+      const bar = document.getElementById('noticeBar');
+      const marquee = document.getElementById('noticeMarquee');
+      const demoEmpty = document.getElementById('noticeEmptyDemo').value === 'empty';
+      const notices = demoEmpty ? [] : PcBizShell.publishedNotices();
+
+      if (!notices.length) {
+        bar.style.display = 'none';
+        marquee.innerHTML = '';
+        return;
+      }
+
+      bar.style.display = 'flex';
+      const items = notices.map(function (n) {
+        const date = (n.publishAt || '').slice(0, 10);
+        return '<a class="notice-item" href="javascript:void(0)" data-id="' + n.id + '">' +
+          '<span class="notice-badge ' + PcBizShell.levelClass(n.level) + '">' + n.level + '</span>' +
+          '<span>' + n.title + '</span>' +
+          '<span style="color:#c2410c;opacity:.7;">' + date + '</span></a>';
+      }).join('');
+      marquee.innerHTML = items + items;
+      marquee.querySelectorAll('.notice-item').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          PcBizShell.openNoticeModal(PcBizShell.findNoticeById(el.getAttribute('data-id')));
+        });
+      });
+    }
+
+    document.getElementById('roleSelect').addEventListener('change', (e) => {
+      currentRole = e.target.value;
+      renderTable();
+    });
+    document.getElementById('noticeEmptyDemo').addEventListener('change', renderNoticeBar);
+
+    renderNoticeBar();
+    renderTable();
+  </script>
+</body>
+</html>
