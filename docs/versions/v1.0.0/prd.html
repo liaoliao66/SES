@@ -95,7 +95,6 @@
     <div id="error" class="hidden text-sm text-rose-600 py-10"></div>
   </main>
 
-  <!-- 内嵌 Markdown：兼容本地 file:// 直接打开，无需本地服务器 -->
   <script type="text/plain" id="prd-embedded">
 ---
 version: v1.0.0
@@ -220,7 +219,7 @@ flowchart TD
   Ticket --> EndP[归档留痕]
 
   Portal --> ViewOrHandle[查看或处理隐患入口]
-  ViewOrHandle --> FillRect
+  ViewOrHandle --> PortalFill[进入整改填写]
 ```
 
 **文字解读：**
@@ -250,7 +249,8 @@ flowchart TD
   J --> L[系统自动创建整改通知]
   L --> N[整改责任人逐条填写整改说明与照片]
   N --> O{所有隐患完成整改?}
-  O -->|否| N
+  O -->|否| N2[继续填写未完成隐患]
+  N2 --> N
   O -->|是| P[状态进入待复核]
   P --> Q[复核完成后归档为已复核]
 ```
@@ -318,20 +318,20 @@ flowchart TD
 ## 2.3 用户交互流程
 
 ```mermaid
-flowchart LR
-  subgraph 企微H5
+flowchart TB
+  subgraph wecom["企微H5"]
     WX[企微工作台入口] --> Check[安环检查]
     WX --> Violation[违章管理]
     WX --> Permits[危险作业管理]
-    Check --> Rec[检查记录 列表/新增]
-    Check --> Rect[整改通知 列表/整改填写]
-    Violation --> VReg[违章登记 列表/新增]
-    Violation --> VHandle[违章处理 列表/处理]
-    Permits --> WP[危险作业申请 列表/新增/详情]
+    Check --> Rec[检查记录列表/新增]
+    Check --> Rect[整改通知列表/整改填写]
+    Violation --> VReg[违章登记列表/新增]
+    Violation --> VHandle[违章处理列表/处理]
+    Permits --> WP[危险作业申请列表/新增/详情]
     WP --> WPTicket[作业票预览/导出]
   end
-  subgraph PC端
-    PCPortal[安环门户] --> HazOp[隐患公示 查看/处理入口]
+  subgraph pc["PC端"]
+    PCPortal[安环门户] --> HazOp[隐患公示查看/处理入口]
     PCHome[危险作业管理] --> PCList[申请台账]
     PCList --> PCDetail[申请详情]
     PCDetail --> PCForm[新增/编辑]
@@ -388,7 +388,7 @@ stateDiagram-v2
 
 > 状态名称用于业务列表展示与筛选；若平台审核节点介入导致中间态差异，以平台回写状态为准，本产品不设计审批办理页。
 
-#<a id="sec-2-5"></a>
+<a id="sec-2-5"></a>
 
 ## 2.5 系统数据流转时序图
 
@@ -851,7 +851,12 @@ PC → 申请台账列表
   </script>
 
   <script>
-    mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'neutral',
+      securityLevel: 'loose',
+      flowchart: { htmlLabels: true, curve: 'basis', useMaxWidth: true }
+    });
 
     function slugify(text) {
       return String(text)
@@ -869,6 +874,14 @@ PC → 申请台账列表
         if (end !== -1) return md.slice(end + 4).replace(/^\s+/, '');
       }
       return md;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     function enhanceHeadings(root) {
@@ -897,21 +910,32 @@ PC → 申请台账列表
 
     async function renderMermaid(root) {
       const blocks = Array.from(root.querySelectorAll('pre code.language-mermaid, pre code.mermaid'));
+      let i = 0;
       for (const code of blocks) {
         const pre = code.parentElement;
+        const graph = (code.textContent || '').trim();
         const host = document.createElement('div');
         host.className = 'mermaid';
-        host.textContent = code.textContent;
         pre.replaceWith(host);
+        try {
+          const id = 'mmd-' + (i++) + '-' + Date.now();
+          const { svg } = await mermaid.render(id, graph);
+          host.innerHTML = svg;
+        } catch (err) {
+          host.className = 'rounded-xl border border-amber-200 bg-amber-50 p-3 my-3';
+          host.innerHTML =
+            '<p class="text-xs text-amber-800 mb-2">流程图渲染失败，已保留源码：' +
+            escapeHtml(err && err.message ? err.message : String(err)) +
+            '</p><pre class="text-xs overflow-x-auto whitespace-pre-wrap text-slate-700 m-0 bg-transparent p-0">' +
+            escapeHtml(graph) +
+            '</pre>';
+        }
       }
-      const nodes = root.querySelectorAll('.mermaid');
-      if (nodes.length) await mermaid.run({ nodes });
     }
 
     async function loadMarkdown() {
       const embedded = document.getElementById('prd-embedded');
       let md = embedded ? embedded.textContent : '';
-      // http(s) 环境下优先尝试拉取最新 prd.md；失败则回退内嵌副本
       if (location.protocol === 'http:' || location.protocol === 'https:') {
         try {
           const res = await fetch('./prd.md', { cache: 'no-store' });
@@ -936,10 +960,10 @@ PC → 申请台账列表
         content.innerHTML = marked.parse(md);
         const toc = enhanceHeadings(content);
         renderToc(toc);
-        await renderMermaid(content);
-
+        // 正文先展示，流程图单独渲染，避免单图失败拖垮全文
         loading.classList.add('hidden');
         content.classList.remove('hidden');
+        await renderMermaid(content);
 
         const links = Array.from(document.querySelectorAll('#toc-links a'));
         const heads = toc.map((t) => document.getElementById(t.id)).filter(Boolean);

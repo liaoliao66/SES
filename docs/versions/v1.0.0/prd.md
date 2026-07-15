@@ -121,7 +121,7 @@ flowchart TD
   Ticket --> EndP[归档留痕]
 
   Portal --> ViewOrHandle[查看或处理隐患入口]
-  ViewOrHandle --> FillRect
+  ViewOrHandle --> PortalFill[进入整改填写]
 ```
 
 **文字解读：**
@@ -151,7 +151,8 @@ flowchart TD
   J --> L[系统自动创建整改通知]
   L --> N[整改责任人逐条填写整改说明与照片]
   N --> O{所有隐患完成整改?}
-  O -->|否| N
+  O -->|否| N2[继续填写未完成隐患]
+  N2 --> N
   O -->|是| P[状态进入待复核]
   P --> Q[复核完成后归档为已复核]
 ```
@@ -219,20 +220,20 @@ flowchart TD
 ## 2.3 用户交互流程
 
 ```mermaid
-flowchart LR
-  subgraph 企微H5
+flowchart TB
+  subgraph wecom["企微H5"]
     WX[企微工作台入口] --> Check[安环检查]
     WX --> Violation[违章管理]
     WX --> Permits[危险作业管理]
-    Check --> Rec[检查记录 列表/新增]
-    Check --> Rect[整改通知 列表/整改填写]
-    Violation --> VReg[违章登记 列表/新增]
-    Violation --> VHandle[违章处理 列表/处理]
-    Permits --> WP[危险作业申请 列表/新增/详情]
+    Check --> Rec[检查记录列表/新增]
+    Check --> Rect[整改通知列表/整改填写]
+    Violation --> VReg[违章登记列表/新增]
+    Violation --> VHandle[违章处理列表/处理]
+    Permits --> WP[危险作业申请列表/新增/详情]
     WP --> WPTicket[作业票预览/导出]
   end
-  subgraph PC端
-    PCPortal[安环门户] --> HazOp[隐患公示 查看/处理入口]
+  subgraph pc["PC端"]
+    PCPortal[安环门户] --> HazOp[隐患公示查看/处理入口]
     PCHome[危险作业管理] --> PCList[申请台账]
     PCList --> PCDetail[申请详情]
     PCDetail --> PCForm[新增/编辑]
@@ -289,7 +290,7 @@ stateDiagram-v2
 
 > 状态名称用于业务列表展示与筛选；若平台审核节点介入导致中间态差异，以平台回写状态为准，本产品不设计审批办理页。
 
-#<a id="sec-2-5"></a>
+<a id="sec-2-5"></a>
 
 ## 2.5 系统数据流转时序图
 
