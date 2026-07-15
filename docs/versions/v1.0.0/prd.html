@@ -24,9 +24,17 @@
     .prd-toc a:hover, .prd-toc a.active { color:#2563eb; background:#eff6ff; }
     .prd-toc .l2 { padding-left:12px; font-size:12px; color:#64748b; }
     .prd-toc .l3 { padding-left:22px; font-size:12px; color:#94a3b8; }
-    .prd-main { max-width:920px; margin:0 auto; padding:24px 20px 80px; }
+    .prd-main {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+      box-sizing: border-box;
+    }
+    /* 宽屏：左侧为目录留空，正文在剩余可视区内水平居中 */
     @media (min-width: 1100px) {
-      .prd-main { margin-left: calc(var(--toc-w) + 48px); margin-right: 24px; }
+      body { padding-left: calc(var(--toc-w) + 36px); }
+      .prd-main { margin-left: auto; margin-right: auto; }
     }
     @media (max-width: 1099px) { .prd-toc { display:none; } }
     #content h1 { font-size:1.875rem; font-weight:700; margin:0.5rem 0 1rem; }
