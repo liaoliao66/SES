@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>应急联系人 · v1.1.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px; color: var(--pc-text); background: var(--pc-bg);
+    }
+    .pc-app { min-height: 100vh; display: flex; flex-direction: column; }
+    .pc-topnav {
+      height: 48px; background: var(--pc-top); color: #fff; display: flex; align-items: center;
+      padding: 0 16px; flex-shrink: 0; gap: 12px;
+    }
+    .pc-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+    .pc-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .pc-tabs {
+      display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
+      padding: 0 8px; height: 36px; flex-shrink: 0;
+    }
+    .pc-tab {
+      display: flex; align-items: center; padding: 0 14px; height: 36px; font-size: 13px;
+      color: var(--pc-text-secondary); border-bottom: 2px solid transparent;
+    }
+    .pc-tab.active { color: var(--pc-primary); border-bottom-color: var(--pc-primary); font-weight: 500; }
+    .pc-content { flex: 1; overflow: auto; padding: 12px 16px 40px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .toolbar h1 { margin: 0; font-size: 18px; }
+    .sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .phone-pill {
+      display: inline-flex; align-items: center; gap: 8px; background: #fff7ed; border: 1px solid #fdba74;
+      color: #c2410c; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600;
+    }
+    .btn {
+      height: 34px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--pc-border); background: #fff;
+      cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit; color: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--pc-primary); border-color: var(--pc-primary); color: #fff; }
+    .btn[disabled] { opacity: .45; cursor: not-allowed; }
+    .card {
+      background: #fff; border: 1px solid var(--pc-border); border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px;
+      border-bottom: 1px solid var(--pc-border); background: #f8fafc;
+    }
+    .filter-bar select, .filter-bar input {
+      height: 32px; border: 1px solid var(--pc-border); border-radius: 8px; padding: 0 10px;
+      font-size: 13px; background: #fff; font-family: inherit;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--pc-border); text-align: left; font-size: 13px; vertical-align: middle; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; }
+    tr:hover td { background: #fafcff; }
+    .org-cell { font-weight: 600; color: #0f172a; }
+    .muted { color: #94a3b8; }
+    .ops button { color: var(--pc-primary); background: none; border: 0; cursor: pointer; font-size: 13px; margin-right: 8px; font-family: inherit; padding: 0; }
+    .ops button.danger { color: #ef4444; }
+    .empty { text-align: center; padding: 48px 16px; color: #94a3b8; font-size: 13px; }
+    .toast {
+      position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+      background: rgba(15,23,42,.9); color: #fff; padding: 10px 16px; border-radius: 10px;
+      font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 300;
+    }
+    .toast.show { opacity: 1; }
+    .form-mask {
+      position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 220;
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .form-mask.show { display: flex; }
+    .form-modal {
+      width: min(560px, 100%); max-height: min(88vh, 720px); background: #fff;
+      border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.14);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .form-modal-hd, .form-modal-ft {
+      padding: 14px 18px; border-bottom: 1px solid var(--pc-border);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .form-modal-ft { border-bottom: 0; border-top: 1px solid var(--pc-border); justify-content: flex-end; }
+    .form-modal-hd h2 { margin: 0; font-size: 16px; }
+    .form-modal-bd { padding: 16px 18px; overflow: auto; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; color: #64748b; margin-bottom: 6px; }
+    .req::after { content: " *"; color: #ef4444; }
+    .ctrl {
+      width: 100%; min-height: 36px; border: 1px solid var(--pc-border); border-radius: 10px;
+      padding: 8px 12px; font-size: 14px; background: #f8fafc; font-family: inherit;
+    }
+    .ctrl:focus { outline: none; border-color: #93c5fd; background: #fff; }
+    .role-tip { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <strong style="font-size:15px;">安环监测</strong>
+      <span style="font-size:12px;opacity:.85;">v1.1.0 · 应急联系人</span>
+      <span style="margin-left:auto;font-size:13px;" id="userLabel">欢迎您，武大管理员</span>
+    </header>
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+      <main class="pc-main">
+        <div class="pc-tabs"><div class="pc-tab active">应急联系人</div></div>
+        <div class="pc-content">
+          <div class="toolbar">
+            <div>
+              <h1>应急联系人</h1>
+              <div class="sub">对齐表 Y6.1-1 公司应急组织及人员的联系方式 · 一机构多行 · 仅名册维护</div>
+              <div style="margin-top:10px;" class="phone-pill">
+                <i class="fa-solid fa-phone"></i>
+                <span>应急电话：</span>
+                <span id="emergencyPhoneText">186270336</span>
+                <button type="button" class="btn" id="btnEditPhone" style="height:28px;padding:0 10px;box-shadow:none;">修改</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+              <button type="button" class="btn btn-primary" id="btnCreate"><i class="fa-solid fa-plus"></i>新增联系人</button>
+              <div class="role-tip">
+                <span>权限演示：</span>
+                <select id="roleSelect" style="height:28px;border:1px solid var(--pc-border);border-radius:6px;font-size:12px;">
+                  <option value="admin">安环管理员（可维护）</option>
+                  <option value="viewer">全员只读</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="filter-bar">
+              <label style="font-size:12px;color:#64748b;">机构</label>
+              <select id="orgFilter"></select>
+              <span style="font-size:12px;color:#94a3b8;">演示数据已补全姓名与电话；业务表缺序号 5 仍保留</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:56px;">序号</th>
+                  <th style="width:140px;">机构名称</th>
+                  <th style="width:120px;">内部职责</th>
+                  <th>公司内职务</th>
+                  <th style="width:100px;">人员姓名</th>
+                  <th style="width:130px;">联系电话</th>
+                  <th style="width:160px;" id="opTh">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="form-mask" id="formMask" role="dialog" aria-modal="true">
+    <div class="form-modal" onclick="event.stopPropagation()">
+      <div class="form-modal-hd">
+        <h2 id="formTitle">新增联系人</h2>
+        <button type="button" class="btn" id="formClose" style="width:32px;height:32px;padding:0;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-modal-bd">
+        <div class="field">
+          <label class="req">机构名称</label>
+          <input class="ctrl" id="fOrg" list="orgList" placeholder="选择或输入机构名称" />
+          <datalist id="orgList"></datalist>
+        </div>
+        <div class="field">
+          <label class="req">内部职责</label>
+          <select class="ctrl" id="fRole">
+            <option>总指挥</option>
+            <option>副总指挥</option>
+            <option>应急办负责人</option>
+            <option>联络员</option>
+            <option>组长</option>
+            <option>组员</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>公司内职务</label>
+          <input class="ctrl" id="fTitle" placeholder="如：副总经理、安监部部长" />
+        </div>
+        <div class="field">
+          <label>人员姓名</label>
+          <input class="ctrl" id="fName" placeholder="可空，支持后续补录" />
+        </div>
+        <div class="field">
+          <label>联系电话</label>
+          <input class="ctrl" id="fPhone" placeholder="可空；支持手机号/短号" />
+        </div>
+      </div>
+      <div class="form-modal-ft">
+        <button type="button" class="btn" id="btnCancel">取消</button>
+        <button type="button" class="btn btn-primary" id="btnSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-mask" id="phoneMask" role="dialog" aria-modal="true">
+    <div class="form-modal" style="width:min(420px,100%);" onclick="event.stopPropagation()">
+      <div class="form-modal-hd"><h2>修改应急电话</h2>
+        <button type="button" class="btn" id="phoneClose" style="width:32px;height:32px;padding:0;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-modal-bd">
+        <div class="field">
+          <label class="req">应急电话</label>
+          <input class="ctrl" id="fEmergencyPhone" />
+        </div>
+      </div>
+      <div class="form-modal-ft">
+        <button type="button" class="btn" id="phoneCancel">取消</button>
+        <button type="button" class="btn btn-primary" id="phoneSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-mask" id="viewMask" role="dialog" aria-modal="true">
+    <div class="form-modal" style="width:min(480px,100%);" onclick="event.stopPropagation()">
+      <div class="form-modal-hd">
+        <h2>查看联系人</h2>
+        <button type="button" class="btn" id="viewClose" style="width:32px;height:32px;padding:0;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-modal-bd" id="viewBody" style="font-size:14px;line-height:1.9;color:#334155;"></div>
+      <div class="form-modal-ft">
+        <button type="button" class="btn btn-primary" id="viewOk">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'emergency-contact');
+
+    /** 演示数据：对齐表 Y6.1-1 机构职责；姓名与电话已补全便于预览（正式以业务录入为准）；缺序号 5 */
+    var emergencyPhone = '18627033668';
+    var nextId = 100;
+    var rows = [
+      { id: 1, orgOrder: 1, org: '应急指挥部', role: '总指挥', title: '总经理', name: '陈建国', phone: '13807110001' },
+      { id: 2, orgOrder: 1, org: '应急指挥部', role: '副总指挥', title: '副总经理', name: '王海涛', phone: '13907151866' },
+      { id: 3, orgOrder: 1, org: '应急指挥部', role: '副总指挥', title: '总工程师', name: '刘志强', phone: '15271886688' },
+      { id: 4, orgOrder: 2, org: '应急指挥办公室', role: '应急办负责人', title: '安监部部长', name: '赵明华', phone: '18657027708' },
+      { id: 5, orgOrder: 2, org: '应急指挥办公室', role: '联络员', title: '安监部副部长', name: '孙丽娟', phone: '18626381234' },
+      { id: 6, orgOrder: 3, org: '通讯联络组', role: '组长', title: '副总经理', name: '周立军', phone: '17771353125' },
+      { id: 7, orgOrder: 3, org: '通讯联络组', role: '组员', title: '市场部副部长', name: '吴晓东', phone: '13917083066' },
+      { id: 8, orgOrder: 4, org: '警戒疏散组', role: '组长', title: '生产操作部副部长', name: '郑卫东', phone: '15927608296' },
+      { id: 9, orgOrder: 4, org: '警戒疏散组', role: '组员', title: '建管部部员', name: '冯雪梅', phone: '13886551234' },
+      { id: 10, orgOrder: 6, org: '抢险救援组', role: '组长', title: '生产操作部部长', name: '何长林', phone: '13971201111' },
+      { id: 11, orgOrder: 6, org: '抢险救援组', role: '组员', title: '设备技术部部长', name: '罗建平', phone: '13832112233' },
+      { id: 12, orgOrder: 6, org: '抢险救援组', role: '组员', title: '设备技术部副部长', name: '谢国强', phone: '18871773344' },
+      { id: 13, orgOrder: 6, org: '抢险救援组', role: '组员', title: '综合部部员', name: '韩冰', phone: '18671335566' },
+      { id: 14, orgOrder: 6, org: '抢险救援组', role: '组员', title: '市场部部员', name: '曹阳', phone: '13507116677' },
+      { id: 15, orgOrder: 6, org: '抢险救援组', role: '组员', title: '生产操作部部员', name: '邓磊', phone: '13826448899' },
+      { id: 16, orgOrder: 6, org: '抢险救援组', role: '组员', title: '生产操作部部员', name: '彭涛', phone: '13971260088' },
+      { id: 17, orgOrder: 6, org: '抢险救援组', role: '组员', title: '生产操作部部员', name: '姜浩', phone: '15071234567' },
+      { id: 18, orgOrder: 7, org: '后勤保障组', role: '组长', title: '计合部部长', name: '崔静', phone: '18907123456' },
+      { id: 19, orgOrder: 7, org: '后勤保障组', role: '组员', title: '综合部副部长', name: '卢强', phone: '18702785678' },
+      { id: 20, orgOrder: 8, org: '医疗救护组', role: '组长', title: '综合部部长', name: '高敏', phone: '18774001234' },
+      { id: 21, orgOrder: 8, org: '医疗救护组', role: '组员', title: '商务部部长', name: '林芳', phone: '18306225566' },
+      { id: 22, orgOrder: 8, org: '医疗救护组', role: '组员', title: '财务部部长', name: '徐军', phone: '15271889900' }
+    ];
+
+    var canEdit = true;
+    var editingId = 0;
+
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1600);
+    }
+
+    function dash(v) { return v && String(v).trim() ? v : '<span class="muted">—</span>'; }
+
+    function orgOptions() {
+      var map = {};
+      rows.forEach(function (r) { map[r.org] = r.orgOrder; });
+      return Object.keys(map).sort(function (a, b) { return map[a] - map[b]; });
+    }
+
+    function fillFilters() {
+      var sel = document.getElementById('orgFilter');
+      var cur = sel.value || '全部';
+      sel.innerHTML = '<option value="全部">全部机构</option>' +
+        orgOptions().map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('');
+      sel.value = cur;
+      document.getElementById('orgList').innerHTML =
+        orgOptions().map(function (o) { return '<option value="' + o + '"></option>'; }).join('');
+    }
+
+    function syncRoleUi() {
+      document.getElementById('btnCreate').style.display = canEdit ? 'inline-flex' : 'none';
+      document.getElementById('btnEditPhone').style.display = canEdit ? 'inline-flex' : 'none';
+      document.getElementById('opTh').style.display = '';
+      document.getElementById('userLabel').textContent = canEdit ? '欢迎您，武大管理员' : '欢迎您，普通用户（只读）';
+    }
+
+    function render() {
+      document.getElementById('emergencyPhoneText').textContent = emergencyPhone;
+      fillFilters();
+      var filter = document.getElementById('orgFilter').value;
+      var list = rows.filter(function (r) { return filter === '全部' || r.org === filter; })
+        .slice().sort(function (a, b) {
+          if (a.orgOrder !== b.orgOrder) return a.orgOrder - b.orgOrder;
+          return a.id - b.id;
+        });
+
+      var tbody = document.getElementById('tbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><i class="fa-regular fa-folder-open" style="display:block;font-size:28px;margin-bottom:8px;"></i>暂无应急联系人</div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(function (r) {
+        var ops = '<td class="ops"><button type="button" data-view="' + r.id + '">查看</button>';
+        if (canEdit) {
+          ops += '<button type="button" data-edit="' + r.id + '">编辑</button>' +
+            '<button type="button" class="danger" data-del="' + r.id + '">删除</button>';
+        }
+        ops += '</td>';
+        return '<tr>' +
+          '<td>' + r.orgOrder + '</td>' +
+          '<td class="org-cell">' + r.org + '</td>' +
+          '<td>' + r.role + '</td>' +
+          '<td>' + dash(r.title) + '</td>' +
+          '<td>' + dash(r.name) + '</td>' +
+          '<td>' + dash(r.phone) + '</td>' +
+          ops + '</tr>';
+      }).join('');
+    }
+
+    function openForm(row) {
+      editingId = row ? row.id : 0;
+      document.getElementById('formTitle').textContent = row ? '编辑联系人' : '新增联系人';
+      document.getElementById('fOrg').value = row ? row.org : '';
+      document.getElementById('fRole').value = row ? row.role : '组员';
+      document.getElementById('fTitle').value = row ? (row.title || '') : '';
+      document.getElementById('fName').value = row ? (row.name || '') : '';
+      document.getElementById('fPhone').value = row ? (row.phone || '') : '';
+      document.getElementById('formMask').classList.add('show');
+    }
+
+    function closeForm() { document.getElementById('formMask').classList.remove('show'); }
+
+    function openView(row) {
+      if (!row) return;
+      document.getElementById('viewBody').innerHTML =
+        '<div><strong>机构名称：</strong>' + row.org + '（序号 ' + row.orgOrder + '）</div>' +
+        '<div><strong>内部职责：</strong>' + row.role + '</div>' +
+        '<div><strong>公司内职务：</strong>' + (row.title || '—') + '</div>' +
+        '<div><strong>人员姓名：</strong>' + (row.name || '—') + '</div>' +
+        '<div><strong>联系电话：</strong>' + (row.phone || '—') + '</div>' +
+        '<div style="margin-top:8px;color:#c2410c;"><strong>应急电话：</strong>' + emergencyPhone + '</div>';
+      document.getElementById('viewMask').classList.add('show');
+    }
+
+    function closeView() { document.getElementById('viewMask').classList.remove('show'); }
+
+    function orgOrderOf(name) {
+      var found = rows.find(function (r) { return r.org === name; });
+      if (found) return found.orgOrder;
+      var max = rows.reduce(function (m, r) { return Math.max(m, r.orgOrder); }, 0);
+      return max + 1;
+    }
+
+    document.getElementById('roleSelect').addEventListener('change', function (e) {
+      canEdit = e.target.value === 'admin';
+      syncRoleUi();
+      render();
+    });
+    document.getElementById('orgFilter').addEventListener('change', render);
+    document.getElementById('btnCreate').addEventListener('click', function () { openForm(null); });
+    document.getElementById('formClose').addEventListener('click', closeForm);
+    document.getElementById('btnCancel').addEventListener('click', closeForm);
+    document.getElementById('formMask').addEventListener('click', closeForm);
+    document.getElementById('viewClose').addEventListener('click', closeView);
+    document.getElementById('viewOk').addEventListener('click', closeView);
+    document.getElementById('viewMask').addEventListener('click', closeView);
+
+    document.getElementById('tbody').addEventListener('click', function (e) {
+      var viewId = e.target.getAttribute('data-view');
+      if (viewId) {
+        openView(rows.find(function (r) { return r.id === Number(viewId); }));
+        return;
+      }
+      var editId = e.target.getAttribute('data-edit');
+      if (editId) {
+        openForm(rows.find(function (r) { return r.id === Number(editId); }));
+        return;
+      }
+      var delId = e.target.getAttribute('data-del');
+      if (delId) {
+        if (!confirm('确认删除该联系人？')) return;
+        rows = rows.filter(function (r) { return r.id !== Number(delId); });
+        toast('已删除');
+        render();
+      }
+    });
+
+    document.getElementById('btnSave').addEventListener('click', function () {
+      var org = document.getElementById('fOrg').value.trim();
+      var role = document.getElementById('fRole').value;
+      if (!org) { toast('请填写机构名称'); return; }
+      if (!role) { toast('请选择内部职责'); return; }
+      var payload = {
+        org: org,
+        orgOrder: orgOrderOf(org),
+        role: role,
+        title: document.getElementById('fTitle').value.trim(),
+        name: document.getElementById('fName').value.trim(),
+        phone: document.getElementById('fPhone').value.trim()
+      };
+      if (editingId) {
+        rows = rows.map(function (r) {
+          return r.id === editingId ? Object.assign({}, r, payload) : r;
+        });
+        toast('已保存修改');
+      } else {
+        nextId += 1;
+        rows.push(Object.assign({ id: nextId }, payload));
+        toast('已新增联系人');
+      }
+      closeForm();
+      render();
+    });
+
+    document.getElementById('btnEditPhone').addEventListener('click', function () {
+      document.getElementById('fEmergencyPhone').value = emergencyPhone;
+      document.getElementById('phoneMask').classList.add('show');
+    });
+    function closePhone() { document.getElementById('phoneMask').classList.remove('show'); }
+    document.getElementById('phoneClose').addEventListener('click', closePhone);
+    document.getElementById('phoneCancel').addEventListener('click', closePhone);
+    document.getElementById('phoneMask').addEventListener('click', closePhone);
+    document.getElementById('phoneSave').addEventListener('click', function () {
+      var v = document.getElementById('fEmergencyPhone').value.trim();
+      if (!v) { toast('请填写应急电话'); return; }
+      emergencyPhone = v;
+      closePhone();
+      toast('应急电话已更新');
+      render();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      closeForm();
+      closePhone();
+      closeView();
+    });
+
+    syncRoleUi();
+    render();
+  </script>
+</body>
+</html>

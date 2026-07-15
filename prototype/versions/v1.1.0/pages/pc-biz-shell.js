@@ -1,7 +1,7 @@
 /**
  * v1.1.0 PC 固定业务菜单 + 重要通知弹窗
- * 菜单结构固定：安环门户 / 使用监督 / 公告信息 → 重要通知
- * activeKey: 'portal' | 'supervise' | 'notice-admin'
+ * 菜单：安环门户 / 使用监督 / 公告信息→重要通知 / 应急管理→应急联系人
+ * activeKey: 'portal' | 'supervise' | 'notice-admin' | 'emergency-contact'
  */
 (function (global) {
   var MENU_HTML =
@@ -19,7 +19,25 @@
     '      <li><a data-key="notice-admin" href="pc_消息公告_管理_list.html">重要通知</a></li>' +
     '    </ul>' +
     '  </li>' +
+    '  <li class="pc-menu-group open" id="pcEmergencyGroup">' +
+    '    <button type="button" class="pc-menu-item" data-key="emergency-group" aria-expanded="true">' +
+    '      <span class="pc-menu-icon"><i class="fa-solid fa-truck-medical"></i></span>应急管理' +
+    '      <i class="fa-solid fa-chevron-right pc-menu-arrow"></i></button>' +
+    '    <ul class="pc-submenu">' +
+    '      <li><a data-key="emergency-contact" href="pc_应急联系人_list.html">应急联系人</a></li>' +
+    '    </ul>' +
+    '  </li>' +
     '</ul>';
+
+  function bindGroupToggle(groupId, toggleKey) {
+    var group = document.getElementById(groupId);
+    var toggle = group ? group.querySelector('[data-key="' + toggleKey + '"]') : null;
+    if (!toggle || !group) return;
+    toggle.addEventListener('click', function () {
+      group.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', group.classList.contains('open') ? 'true' : 'false');
+    });
+  }
 
   function mountSidebar(el, activeKey) {
     if (!el) return;
@@ -29,17 +47,16 @@
         node.classList.add('active');
       }
     });
-    var group = el.querySelector('#pcNoticeGroup');
-    var toggle = el.querySelector('[data-key="notice-group"]');
-    if (toggle && group) {
-      toggle.addEventListener('click', function () {
-        group.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', group.classList.contains('open') ? 'true' : 'false');
-      });
+    bindGroupToggle('pcNoticeGroup', 'notice-group');
+    bindGroupToggle('pcEmergencyGroup', 'emergency-group');
+    // 相关页保持分组展开，避免预览时菜单骨架变化
+    if (activeKey === 'notice-admin') {
+      var ng = document.getElementById('pcNoticeGroup');
+      if (ng) ng.classList.add('open');
     }
-    // 管理/只读相关页默认保持展开，避免预览时「菜单样子」切换
-    if (activeKey === 'notice-admin' && group) {
-      group.classList.add('open');
+    if (activeKey === 'emergency-contact') {
+      var eg = document.getElementById('pcEmergencyGroup');
+      if (eg) eg.classList.add('open');
     }
   }
 
