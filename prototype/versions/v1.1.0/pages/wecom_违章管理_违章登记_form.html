@@ -143,7 +143,7 @@
       </button>
       <div style="text-align:center;">
         <div style="font-size:15px;font-weight:650;">新增违章登记</div>
-        <div class="ver-tag">v1.0.0 · 企微H5</div>
+        <div class="ver-tag">v1.1.0 · 企微H5</div>
       </div>
       <div style="width:36px;"></div>
     </div>
@@ -158,13 +158,18 @@
         <input class="ctrl" type="text" value="系统自动生成" readonly disabled />
       </div>
       <div class="field">
+        <div class="field-label req">违章来源</div>
+        <select class="ctrl" id="violSource" required>
+          <option value="">请选择</option>
+          <option value="AI识别">AI识别</option>
+          <option value="人工登记">人工登记</option>
+        </select>
+        <div class="err-msg" id="errSource">请选择违章来源</div>
+      </div>
+      <div class="field">
         <div class="field-label req">违章类型</div>
         <select class="ctrl" id="violType" required>
-          <option value="">请选择</option>
-          <option>未佩戴劳保用品</option>
-          <option>违规操作设备</option>
-          <option>现场管理违章</option>
-          <option>其他违章</option>
+          <option value="">请先选择来源</option>
         </select>
         <div class="err-msg" id="errType">请选择违章类型</div>
       </div>
@@ -241,6 +246,7 @@
     </button>
   </div>
 
+  <script src="violation-data.js"></script>
   <script>
     function toast(message) {
       var el = document.createElement('div');
@@ -270,19 +276,40 @@
       if (input) input.classList.toggle('error', !!show);
       if (err) err.classList.toggle('show', !!show);
     }
+    function syncTypeOptions() {
+      var source = document.getElementById('violSource').value;
+      var sel = document.getElementById('violType');
+      if (!source) {
+        sel.innerHTML = '<option value="">请先选择来源</option>';
+        return;
+      }
+      var opts = typesBySource(source);
+      sel.innerHTML = '<option value="">请选择</option>' +
+        opts.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+    }
     function submitForm() {
+      var sourceOk = !!document.getElementById('violSource').value;
       var typeOk = !!document.getElementById('violType').value;
       var timeOk = !!document.getElementById('violTime').value;
       var placeOk = !!document.getElementById('violPlace').value.trim();
       var personOk = !!document.getElementById('violPerson').value.trim();
       var ownerOk = !!document.getElementById('violOwner').value;
+      setErr('violSource', 'errSource', !sourceOk);
       setErr('violType', 'errType', !typeOk);
       setErr('violTime', 'errTime', !timeOk);
       setErr('violPlace', 'errPlace', !placeOk);
       setErr('violPerson', 'errPerson', !personOk);
       setErr('violOwner', 'errOwner', !ownerOk);
-      if (!(typeOk && timeOk && placeOk && personOk && ownerOk)) {
+      if (!(sourceOk && typeOk && timeOk && placeOk && personOk && ownerOk)) {
         toast('请完善必填项');
+        return;
+      }
+      var source = document.getElementById('violSource').value;
+      var type = document.getElementById('violType').value;
+      var time = document.getElementById('violTime').value;
+      if (source === 'AI识别' && type === '夜间未穿反光衣' && !isReflectiveNightWindow(time)) {
+        toast('夜间未穿反光衣仅接受 19:00～次日 07:00 的数据');
+        setErr('violTime', 'errTime', true);
         return;
       }
       toast('已保存违章登记');
@@ -294,6 +321,10 @@
       var desc = document.getElementById('violDesc');
       var count = document.getElementById('descCount');
       desc.addEventListener('input', function () { count.textContent = desc.value.length; });
+      document.getElementById('violSource').addEventListener('change', function () {
+        this.classList.remove('error');
+        syncTypeOptions();
+      });
       ['violType', 'violTime', 'violPlace', 'violPerson', 'violOwner'].forEach(function (id) {
         document.getElementById(id).addEventListener('change', function () {
           this.classList.remove('error');

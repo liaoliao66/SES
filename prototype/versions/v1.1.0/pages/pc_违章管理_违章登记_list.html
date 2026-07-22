@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>违章登记 · PC · v1.1.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px; color: var(--pc-text); background: var(--pc-bg);
+    }
+    .pc-app { min-height: 100vh; display: flex; flex-direction: column; }
+    .pc-topnav {
+      height: 48px; background: var(--pc-top); color: #fff; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px; flex-shrink: 0;
+    }
+    .pc-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+    .pc-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .pc-tabs {
+      display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--pc-border);
+      height: 36px; padding: 0 8px; flex-shrink: 0;
+    }
+    .pc-tab {
+      padding: 0 14px; height: 36px; display: flex; align-items: center; font-size: 13px;
+      color: var(--pc-text-secondary); border-bottom: 2px solid transparent;
+    }
+    .pc-tab.active { color: var(--pc-primary); border-bottom-color: var(--pc-primary); font-weight: 500; }
+    .pc-content { flex: 1; overflow: auto; padding: 12px 16px 32px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn {
+      height: 34px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--pc-border); background: #fff;
+      cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--pc-primary); border-color: var(--pc-primary); color: #fff; }
+    .card {
+      background: #fff; border: 1px solid var(--pc-border); border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05); overflow: hidden;
+    }
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; padding: 12px 14px;
+      border-bottom: 1px solid var(--pc-border); background: #f8fafc;
+    }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 12px; color: #64748b; }
+    .ctrl {
+      height: 32px; border: 1px solid var(--pc-border); border-radius: 8px; padding: 0 10px;
+      font-size: 13px; background: #fff; font-family: inherit; min-width: 140px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 10px; border-bottom: 1px solid var(--pc-border); text-align: left; font-size: 12px; vertical-align: middle; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; white-space: nowrap; }
+    tr:hover td { background: #fafcff; }
+    .thumb {
+      width: 56px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--pc-border);
+      cursor: zoom-in; background: #f1f5f9;
+    }
+    .thumb-empty {
+      width: 56px; height: 40px; border-radius: 6px; border: 1px dashed #cbd5e1; color: #94a3b8;
+      font-size: 11px; display: inline-flex; align-items: center; justify-content: center; background: #f8fafc;
+    }
+    .ops button {
+      color: var(--pc-primary); background: none; border: 0; cursor: pointer; font-size: 12px;
+      margin-right: 6px; font-family: inherit; padding: 0;
+    }
+    .ops button.danger { color: #ef4444; }
+    .muted { color: #94a3b8; }
+    .empty { text-align: center; padding: 40px 16px; color: #94a3b8; font-size: 13px; }
+    .pager {
+      display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+      padding: 10px 14px; font-size: 12px; color: #64748b;
+    }
+    .toast {
+      position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+      background: rgba(15,23,42,.9); color: #fff; padding: 10px 16px; border-radius: 10px;
+      font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 300;
+    }
+    .toast.show { opacity: 1; }
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 250;
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .lightbox.show { display: flex; }
+    .lightbox img {
+      max-width: min(860px, 92vw); max-height: 85vh; border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.2);
+    }
+    .hint { font-size: 12px; color: #94a3b8; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <header class="pc-topnav">
+      <strong style="font-size:15px;">安环监测</strong>
+      <span style="font-size:12px;opacity:.85;">v1.1.0 · 违章登记</span>
+      <span style="margin-left:auto;font-size:13px;">武大管理员</span>
+    </header>
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+      <main class="pc-main">
+        <div class="pc-tabs"><div class="pc-tab active">违章登记</div></div>
+        <div class="pc-content">
+          <div class="toolbar">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <select class="ctrl" id="projectSel" style="min-width:160px;">
+                <option>武穴项目部</option>
+                <option>生产事业部</option>
+              </select>
+              <button type="button" class="btn btn-primary" id="btnAdd"><i class="fa-solid fa-plus"></i>新增</button>
+              <button type="button" class="btn" id="btnBatchDel">批量删除</button>
+            </div>
+            <input class="ctrl" id="kw" placeholder="关键词搜索编号/地点/人员" style="min-width:220px;" />
+          </div>
+          <div class="hint">AI 识别仅含：车辆超速、夜间未穿反光衣、未带安全帽、吸烟；夜间未穿反光衣仅 19:00～次日 07:00。</div>
+
+          <div class="card" style="margin-top:10px;">
+            <div class="filter-bar">
+              <div class="field">
+                <label>违章来源</label>
+                <select class="ctrl" id="fSource">
+                  <option value="">全部</option>
+                  <option value="AI识别">AI识别</option>
+                  <option value="人工登记">人工登记</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>违章类型</label>
+                <select class="ctrl" id="fType"><option value="">全部</option></select>
+              </div>
+              <div class="field">
+                <label>违章时间起</label>
+                <input class="ctrl" type="datetime-local" id="fStart" />
+              </div>
+              <div class="field">
+                <label>违章时间止</label>
+                <input class="ctrl" type="datetime-local" id="fEnd" />
+              </div>
+              <button type="button" class="btn btn-primary" id="btnQuery">查询</button>
+              <button type="button" class="btn" id="btnReset">重置</button>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:40px;"><input type="checkbox" id="checkAll" /></th>
+                    <th style="width:48px;">序号</th>
+                    <th>违章编号</th>
+                    <th>违章类型</th>
+                    <th>违章照片</th>
+                    <th>来源</th>
+                    <th>违章人员</th>
+                    <th>违章处理责任人</th>
+                    <th>违章地点</th>
+                    <th>违章时间</th>
+                    <th>登记人</th>
+                    <th>登记部门</th>
+                    <th style="width:200px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+            <div class="pager">共 <span id="total">0</span> 条 · 20条/页</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" alt="违章照片放大" /></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="violation-data.js"></script>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'violation-reg');
+
+    var rows = VIOLATION_DATA.slice();
+    var filtered = rows.slice();
+
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1600);
+    }
+
+    function dash(v) { return v && String(v).trim() ? v : '<span class="muted">—</span>'; }
+
+    function syncTypeOptions() {
+      var source = document.getElementById('fSource').value;
+      var sel = document.getElementById('fType');
+      var cur = sel.value;
+      var opts = typesBySource(source);
+      sel.innerHTML = '<option value="">全部</option>' +
+        opts.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+      if (opts.indexOf(cur) >= 0) sel.value = cur;
+    }
+
+    function parseLocal(v) {
+      if (!v) return null;
+      return new Date(v.replace(' ', 'T'));
+    }
+
+    function query() {
+      var source = document.getElementById('fSource').value;
+      var type = document.getElementById('fType').value;
+      var start = document.getElementById('fStart').value;
+      var end = document.getElementById('fEnd').value;
+      var kw = document.getElementById('kw').value.trim();
+      var startT = start ? new Date(start) : null;
+      var endT = end ? new Date(end) : null;
+
+      filtered = rows.filter(function (r) {
+        if (source && r.source !== source) return false;
+        if (type && r.type !== type) return false;
+        var rt = parseLocal(r.time);
+        if (startT && rt && rt < startT) return false;
+        if (endT && rt && rt > endT) return false;
+        if (kw) {
+          var blob = [r.no, r.place, r.person, r.handler, r.type].join(' ');
+          if (blob.indexOf(kw) < 0) return false;
+        }
+        return true;
+      });
+      render();
+    }
+
+    function render() {
+      document.getElementById('total').textContent = String(filtered.length);
+      var tbody = document.getElementById('tbody');
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="13"><div class="empty">暂无符合条件的违章记录</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(function (r, idx) {
+        var photo = r.photo
+          ? '<img class="thumb" src="' + r.photo + '" alt="违章照片" data-photo="' + r.photo + '" />'
+          : '<span class="thumb-empty">暂无照片</span>';
+        return '<tr>' +
+          '<td><input type="checkbox" class="row-check" data-id="' + r.id + '" /></td>' +
+          '<td>' + (idx + 1) + '</td>' +
+          '<td>' + r.no + '</td>' +
+          '<td>' + r.type + '</td>' +
+          '<td>' + photo + '</td>' +
+          '<td>' + r.source + '</td>' +
+          '<td>' + dash(r.person) + '</td>' +
+          '<td>' + dash(r.handler) + '</td>' +
+          '<td>' + r.place + '</td>' +
+          '<td>' + r.time + '</td>' +
+          '<td>' + dash(r.registrar) + '</td>' +
+          '<td>' + dash(r.dept) + '</td>' +
+          '<td class="ops">' +
+          '<button type="button" data-act="view" data-id="' + r.id + '">查看</button>' +
+          '<button type="button" data-act="edit" data-id="' + r.id + '">编辑</button>' +
+          '<button type="button" class="danger" data-act="del" data-id="' + r.id + '">删除</button>' +
+          '<button type="button" data-act="audit" data-id="' + r.id + '">发起审核</button>' +
+          '</td></tr>';
+      }).join('');
+    }
+
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('show');
+    }
+
+    document.getElementById('fSource').addEventListener('change', syncTypeOptions);
+    document.getElementById('btnQuery').addEventListener('click', query);
+    document.getElementById('kw').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') query();
+    });
+    document.getElementById('btnReset').addEventListener('click', function () {
+      document.getElementById('fSource').value = '';
+      document.getElementById('fStart').value = '';
+      document.getElementById('fEnd').value = '';
+      document.getElementById('kw').value = '';
+      syncTypeOptions();
+      document.getElementById('fType').value = '';
+      query();
+    });
+    document.getElementById('btnAdd').addEventListener('click', function () {
+      toast('原型演示：打开新增违章登记（来源-类型级联）');
+    });
+    document.getElementById('btnBatchDel').addEventListener('click', function () {
+      var ids = Array.prototype.map.call(document.querySelectorAll('.row-check:checked'), function (el) {
+        return Number(el.getAttribute('data-id'));
+      });
+      if (!ids.length) { toast('请先勾选要删除的记录'); return; }
+      if (!confirm('确认批量删除选中的 ' + ids.length + ' 条记录？')) return;
+      rows = rows.filter(function (r) { return ids.indexOf(r.id) < 0; });
+      toast('已批量删除');
+      query();
+    });
+    document.getElementById('checkAll').addEventListener('change', function (e) {
+      Array.prototype.forEach.call(document.querySelectorAll('.row-check'), function (el) {
+        el.checked = e.target.checked;
+      });
+    });
+    document.getElementById('tbody').addEventListener('click', function (e) {
+      var photo = e.target.getAttribute('data-photo');
+      if (photo) { openLightbox(photo); return; }
+      var act = e.target.getAttribute('data-act');
+      var id = Number(e.target.getAttribute('data-id') || 0);
+      if (!act) return;
+      if (act === 'view') toast('原型演示：查看 #' + id);
+      if (act === 'edit') toast('原型演示：编辑 #' + id);
+      if (act === 'audit') toast('原型演示：已发起审核（调用平台审批，无自研审批页）');
+      if (act === 'del') {
+        if (!confirm('确认删除该违章记录？')) return;
+        rows = rows.filter(function (r) { return r.id !== id; });
+        toast('已删除');
+        query();
+      }
+    });
+    document.getElementById('lightbox').addEventListener('click', function () {
+      document.getElementById('lightbox').classList.remove('show');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('show');
+    });
+
+    syncTypeOptions();
+    query();
+  </script>
+</body>
+</html>

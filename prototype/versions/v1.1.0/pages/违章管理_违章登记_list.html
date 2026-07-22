@@ -3,130 +3,233 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>违章登记</title>
+  <title>违章登记 · 企微H5 · v1.1.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="mobile-layout.css">
   <style>
-/* 企微 H5：无系统状态栏留白，适配手机壳预览 */
-.mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  padding-top: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.mobile-content {
-  padding-top: var(--mobile-header-h, 64px);
-  padding-bottom: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-</style>
-  
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
-    .btn { transition: transform 0.2s ease; }
-    .btn:active { transform: scale(0.95); }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa; color: #0f172a;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96); border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      padding: 12px 16px;
+    }
+    .wecom-content {
+      padding: 68px 16px 96px; max-width: 480px; margin: 0 auto; box-sizing: border-box;
+    }
+    .btn { -webkit-transition: transform .15s; transition: transform .15s; }
+    .btn:active { -webkit-transform: scale(.95); transform: scale(.95); }
+    .filter-card, .item-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04);
+    }
+    .filter-card { padding: 12px; margin-bottom: 12px; }
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    .ctrl {
+      width: 100%; box-sizing: border-box; min-height: 36px; border: 1px solid #e2e8f0;
+      border-radius: 10px; padding: 8px 10px; font-size: 13px; background: #f8fafc;
+      -webkit-appearance: none; appearance: none;
+    }
+    .row2 { display: -webkit-box; display: flex; gap: 8px; }
+    .row2 .field { -webkit-box-flex: 1; flex: 1; }
+    .item-card { padding: 12px; margin-bottom: 10px; }
+    .thumb {
+      width: 72px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;
+      cursor: zoom-in; background: #f1f5f9; -webkit-flex-shrink: 0; flex-shrink: 0;
+    }
+    .thumb-empty {
+      width: 72px; height: 54px; border-radius: 8px; border: 1px dashed #cbd5e1;
+      display: -webkit-box; display: flex; -webkit-box-align: center; align-items: center;
+      -webkit-box-pack: center; justify-content: center; font-size: 11px; color: #94a3b8;
+      background: #f8fafc; -webkit-flex-shrink: 0; flex-shrink: 0;
+    }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+      background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+    }
+    .tag.manual { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+    .footer-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+      background: rgba(255,255,255,.98); border-top: 1px solid #e2e8f0;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    }
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 80;
+      display: none; -webkit-box-align: center; align-items: center;
+      -webkit-box-pack: center; justify-content: center; padding: 20px;
+    }
+    .lightbox.show { display: -webkit-box; display: flex; }
+    .lightbox img { max-width: 100%; max-height: 80vh; border-radius: 12px; }
+    .toast {
+      position: fixed; left: 50%; bottom: 88px; -webkit-transform: translateX(-50%); transform: translateX(-50%);
+      background: rgba(15,23,42,.9); color: #fff; padding: 10px 14px; border-radius: 12px;
+      font-size: 13px; opacity: 0; pointer-events: none; -webkit-transition: opacity .2s; transition: opacity .2s; z-index: 90;
+    }
+    .toast.show { opacity: 1; }
+    .empty { text-align: center; padding: 36px 12px; color: #94a3b8; font-size: 13px; }
+    .hint { font-size: 11px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased">
-  <header class="mobile-header px-5 pb-4">
-    <div class="flex items-center justify-between">
-      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
-              onclick="navBack('../index.html')">
-        <i class="fa-solid fa-angle-left text-slate-700"></i>
+<body>
+  <header class="wecom-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <button type="button" class="btn" style="width:36px;height:36px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;" onclick="history.length>1?history.back():location.href='../index.html'">
+        <i class="fa-solid fa-angle-left"></i>
       </button>
-      <div class="text-sm font-semibold text-slate-900">违章登记</div>
-      <div class="w-10"></div>
+      <div style="font-size:15px;font-weight:600;">违章登记</div>
+      <div style="width:36px;"></div>
     </div>
   </header>
 
-  <div class="mobile-content space-y-3" style="padding-bottom: 6rem;">
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4">
-      <div class="flex items-start justify-between">
-        <div>
-          <div class="text-sm font-semibold text-slate-900">未佩戴安全帽</div>
-          <div class="text-xs text-slate-500 mt-1">2026-07-06 · 生产一车间 · 李某</div>
-        </div>
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">已登记</span>
+  <div class="wecom-content">
+    <div class="hint">与 PC 同步：照片可放大；来源-类型级联；AI 反光衣仅 19:00～次日 07:00。</div>
+    <div class="filter-card">
+      <div class="field">
+        <label>违章来源</label>
+        <select class="ctrl" id="fSource">
+          <option value="">全部</option>
+          <option value="AI识别">AI识别</option>
+          <option value="人工登记">人工登记</option>
+        </select>
       </div>
-      <div class="mt-4 flex justify-end gap-2">
-        <button class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700" onclick="toast('原型演示：查看')">查看</button>
-        <button class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700" onclick="toast('原型演示：编辑')">编辑</button>
+      <div class="field">
+        <label>违章类型</label>
+        <select class="ctrl" id="fType"><option value="">全部</option></select>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>时间起</label>
+          <input class="ctrl" type="datetime-local" id="fStart" />
+        </div>
+        <div class="field">
+          <label>时间止</label>
+          <input class="ctrl" type="datetime-local" id="fEnd" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="btn" id="btnQuery" style="flex:1;height:36px;border:0;border-radius:10px;background:#1890ff;color:#fff;font-size:13px;">查询</button>
+        <button type="button" class="btn" id="btnReset" style="flex:1;height:36px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;">重置</button>
       </div>
     </div>
+    <div id="list"></div>
   </div>
 
-
-  <!-- bottom: 新增入口 -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 px-5 pb-6">
-    <button class="btn w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-            onclick="navTo('wecom_违章管理_违章登记_form.html')">
-      <i class="fa-solid fa-plus mr-2"></i>新增违章登记
+  <div class="footer-bar">
+    <button type="button" class="btn" style="width:100%;height:42px;border:0;border-radius:12px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;"
+            onclick="location.href='wecom_违章管理_违章登记_form.html'">
+      <i class="fa-solid fa-plus" style="margin-right:6px;"></i>新增违章登记
     </button>
   </div>
 
-  <script>// Shared helpers for mobile prototype pages (vanilla JS, no build).
-function qs(sel, root) { return (root || document).querySelector(sel); }
-function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" alt="违章照片" /></div>
+  <div class="toast" id="toast"></div>
 
-function toast(message) {
-  const el = document.createElement('div');
-  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
-  el.textContent = message;
-  document.body.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
-  setTimeout(() => el.remove(), 1700);
-}
+  <script src="violation-data.js"></script>
+  <script>
+    var rows = VIOLATION_DATA.slice();
+    var filtered = rows.slice();
 
-function navTo(page) {
-  window.location.href = page;
-}
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1600);
+    }
 
-function navBack(fallback) {
-  if (history.length > 1) history.back();
-  else if (fallback) navTo(fallback);
-}
+    function syncTypeOptions() {
+      var source = document.getElementById('fSource').value;
+      var sel = document.getElementById('fType');
+      var cur = sel.value;
+      var opts = typesBySource(source);
+      sel.innerHTML = '<option value="">全部</option>' +
+        opts.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+      if (opts.indexOf(cur) >= 0) sel.value = cur;
+    }
 
-/** 同步 fixed 顶栏高度，避免内容被遮挡 */
-function syncMobileLayout() {
-  const header = document.querySelector('.mobile-header');
-  if (header) {
-    document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
-  }
-}
+    function parseLocal(v) {
+      if (!v) return null;
+      return new Date(String(v).replace(' ', 'T'));
+    }
 
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', syncMobileLayout);
-  window.addEventListener('resize', syncMobileLayout);
-}
+    function query() {
+      var source = document.getElementById('fSource').value;
+      var type = document.getElementById('fType').value;
+      var start = document.getElementById('fStart').value;
+      var end = document.getElementById('fEnd').value;
+      var startT = start ? new Date(start) : null;
+      var endT = end ? new Date(end) : null;
+      filtered = rows.filter(function (r) {
+        if (source && r.source !== source) return false;
+        if (type && r.type !== type) return false;
+        var rt = parseLocal(r.time);
+        if (startT && rt && rt < startT) return false;
+        if (endT && rt && rt > endT) return false;
+        return true;
+      });
+      render();
+    }
 
-function setActiveTab(tabId) {
-  const items = qsa('[data-tab]');
-  items.forEach(i => {
-    const active = i.dataset.tab === tabId;
-    i.classList.toggle('text-slate-900', active);
-    i.classList.toggle('text-slate-500', !active);
-    const dot = i.querySelector('[data-dot]');
-    if (dot) dot.classList.toggle('opacity-100', active);
-    if (dot) dot.classList.toggle('opacity-0', !active);
-  });
-}
+    function render() {
+      var box = document.getElementById('list');
+      if (!filtered.length) {
+        box.innerHTML = '<div class="empty">暂无符合条件的违章记录</div>';
+        return;
+      }
+      box.innerHTML = filtered.map(function (r) {
+        var photo = r.photo
+          ? '<img class="thumb" src="' + r.photo + '" alt="" data-photo="' + r.photo + '" />'
+          : '<div class="thumb-empty">暂无照片</div>';
+        var tagClass = r.source === '人工登记' ? 'tag manual' : 'tag';
+        return '<div class="item-card">' +
+          '<div style="display:flex;gap:10px;">' + photo +
+          '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:14px;font-weight:600;">' + r.type + '</div>' +
+          '<div style="margin-top:4px;"><span class="' + tagClass + '">' + r.source + '</span></div>' +
+          '<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.5;">' +
+          r.time + ' · ' + r.place + (r.person ? ' · ' + r.person : '') +
+          '</div></div></div>' +
+          '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
+          '<button type="button" class="btn" data-act="view" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">查看</button>' +
+          '<button type="button" class="btn" data-act="edit" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">编辑</button>' +
+          '<button type="button" class="btn" data-act="audit" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">发起审核</button>' +
+          '</div></div>';
+      }).join('');
+    }
 
-</script>
+    document.getElementById('fSource').addEventListener('change', syncTypeOptions);
+    document.getElementById('btnQuery').addEventListener('click', query);
+    document.getElementById('btnReset').addEventListener('click', function () {
+      document.getElementById('fSource').value = '';
+      document.getElementById('fStart').value = '';
+      document.getElementById('fEnd').value = '';
+      syncTypeOptions();
+      document.getElementById('fType').value = '';
+      query();
+    });
+    document.getElementById('list').addEventListener('click', function (e) {
+      var photo = e.target.getAttribute('data-photo');
+      if (photo) {
+        document.getElementById('lightboxImg').src = photo;
+        document.getElementById('lightbox').classList.add('show');
+        return;
+      }
+      var act = e.target.getAttribute('data-act');
+      if (!act) return;
+      if (act === 'view') toast('原型演示：查看');
+      if (act === 'edit') toast('原型演示：编辑');
+      if (act === 'audit') toast('原型演示：已发起审核（平台审批）');
+    });
+    document.getElementById('lightbox').addEventListener('click', function () {
+      document.getElementById('lightbox').classList.remove('show');
+    });
+
+    syncTypeOptions();
+    query();
+  </script>
 </body>
 </html>

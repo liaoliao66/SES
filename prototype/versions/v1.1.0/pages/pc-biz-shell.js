@@ -1,7 +1,7 @@
 /**
  * v1.1.0 PC 固定业务菜单 + 重要通知弹窗
- * 菜单：安环门户 / 使用监督 / 公告信息→重要通知 / 应急管理→应急联系人
- * activeKey: 'portal' | 'supervise' | 'notice-admin' | 'emergency-contact'
+ * 菜单：安环门户 / 使用监督 / 公告信息→重要通知 / 应急管理→应急联系人 / 违章管理→违章登记
+ * activeKey: 'portal' | 'supervise' | 'notice-admin' | 'emergency-contact' | 'violation-reg'
  */
 (function (global) {
   var MENU_HTML =
@@ -27,6 +27,14 @@
     '      <li><a data-key="emergency-contact" href="pc_应急联系人_list.html">应急联系人</a></li>' +
     '    </ul>' +
     '  </li>' +
+    '  <li class="pc-menu-group open" id="pcViolationGroup">' +
+    '    <button type="button" class="pc-menu-item" data-key="violation-group" aria-expanded="true">' +
+    '      <span class="pc-menu-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>违章管理' +
+    '      <i class="fa-solid fa-chevron-right pc-menu-arrow"></i></button>' +
+    '    <ul class="pc-submenu">' +
+    '      <li><a data-key="violation-reg" href="pc_违章管理_违章登记_list.html">违章登记</a></li>' +
+    '    </ul>' +
+    '  </li>' +
     '</ul>';
 
   function bindGroupToggle(groupId, toggleKey) {
@@ -49,7 +57,7 @@
     });
     bindGroupToggle('pcNoticeGroup', 'notice-group');
     bindGroupToggle('pcEmergencyGroup', 'emergency-group');
-    // 相关页保持分组展开，避免预览时菜单骨架变化
+    bindGroupToggle('pcViolationGroup', 'violation-group');
     if (activeKey === 'notice-admin') {
       var ng = document.getElementById('pcNoticeGroup');
       if (ng) ng.classList.add('open');
@@ -57,6 +65,10 @@
     if (activeKey === 'emergency-contact') {
       var eg = document.getElementById('pcEmergencyGroup');
       if (eg) eg.classList.add('open');
+    }
+    if (activeKey === 'violation-reg') {
+      var vg = document.getElementById('pcViolationGroup');
+      if (vg) vg.classList.add('open');
     }
   }
 
