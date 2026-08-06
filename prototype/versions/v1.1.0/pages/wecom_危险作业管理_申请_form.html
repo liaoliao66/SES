@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>新增危险作业申请 · 企微H5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa;
+      color: #0f172a;
+      margin: 0;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .wecom-content {
+      padding: calc(var(--wecom-header-h, 56px) + 12px) 16px 96px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .section-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 14px 6px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 650;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: #3b82f6;
+      flex-shrink: 0;
+    }
+    .field { margin-bottom: 12px; }
+    .field.full { grid-column: 1 / -1; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+    .field-label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+    .req::after { content: " *"; color: #ef4444; }
+    .ctrl {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 40px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #0f172a;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .ctrl:focus { border-color: #93c5fd; background: #fff; }
+    .ctrl[readonly], .ctrl:disabled { color: #94a3b8; background: #f1f5f9; }
+    textarea.ctrl { min-height: 80px; resize: vertical; line-height: 1.5; }
+    .type-hint { font-size: 12px; color: #64748b; line-height: 1.5; margin: -4px 0 12px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 12px;
+      margin: 0 6px 6px 0;
+    }
+    .measure-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      font-size: 12px;
+    }
+    .btn { -webkit-transition: transform 0.15s ease; transition: transform 0.15s ease; }
+    .btn:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+    .footer-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+      background: rgba(255,255,255,0.98);
+      border-top: 1px solid #e2e8f0;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .footer-bar .btn {
+      flex: 1;
+      min-height: 44px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .ver-tag { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .picker-mask {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.4);
+    }
+    .picker-mask.show { display: block; }
+    .picker-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      max-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
+    }
+    .picker-sheet.show { transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header class="wecom-header" id="wecomHeader">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:480px;margin:0 auto;">
+      <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;"
+              onclick="navBack('wecom_危险作业管理_申请_list.html')" aria-label="返回">
+        <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
+      </button>
+      <div style="text-align:center;">
+        <div style="font-size:15px;font-weight:650;">新增危险作业申请</div>
+        <div class="ver-tag">v1.1.0 · 企微H5</div>
+      </div>
+      <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;"
+              onclick="toast('草稿已保存')" aria-label="存草稿">
+        <i class="fa-regular fa-bookmark" style="color:#334155;"></i>
+      </button>
+    </div>
+  </header>
+
+  <form class="wecom-content" id="permitForm" onsubmit="event.preventDefault(); submitForm();">
+    <section class="section-card">
+      <div class="section-title">申请信息</div>
+      <p class="type-hint" id="typeHint"></p>
+      <div class="field">
+        <div class="field-label req">作业类型</div>
+        <select class="ctrl" id="permitType" onchange="renderForm()"></select>
+      </div>
+      <div class="field">
+        <div class="field-label req">申请名称</div>
+        <input class="ctrl" type="text" id="applyName" placeholder="请输入申请名称" />
+      </div>
+    </section>
+    <div id="dynamicForm"></div>
+  </form>
+
+  <div class="footer-bar">
+    <button type="button" class="btn" style="border:1px solid #e2e8f0;background:#fff;color:#334155;"
+            onclick="navBack('wecom_危险作业管理_申请_list.html')">
+      <i class="fa-solid fa-xmark" style="margin-right:6px;"></i>取消
+    </button>
+    <button type="button" class="btn" style="border:none;background:#2563eb;color:#fff;" onclick="submitForm()">
+      <i class="fa-solid fa-check" style="margin-right:6px;"></i>保存
+    </button>
+  </div>
+
+  <div id="pickerMask" class="picker-mask" onclick="closePicker()"></div>
+  <div id="pickerSheet" class="picker-sheet">
+    <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+      <button type="button" style="font-size:14px;color:#64748b;background:none;border:none;" onclick="closePicker()">取消</button>
+      <div id="pickerTitle" style="font-size:14px;font-weight:650;">选择人员</div>
+      <button type="button" style="font-size:14px;font-weight:650;color:#2563eb;background:none;border:none;" onclick="confirmPicker()">确定</button>
+    </div>
+    <div id="pickerList" style="overflow-y:auto;flex:1;"></div>
+  </div>
+
+  <script src="permit-types.js"></script>
+  <script>
+    function toast(message) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;left:50%;bottom:96px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:rgba(15,23,42,0.9);box-shadow:0 8px 24px rgba(0,0,0,0.18);max-width:86%;';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
+      setTimeout(function () { el.remove(); }, 1700);
+    }
+    function navTo(page) { location.href = page; }
+    function navBack(fallback) { if (fallback) location.href = fallback; }
+    function syncHeaderH() {
+      var h = document.getElementById('wecomHeader');
+      if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
+    }
+
+    var PERSON_OPTIONS = [
+      { value: 'wangqiang', label: '王强' },
+      { value: 'qianshifu', label: '钱师傅' },
+      { value: 'zhaogong', label: '赵工' },
+      { value: 'liming', label: '李明' },
+      { value: 'sunwei', label: '孙伟' },
+      { value: 'zhoujie', label: '周杰' }
+    ];
+    var PICKER = { field: null, selected: new Set() };
+
+    function fieldHtml(label, required, inner, full) {
+      return '<div class="field' + (full ? ' full' : '') + '">'
+        + '<div class="field-label' + (required ? ' req' : '') + '">' + label + '</div>'
+        + inner + '</div>';
+    }
+
+    function multiSelectField(id, label, required, placeholder, defaults) {
+      var selected = PERSON_OPTIONS.filter(function (p) { return defaults.indexOf(p.value) >= 0; });
+      var tags = selected.map(function (p) {
+        return '<span class="tag" data-value="' + p.value + '">' + p.label + '</span>';
+      }).join('');
+      var text = selected.length ? tags : '<span style="color:#94a3b8;">' + placeholder + '</span>';
+      return fieldHtml(label, required,
+        '<button type="button" class="ctrl" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;text-align:left;min-height:42px;" '
+        + 'data-multiselect="' + id + '" onclick="openPicker(\'' + id + '\',\'' + label + '\')">'
+        + '<span style="display:flex;flex-wrap:wrap;gap:6px;flex:1;">' + text + '</span>'
+        + '<i class="fa-solid fa-chevron-down" style="color:#94a3b8;font-size:11px;"></i></button>', false);
+    }
+
+    function openPicker(id, title) {
+      var btn = document.querySelector('[data-multiselect="' + id + '"]');
+      var current = btn ? Array.prototype.map.call(btn.querySelectorAll('[data-value]'), function (el) { return el.getAttribute('data-value'); }) : [];
+      PICKER.field = id;
+      PICKER.selected = new Set(current);
+      document.getElementById('pickerTitle').textContent = '选择' + title;
+      document.getElementById('pickerList').innerHTML = PERSON_OPTIONS.map(function (p) {
+        var checked = PICKER.selected.has(p.value) ? ' checked' : '';
+        return '<label style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f1f5f9;">'
+          + '<input type="checkbox" value="' + p.value + '"' + checked + ' onchange="togglePicker(\'' + p.value + '\',this.checked)">'
+          + '<span style="font-size:14px;">' + p.label + '</span></label>';
+      }).join('');
+      document.getElementById('pickerMask').classList.add('show');
+      document.getElementById('pickerSheet').classList.add('show');
+    }
+    function togglePicker(value, checked) {
+      if (checked) PICKER.selected.add(value);
+      else PICKER.selected.delete(value);
+    }
+    function closePicker() {
+      document.getElementById('pickerMask').classList.remove('show');
+      document.getElementById('pickerSheet').classList.remove('show');
+    }
+    function confirmPicker() {
+      var id = PICKER.field;
+      var btn = document.querySelector('[data-multiselect="' + id + '"]');
+      if (!btn) return closePicker();
+      var selected = PERSON_OPTIONS.filter(function (p) { return PICKER.selected.has(p.value); });
+      var inner;
+      if (!selected.length) {
+        inner = '<span style="display:flex;flex-wrap:wrap;gap:6px;flex:1;"><span style="color:#94a3b8;">请选择（可多选）</span></span>';
+      } else {
+        inner = '<span style="display:flex;flex-wrap:wrap;gap:6px;flex:1;">'
+          + selected.map(function (p) { return '<span class="tag" data-value="' + p.value + '">' + p.label + '</span>'; }).join('')
+          + '</span>';
+      }
+      btn.innerHTML = inner + '<i class="fa-solid fa-chevron-down" style="color:#94a3b8;font-size:11px;"></i>';
+      closePicker();
+    }
+
+    function renderForm() {
+      var typeSelect = document.getElementById('permitType');
+      var applyName = document.getElementById('applyName');
+      var type = typeSelect.value;
+      var cfg = PERMIT_TYPES[type];
+      document.getElementById('typeHint').textContent = '当前填写：' + cfg.licenseTitle + '，切换作业类型将展示不同字段。';
+      if (!applyName.value || applyName.getAttribute('data-auto') === '1') {
+        applyName.value = cfg.name + '申请';
+        applyName.setAttribute('data-auto', '1');
+      }
+
+      var html = '';
+      html += '<section class="section-card"><div class="section-title">基本信息</div><div class="field-grid">';
+      html += fieldHtml('申请人员', false, '<input class="ctrl" value="张敏" readonly>');
+      html += fieldHtml('所属部门', false, '<input class="ctrl" value="安全环保部" readonly>');
+      if (cfg.contentLabel) html += fieldHtml(cfg.contentLabel, true, '<input class="ctrl" placeholder="请输入">', true);
+      if (cfg.locationLabel) html += fieldHtml(cfg.locationLabel, true, '<input class="ctrl" placeholder="请输入">', true);
+      html += multiSelectField('leader', '作业负责人', true, '请选择（可多选）', ['wangqiang']);
+      html += multiSelectField('guardian', '作业监护人', true, '请选择（可多选）', ['qianshifu', 'liming']);
+      html += fieldHtml('施工单位', true, '<input class="ctrl" placeholder="请输入">', true);
+      html += '</div></section>';
+
+      if (cfg.extraFields || cfg.levelLabel || cfg.workersLabel) {
+        html += '<section class="section-card"><div class="section-title">' + cfg.name + '特有信息</div><div class="field-grid">';
+        if (cfg.extraFields) {
+          cfg.extraFields.forEach(function (f) {
+            var inp = f.textarea
+              ? '<textarea class="ctrl" rows="3" placeholder="请输入"></textarea>'
+              : '<input class="ctrl" placeholder="请输入">';
+            html += fieldHtml(f.label, !!f.required, inp, !!f.full);
+          });
+        }
+        if (cfg.levelLabel) {
+          var radios = cfg.levels.map(function (lv, i) {
+            return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;">'
+              + '<input type="radio" name="level" value="' + lv.value + '"' + (i === 0 ? ' checked' : '') + '> ' + lv.label + '</label>';
+          }).join('');
+          html += fieldHtml(cfg.levelLabel, true, '<div>' + radios + '</div>', true);
+        }
+        if (cfg.workersLabel) {
+          html += fieldHtml(cfg.workersLabel, true, '<textarea class="ctrl" rows="3" placeholder="填写人员姓名及证书编号"></textarea>', true);
+        }
+        html += '</div></section>';
+      }
+
+      html += '<section class="section-card"><div class="section-title">' + cfg.planTimeLabel + '</div><div class="field-grid">'
+        + fieldHtml('开始', true, '<input type="datetime-local" class="ctrl" value="2026-07-08T09:00">')
+        + fieldHtml('结束', true, '<input type="datetime-local" class="ctrl" value="2026-07-08T17:00">')
+        + '</div></section>';
+
+      html += '<section class="section-card"><div class="section-title">风险辨识结果</div><div>';
+      cfg.risks.forEach(function (r) {
+        html += '<label class="chip"><input type="checkbox" checked> ' + r + '</label>';
+      });
+      html += '<label class="chip"><input type="checkbox"> 其他</label></div></section>';
+
+      html += '<section class="section-card"><div class="section-title">安全措施确认</div>';
+      cfg.measures.forEach(function (m, i) {
+        html += '<div class="measure-item">'
+          + '<div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">第 ' + (i + 1) + ' 条</div>'
+          + '<div style="font-size:12px;color:#334155;line-height:1.55;">' + m + '</div>'
+          + '<div style="margin-top:8px;display:flex;gap:16px;font-size:12px;">'
+          + '<label><input type="radio" name="m' + i + '" checked> 涉及</label>'
+          + '<label><input type="radio" name="m' + i + 'b"> 不涉及</label>'
+          + '</div></div>';
+      });
+      html += '</section>';
+
+      if (cfg.hasGasDetection) {
+        html += '<section class="section-card"><div class="section-title">有毒有害气体检测记录</div>'
+          + '<p style="font-size:12px;color:#64748b;margin:0 0 10px;">有限空间作业需填写检测记录（原型简化展示）</p>'
+          + '<button type="button" class="btn ctrl" style="display:flex;align-items:center;justify-content:center;gap:6px;" '
+          + 'onclick="toast(\'原型演示：展开气体检测表\')"><i class="fa-solid fa-table"></i>填写检测记录表</button></section>';
+      }
+
+      html += '<section class="section-card"><div class="section-title">附件</div>'
+        + '<button type="button" class="btn ctrl" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px;" '
+        + 'onclick="toast(\'原型演示：上传附件\')"><i class="fa-solid fa-upload"></i>上传现场照片 / 简图</button></section>';
+
+      document.getElementById('dynamicForm').innerHTML = html;
+    }
+
+    function submitForm() {
+      toast('申请已保存');
+      setTimeout(function () { navTo('wecom_危险作业管理_申请_list.html'); }, 700);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      syncHeaderH();
+      var typeSelect = document.getElementById('permitType');
+      Object.keys(PERMIT_TYPES).forEach(function (key) {
+        var opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = PERMIT_TYPES[key].name;
+        typeSelect.appendChild(opt);
+      });
+      var urlType = new URLSearchParams(location.search).get('type');
+      if (urlType && PERMIT_TYPES[urlType]) typeSelect.value = urlType;
+      document.getElementById('applyName').addEventListener('input', function () {
+        this.setAttribute('data-auto', '0');
+      });
+      renderForm();
+    });
+    window.addEventListener('resize', syncHeaderH);
+  </script>
+</body>
+</html>

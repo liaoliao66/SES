@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>作业票预览 · 企微H5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa;
+      color: #0f172a;
+      margin: 0;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .wecom-content {
+      padding: calc(var(--wecom-header-h, 56px) + 12px) 16px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .ticket {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+      overflow-x: auto;
+    }
+    .ticket-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .ticket-table td, .ticket-table th {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    .ticket-table .label {
+      background: #f8fafc;
+      color: #64748b;
+      width: 28%;
+      white-space: nowrap;
+    }
+    .sign-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    .sign-img {
+      display: inline-block;
+      min-width: 72px;
+      padding: 4px 10px;
+      border-bottom: 1px solid #94a3b8;
+      font-family: "KaiTi", "STKaiti", "宋体", serif;
+      font-size: 16px;
+      color: #1e3a8a;
+      font-style: italic;
+      letter-spacing: 1px;
+    }
+    .btn { -webkit-transition: transform 0.15s ease; transition: transform 0.15s ease; }
+    .btn:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+    .ver-tag { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .type-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .type-tabs::-webkit-scrollbar { display: none; }
+    .type-tab {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .type-tab.active {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header class="wecom-header" id="wecomHeader">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:480px;margin:0 auto;">
+      <button type="button" class="btn" id="backBtn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;" aria-label="返回">
+        <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
+      </button>
+      <div style="text-align:center;">
+        <div style="font-size:15px;font-weight:650;">作业票预览</div>
+        <div class="ver-tag">v1.1.0 · 企微H5</div>
+      </div>
+      <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:none;background:#0f172a;color:#fff;"
+              onclick="toast('原型演示：导出 PDF / 打印')" aria-label="导出">
+        <i class="fa-solid fa-share-from-square"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="wecom-content">
+    <div class="type-tabs" id="typeTabs"></div>
+    <div class="ticket" id="ticketContent"></div>
+    <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;">
+      票面签名与时间为平台回写示意，本端只读展示，不含审批操作。
+    </p>
+  </div>
+
+  <script src="permit-types.js"></script>
+  <script>
+    function toast(message) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;left:50%;bottom:96px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:rgba(15,23,42,0.9);box-shadow:0 8px 24px rgba(0,0,0,0.18);max-width:86%;';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
+      setTimeout(function () { el.remove(); }, 1700);
+    }
+    function navTo(page) { location.href = page; }
+    function navBack(fallback) { if (fallback) location.href = fallback; }
+    function syncHeaderH() {
+      var h = document.getElementById('wecomHeader');
+      if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
+    }
+
+    var currentType = new URLSearchParams(location.search).get('type') || 'hot_work';
+    var SIGN_DEMO = [
+      { name: '张主管', time: '2026-07-08 10:15' },
+      { name: '李经理', time: '2026-07-08 11:40' },
+      { name: '王总', time: '2026-07-08 14:20' }
+    ];
+
+    function renderTicket(type) {
+      currentType = type;
+      var cfg = PERMIT_TYPES[type] || PERMIT_TYPES.hot_work;
+      var html = '<div style="text-align:center;font-weight:700;font-size:16px;margin-bottom:10px;">' + cfg.licenseTitle + '</div>'
+        + '<div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:10px;">'
+        + '<span>申请时间：2026 年 07 月 08 日</span><span>编号：WP-20260708-001</span></div>'
+        + '<table class="ticket-table"><tbody>';
+      html += '<tr><td class="label">申请人员</td><td>张敏</td><td class="label">所属部门</td><td>安全环保部</td></tr>';
+      if (cfg.contentLabel) html += '<tr><td class="label">' + cfg.contentLabel + '</td><td colspan="3">（示例）</td></tr>';
+      if (cfg.locationLabel) html += '<tr><td class="label">' + cfg.locationLabel + '</td><td colspan="3">生产一车间</td></tr>';
+      html += '<tr><td class="label">作业负责人</td><td>王强</td><td class="label">作业监护人</td><td>钱师傅、李明</td></tr>';
+      html += '<tr><td class="label">施工单位</td><td colspan="3">维修班</td></tr>';
+      if (cfg.levelLabel) {
+        html += '<tr><td class="label">' + cfg.levelLabel + '</td><td colspan="3">' + cfg.levels.map(function (l) { return l.label; }).join(' / ') + '</td></tr>';
+      }
+      html += '<tr><td class="label">' + cfg.planTimeLabel + '</td><td colspan="3">2026-07-08 09:00 至 2026-07-08 17:00</td></tr>';
+      if (cfg.workersLabel) {
+        html += '<tr><td class="label">' + cfg.workersLabel + '</td><td colspan="3">赵工（WA-10293）</td></tr>';
+      }
+      if (cfg.extraFields) {
+        cfg.extraFields.forEach(function (f) {
+          html += '<tr><td class="label">' + f.label + '</td><td colspan="3">（示例）</td></tr>';
+        });
+      }
+      html += '<tr><td class="label">风险辨识</td><td colspan="3">' + cfg.risks.join('、') + '</td></tr>';
+      html += '</tbody></table>';
+
+      html += '<div style="font-size:12px;font-weight:650;margin:14px 0 8px;">安全措施</div>'
+        + '<table class="ticket-table"><thead><tr><th style="width:36px;">序号</th><th>安全措施</th><th style="width:56px;">确认</th></tr></thead><tbody>';
+      cfg.measures.forEach(function (m, i) {
+        html += '<tr><td style="text-align:center;">' + (i + 1) + '</td><td>' + m + '</td><td style="text-align:center;">涉及</td></tr>';
+      });
+      html += '</tbody></table>';
+
+      if (cfg.hasGasDetection) {
+        html += '<div style="font-size:12px;font-weight:650;margin:14px 0 8px;">有毒有害气体检测记录</div>'
+          + '<table class="ticket-table"><thead><tr><th>检测项目</th><th>检测值</th><th>结果</th></tr></thead><tbody>'
+          + '<tr><td>硫化氢</td><td>0.5ppm</td><td>合格</td></tr>'
+          + '<tr><td>一氧化碳</td><td>12ppm</td><td>合格</td></tr>'
+          + '<tr><td>氧气</td><td>20.8%</td><td>合格</td></tr>'
+          + '<tr><td>可燃气</td><td>3% LEL</td><td>合格</td></tr>'
+          + '</tbody></table>';
+      }
+
+      // 平台回写签名 + 时间（只读示意）
+      html += '<div style="font-size:12px;font-weight:650;margin:14px 0 8px;">审批意见（平台回写签名）</div>';
+      cfg.approvals.forEach(function (a, i) {
+        var sign = SIGN_DEMO[i] || SIGN_DEMO[SIGN_DEMO.length - 1];
+        html += '<div class="sign-box">'
+          + '<div style="font-size:12px;font-weight:650;margin-bottom:8px;">' + a.node + (a.level ? '（' + a.level + '）' : '') + '</div>'
+          + '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+          + '<div><span style="font-size:11px;color:#64748b;">签名：</span><span class="sign-img">' + sign.name + '</span></div>'
+          + '<div style="font-size:11px;color:#475569;">审批时间：' + sign.time + '</div>'
+          + '</div></div>';
+      });
+
+      html += '<div style="font-size:12px;font-weight:650;margin:14px 0 8px;">现场确认 / 完工验收</div>'
+        + '<table class="ticket-table"><tbody>'
+        + '<tr><td class="label">现场安全交底人</td><td><span class="sign-img">王强</span></td><td class="label">接受交底人</td><td><span class="sign-img">钱师傅</span></td></tr>'
+        + '<tr><td class="label">' + cfg.confirmLabel + '</td><td colspan="3"><span class="sign-img">李明</span>　2026-07-08 15:00</td></tr>'
+        + '<tr><td class="label">' + cfg.actualTimeLabel + '</td><td colspan="3">2026-07-08 09:10 至 2026-07-08 16:40</td></tr>'
+        + '<tr><td class="label">作业负责人完工验收</td><td colspan="3"><span class="sign-img">王强</span>　2026-07-08 16:45</td></tr>'
+        + '</tbody></table>';
+
+      if (cfg.notes && cfg.notes.length) {
+        html += '<div style="font-size:10px;color:#64748b;margin-top:12px;line-height:1.55;">注：' + cfg.notes.join('；') + '</div>';
+      }
+
+      document.getElementById('ticketContent').innerHTML = html;
+
+      var tabs = document.querySelectorAll('#typeTabs .type-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.toggle('active', tabs[i].getAttribute('data-type') === type);
+      }
+      document.getElementById('backBtn').onclick = function () {
+        navBack('wecom_危险作业管理_申请_detail.html?type=' + currentType);
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      syncHeaderH();
+      var tabs = document.getElementById('typeTabs');
+      Object.keys(PERMIT_TYPES).forEach(function (key) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'type-tab btn';
+        btn.setAttribute('data-type', key);
+        btn.textContent = PERMIT_TYPES[key].name;
+        btn.onclick = function () { renderTicket(key); };
+        tabs.appendChild(btn);
+      });
+      if (!PERMIT_TYPES[currentType]) currentType = 'hot_work';
+      renderTicket(currentType);
+    });
+    window.addEventListener('resize', syncHeaderH);
+  </script>
+</body>
+</html>

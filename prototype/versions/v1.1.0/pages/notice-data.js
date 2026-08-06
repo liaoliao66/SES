@@ -1,4 +1,4 @@
-/** v1.1.0 消息公告演示数据（门户全员可见；企微推送范围可不同） */
+/** v1.1.0 消息公告演示数据（门户全员可见；企微推送范围可不同；配图最多1张） */
 window.NOTICE_DATA = [
   {
     id: 1,
@@ -13,6 +13,9 @@ window.NOTICE_DATA = [
     pushWecom: true,
     pushMode: 'all',
     pushReceiverCount: 0,
+    pushGroup: true,
+    pushGroupCount: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1547683905-f86c17ce2d2d?auto=format&fit=crop&w=960&h=540&q=70',
     body: '各单位：当前进入主汛期，请立即组织防汛专项检查，重点排查低洼仓库、临水作业点与应急物资到位情况。检查结果于本周五前报送安全管理部。遇极端天气启动应急响应，严禁冒险作业。'
   },
   {
@@ -28,6 +31,9 @@ window.NOTICE_DATA = [
     pushWecom: true,
     pushMode: 'partial',
     pushReceiverCount: 8,
+    pushGroup: false,
+    pushGroupCount: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=960&h=540&q=70',
     body: '连续高温天气下，野外及露天作业须落实错峰安排、防暑降温物资与间隔休息制度。出现中暑症状立即停止作业并就医。'
   },
   {
@@ -43,6 +49,9 @@ window.NOTICE_DATA = [
     pushWecom: true,
     pushMode: 'all',
     pushReceiverCount: 0,
+    pushGroup: true,
+    pushGroupCount: 1,
+    imageUrl: '',
     body: '原定7月18日（周五）安全月例会改期至7月21日（周一）上午9:30，会议室不变。请各部门按时参会。'
   },
   {
@@ -58,6 +67,9 @@ window.NOTICE_DATA = [
     pushWecom: false,
     pushMode: 'none',
     pushReceiverCount: 0,
+    pushGroup: false,
+    pushGroupCount: 0,
+    imageUrl: '',
     body: '隐患公示「查看/处理」入口已统一对齐整改通知能力，详见操作手册。本公告全员可见，仅门户展示，不推送企微。'
   },
   {
@@ -73,7 +85,28 @@ window.NOTICE_DATA = [
     pushWecom: false,
     pushMode: 'none',
     pushReceiverCount: 0,
+    pushGroup: false,
+    pushGroupCount: 0,
+    imageUrl: '',
     body: '培训大纲草案，待会签后发布。'
+  },
+  {
+    id: 6,
+    level: '重要',
+    pinned: false,
+    title: '仅推企微群：设备大修停机窗口提醒',
+    unit: '设备技术部',
+    publishAt: '2026-07-12 11:00',
+    effectiveAt: '2026-07-12 11:00',
+    expireAt: '2026-07-25 23:59',
+    status: '已发布',
+    pushWecom: false,
+    pushMode: 'none',
+    pushReceiverCount: 0,
+    pushGroup: true,
+    pushGroupCount: 3,
+    imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=960&h=540&q=70',
+    body: '本周末设备大修窗口仅通过企微群触达相关班组，门户仍全员可见。请相关群按清单完成停机前检查。'
   }
 ];
 

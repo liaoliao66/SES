@@ -1,7 +1,7 @@
 /**
  * v1.1.0 PC 固定业务菜单 + 重要通知弹窗
- * 菜单：安环门户 / 使用监督 / 公告信息→重要通知 / 应急管理→应急联系人 / 违章管理→违章登记
- * activeKey: 'portal' | 'supervise' | 'notice-admin' | 'emergency-contact' | 'violation-reg'
+ * 菜单：安环门户 / 使用监督 / 公告信息 / 应急管理 / 违章管理 / 基础配置(平台自带含推送设置)
+ * activeKey: 'portal' | 'supervise' | 'notice-admin' | 'emergency-contact' | 'violation-reg' | 'basic-push' | 'basic-*'
  */
 (function (global) {
   var MENU_HTML =
@@ -35,7 +35,24 @@
     '      <li><a data-key="violation-reg" href="pc_违章管理_违章登记_list.html">违章登记</a></li>' +
     '    </ul>' +
     '  </li>' +
+    '  <li class="pc-menu-group open" id="pcBasicGroup">' +
+    '    <button type="button" class="pc-menu-item" data-key="basic-group" aria-expanded="true">' +
+    '      <span class="pc-menu-icon"><i class="fa-solid fa-gear"></i></span>基础配置' +
+    '      <i class="fa-solid fa-chevron-right pc-menu-arrow"></i></button>' +
+    '    <ul class="pc-submenu">' +
+    '      <li><a data-key="basic-push" href="pc_使用监督统计_推送配置.html">推送设置</a></li>' +
+    '    </ul>' +
+    '  </li>' +
     '</ul>';
+
+  function toastPlatform(name) {
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:50%;bottom:40px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:10px;font-size:13px;color:#fff;background:rgba(15,23,42,.9);box-shadow:0 8px 24px rgba(0,0,0,.18);max-width:86%;';
+    el.textContent = '「' + name + '」为平台自带能力，本产品不设计页面';
+    document.body.appendChild(el);
+    setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; }, 1600);
+    setTimeout(function () { el.remove(); }, 2000);
+  }
 
   function bindGroupToggle(groupId, toggleKey) {
     var group = document.getElementById(groupId);
@@ -49,6 +66,8 @@
 
   function mountSidebar(el, activeKey) {
     if (!el) return;
+    if (activeKey === 'supervise-stats') activeKey = 'supervise';
+    if (activeKey === 'supervise-push') activeKey = 'basic-push';
     el.innerHTML = MENU_HTML;
     el.querySelectorAll('[data-key]').forEach(function (node) {
       if (node.getAttribute('data-key') === activeKey) {
@@ -58,18 +77,23 @@
     bindGroupToggle('pcNoticeGroup', 'notice-group');
     bindGroupToggle('pcEmergencyGroup', 'emergency-group');
     bindGroupToggle('pcViolationGroup', 'violation-group');
-    if (activeKey === 'notice-admin') {
-      var ng = document.getElementById('pcNoticeGroup');
-      if (ng) ng.classList.add('open');
+    bindGroupToggle('pcBasicGroup', 'basic-group');
+
+    el.querySelectorAll('[data-platform="1"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        toastPlatform(a.textContent.trim());
+      });
+    });
+
+    function openGroup(id) {
+      var g = document.getElementById(id);
+      if (g) g.classList.add('open');
     }
-    if (activeKey === 'emergency-contact') {
-      var eg = document.getElementById('pcEmergencyGroup');
-      if (eg) eg.classList.add('open');
-    }
-    if (activeKey === 'violation-reg') {
-      var vg = document.getElementById('pcViolationGroup');
-      if (vg) vg.classList.add('open');
-    }
+    if (activeKey === 'notice-admin') openGroup('pcNoticeGroup');
+    if (activeKey === 'emergency-contact') openGroup('pcEmergencyGroup');
+    if (activeKey === 'violation-reg') openGroup('pcViolationGroup');
+    if (String(activeKey || '').indexOf('basic-') === 0) openGroup('pcBasicGroup');
   }
 
   function levelClass(level) {
@@ -120,7 +144,23 @@
       '<span class="notice-lv ' + levelClass(notice.level) + '">' + (notice.level || '一般') + '</span>' +
       '<span>发布单位：' + (notice.unit || '—') + '</span>' +
       '<span>发布时间：' + (notice.publishAt || notice.date || '—') + '</span>';
-    document.getElementById('noticeModalBody').textContent = notice.body || '暂无正文。';
+    var bodyEl = document.getElementById('noticeModalBody');
+    var text = notice.body || '暂无正文。';
+    var imgHtml = '';
+    if (notice.imageUrl) {
+      imgHtml =
+        '<div class="notice-modal-img-wrap">' +
+        '<img src="' + notice.imageUrl + '" alt="公告配图" id="noticeModalImg" />' +
+        '</div>';
+    }
+    bodyEl.innerHTML = '<div class="notice-modal-text"></div>' + imgHtml;
+    bodyEl.querySelector('.notice-modal-text').textContent = text;
+    var img = document.getElementById('noticeModalImg');
+    if (img) {
+      img.onclick = function () {
+        window.open(notice.imageUrl, '_blank', 'noreferrer');
+      };
+    }
     mask.classList.add('show');
   }
 

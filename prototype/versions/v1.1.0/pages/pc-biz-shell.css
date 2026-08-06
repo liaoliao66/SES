@@ -169,7 +169,23 @@
   font-size: 14px;
   line-height: 1.75;
   color: #334155;
+}
+.notice-modal-text {
   white-space: pre-wrap;
+  word-break: break-word;
+}
+.notice-modal-img-wrap {
+  margin-top: 14px;
+}
+.notice-modal-img-wrap img {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  cursor: zoom-in;
 }
 .notice-modal-ft {
   padding: 12px 20px;

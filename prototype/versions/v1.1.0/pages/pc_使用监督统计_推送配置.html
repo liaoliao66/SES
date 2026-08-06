@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>使用监督 · 推送配置 · v1.1.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="pc-biz-shell.css">
+  <style>
+    :root { --pc-top:#1f3f7a; --pc-primary:#1890ff; --pc-bg:#eef3fb; --pc-border:#e2e8f0; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; font-size:14px; color:#0f172a; background:var(--pc-bg); }
+    .pc-app { min-height:100vh; display:flex; flex-direction:column; }
+    .pc-topnav { height:48px; background:var(--pc-top); color:#fff; display:flex; align-items:center; padding:0 16px; gap:12px; }
+    .pc-body { display:flex; flex:1; min-height:0; }
+    .pc-main { flex:1; padding:16px 20px 40px; overflow:auto; }
+    .toolbar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+    .toolbar h1 { margin:0; font-size:18px; }
+    .toolbar .sub { font-size:12px; color:#64748b; margin-top:4px; line-height:1.5; max-width:720px; }
+    .btn { height:34px; padding:0 14px; border-radius:10px; border:1px solid var(--pc-border); background:#fff; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#0f172a; box-shadow:0 4px 12px rgba(0,0,0,.05); font-family:inherit; }
+    .btn:active { transform:scale(.97); }
+    .btn-primary { background:var(--pc-primary); border-color:var(--pc-primary); color:#fff; }
+    .card { background:#fff; border:1px solid var(--pc-border); border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.05); padding:18px 20px; max-width:860px; }
+    .field { margin-bottom:16px; }
+    .field > label { display:block; font-size:12px; color:#64748b; margin-bottom:6px; }
+    .req::after { content:" *"; color:#ef4444; }
+    .ctrl {
+      width:100%; min-height:36px; border:1px solid var(--pc-border); border-radius:10px;
+      padding:8px 12px; font-size:14px; background:#f8fafc; font-family:inherit;
+    }
+    .ctrl:focus { outline:none; border-color:#93c5fd; background:#fff; }
+    .ctrl:disabled { color:#94a3b8; background:#f1f5f9; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:640px) { .row { grid-template-columns:1fr; } }
+    .switch-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border:1px solid var(--pc-border); border-radius:12px; background:#f8fafc; }
+    .switch-row .title { font-size:14px; font-weight:600; }
+    .switch-row .desc { font-size:12px; color:#94a3b8; margin-top:4px; }
+    .switch {
+      position:relative; width:44px; height:24px; border-radius:999px; background:#cbd5e1; border:0; cursor:pointer; flex-shrink:0;
+    }
+    .switch.on { background:#1890ff; }
+    .switch::after {
+      content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff;
+      transition: left .15s;
+    }
+    .switch.on::after { left:23px; }
+    .metrics {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    }
+    @media (max-width:900px) { .metrics { grid-template-columns:repeat(2,1fr); } }
+    .metric {
+      border:1px solid var(--pc-border); border-radius:10px; padding:10px 12px; background:#f8fafc; font-size:12px; color:#475569;
+    }
+    .metric strong { display:block; color:#0f172a; font-size:13px; margin-bottom:4px; }
+    .pick-box { border:1px solid var(--pc-border); border-radius:12px; padding:12px 14px; background:#f8fafc; }
+    .pick-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .pick-summary { font-size:13px; color:#475569; }
+    .hint { font-size:12px; color:#94a3b8; line-height:1.55; margin-top:8px; }
+    .preview {
+      margin-top:16px; border:1px dashed #cbd5e1; border-radius:12px; padding:14px; background:#fff;
+    }
+    .preview h3 { margin:0 0 8px; font-size:14px; }
+    .preview pre {
+      margin:0; white-space:pre-wrap; font-family:inherit; font-size:13px; line-height:1.65; color:#334155;
+    }
+    .ft { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    .toast { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(15,23,42,.9); color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:300; }
+    .toast.show { opacity:1; }
+    .disabled-block { opacity:.55; pointer-events:none; }
+  </style>
+</head>
+<body>
+  <div class="pc-app">
+    <div class="pc-topnav">
+      <strong style="font-size:15px;">安环监测</strong>
+      <span style="font-size:12px;opacity:.85;">v1.1.0 · 基础配置 · 推送设置</span>
+      <span style="margin-left:auto;font-size:13px;">武大管理员</span>
+    </div>
+    <div class="pc-body">
+      <aside class="pc-sidebar" id="pcBizSidebar" aria-label="安环业务菜单"></aside>
+      <main class="pc-main">
+        <div class="toolbar">
+          <div>
+            <h1>推送设置</h1>
+            <div class="sub">挂载于侧栏「基础配置」。将使用统计总览 6 项指标按周企微推送给指定人与指定企微群；默认每周一 08:00 推送上周。选人/选群调用平台组件。</div>
+          </div>
+          <a class="btn" href="pc_使用监督统计_主页面.html"><i class="fa-solid fa-chart-column"></i>查看使用统计</a>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <div class="switch-row">
+              <div>
+                <div class="title">启用周报推送</div>
+                <div class="desc">关闭时不发送任何企微消息；开启后按下方周期执行</div>
+              </div>
+              <button type="button" class="switch" id="btnEnable" aria-pressed="false" title="启用开关"></button>
+            </div>
+          </div>
+
+          <div id="cfgBody">
+            <div class="row">
+              <div class="field">
+                <label class="req">推送星期</label>
+                <select class="ctrl" id="fWeekday">
+                  <option value="1" selected>周一</option>
+                  <option value="2">周二</option>
+                  <option value="3">周三</option>
+                  <option value="4">周四</option>
+                  <option value="5">周五</option>
+                  <option value="6">周六</option>
+                  <option value="0">周日</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="req">推送时刻</label>
+                <input class="ctrl" type="time" id="fTime" value="08:00" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>统计范围</label>
+              <input class="ctrl" value="上周（自然周：周一至周日）" disabled />
+            </div>
+
+            <div class="field">
+              <label>推送内容（本版固定 6 项总览，与统计页卡片一致）</label>
+              <div class="metrics">
+                <div class="metric"><strong>有效操作合计</strong>含 10 分钟排重</div>
+                <div class="metric"><strong>有效用户数</strong>周期内去重用户</div>
+                <div class="metric"><strong>检查整改已复核</strong>闭环完成量</div>
+                <div class="metric"><strong>违章处理审核通过</strong>闭环完成量</div>
+                <div class="metric"><strong>危险作业审核通过</strong>闭环完成量</div>
+                <div class="metric"><strong>冷模块数</strong>本期有效操作=0（不含未接入）</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>指定接收人</label>
+              <div class="pick-box">
+                <div class="pick-row">
+                  <button type="button" class="btn" id="btnPickPeople"><i class="fa-solid fa-sitemap"></i>选择接收人</button>
+                  <span class="pick-summary" id="pickPeople">未选择（将调用平台组织架构选人）</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>指定企微群</label>
+              <div class="pick-box">
+                <div class="pick-row">
+                  <button type="button" class="btn" id="btnPickGroups"><i class="fa-solid fa-users"></i>选择企微群</button>
+                  <span class="pick-summary" id="pickGroups">未选择（将调用平台选群组件）</span>
+                </div>
+                <div class="hint">企业微信群；可与接收人并存，也可仅推群或仅推人。启用时人与群至少一侧有值。</div>
+              </div>
+            </div>
+
+            <div class="preview">
+              <h3>消息预览（文本/卡片）</h3>
+              <pre id="msgPreview"></pre>
+            </div>
+          </div>
+
+          <div class="ft">
+            <button type="button" class="btn btn-primary" id="btnSave"><i class="fa-solid fa-check"></i>保存配置</button>
+            <button type="button" class="btn" id="btnPushNow"><i class="fa-solid fa-paper-plane"></i>立即推送上周（示意）</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="pc-biz-shell.js"></script>
+  <script>
+    PcBizShell.mountSidebar(document.getElementById('pcBizSidebar'), 'basic-push');
+
+    var enabled = false;
+    var peopleCount = 0;
+    var groupCount = 0;
+
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1800);
+    }
+
+    function weekdayLabel() {
+      var map = { '0': '周日', '1': '周一', '2': '周二', '3': '周三', '4': '周四', '5': '周五', '6': '周六' };
+      return map[document.getElementById('fWeekday').value] || '周一';
+    }
+
+    function lastWeekRange() {
+      // 演示：相对「今天」展示上周区间文案
+      var now = new Date();
+      var day = now.getDay(); // 0日
+      var diffToMon = (day + 6) % 7;
+      var thisMon = new Date(now);
+      thisMon.setDate(now.getDate() - diffToMon);
+      thisMon.setHours(0, 0, 0, 0);
+      var lastMon = new Date(thisMon);
+      lastMon.setDate(thisMon.getDate() - 7);
+      var lastSun = new Date(thisMon);
+      lastSun.setDate(thisMon.getDate() - 1);
+      function fmt(d) {
+        var m = d.getMonth() + 1;
+        var dd = d.getDate();
+        return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+      }
+      return fmt(lastMon) + ' ~ ' + fmt(lastSun);
+    }
+
+    function renderPreview() {
+      var time = document.getElementById('fTime').value || '08:00';
+      var text =
+        '【安环使用监督·上周概览】\n' +
+        '统计周期：' + lastWeekRange() + '\n' +
+        '有效操作合计：677（含 10 分钟排重）\n' +
+        '有效用户数：8（周期内去重用户）\n' +
+        '检查整改已复核：27（闭环完成量）\n' +
+        '违章处理审核通过：14（闭环完成量）\n' +
+        '危险作业审核通过：19（闭环完成量）\n' +
+        '冷模块数：1（本期有效操作=0，不含未接入）\n' +
+        '——\n' +
+        '计划推送：每' + weekdayLabel() + ' ' + time +
+        (enabled ? '（已启用）' : '（未启用）');
+      document.getElementById('msgPreview').textContent = text;
+    }
+
+    function syncEnableUI() {
+      var btn = document.getElementById('btnEnable');
+      btn.classList.toggle('on', enabled);
+      btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+      document.getElementById('cfgBody').classList.toggle('disabled-block', !enabled);
+      // 未启用时仍允许浏览配置，仅弱化；去掉 pointer-events 以便预览仍可读
+      document.getElementById('cfgBody').style.opacity = enabled ? '1' : '0.72';
+      document.getElementById('cfgBody').style.pointerEvents = 'auto';
+      renderPreview();
+    }
+
+    document.getElementById('btnEnable').addEventListener('click', function () {
+      enabled = !enabled;
+      syncEnableUI();
+      toast(enabled ? '已开启周报推送（请保存）' : '已关闭周报推送（请保存）');
+    });
+
+    document.getElementById('fWeekday').addEventListener('change', renderPreview);
+    document.getElementById('fTime').addEventListener('change', renderPreview);
+
+    document.getElementById('btnPickPeople').addEventListener('click', function () {
+      peopleCount = 3;
+      document.getElementById('pickPeople').textContent = '已选 3 人（演示：平台组织架构回写）';
+      toast('已调用平台组织架构选人（原型仅示意）');
+    });
+
+    document.getElementById('btnPickGroups').addEventListener('click', function () {
+      groupCount = 2;
+      document.getElementById('pickGroups').textContent = '已选 2 个企微群（演示：平台选群回写）';
+      toast('已调用平台选群（原型仅示意）');
+    });
+
+    document.getElementById('btnSave').addEventListener('click', function () {
+      if (enabled && peopleCount < 1 && groupCount < 1) {
+        toast('启用时请至少选择接收人或企微群一侧');
+        return;
+      }
+      if (!document.getElementById('fTime').value) {
+        toast('请设置推送时刻');
+        return;
+      }
+      toast(enabled
+        ? ('已保存：每' + weekdayLabel() + ' ' + document.getElementById('fTime').value + ' 推送上周 · 人' + peopleCount + '/群' + groupCount)
+        : '已保存：周报推送关闭');
+    });
+
+    document.getElementById('btnPushNow').addEventListener('click', function () {
+      if (!enabled) {
+        toast('请先启用周报推送并保存');
+        return;
+      }
+      if (peopleCount < 1 && groupCount < 1) {
+        toast('请先选择接收人或企微群');
+        return;
+      }
+      toast('原型演示：已立即推送上周概览（文本/卡片）');
+    });
+
+    syncEnableUI();
+  </script>
+</body>
+</html>

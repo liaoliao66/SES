@@ -3,133 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>违章处理</title>
+  <title>违章处理 · 企微H5 · v1.1.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="mobile-layout.css">
   <style>
-/* 企微 H5：无系统状态栏留白，适配手机壳预览 */
-.mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  padding-top: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.mobile-content {
-  padding-top: var(--mobile-header-h, 64px);
-  padding-bottom: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-</style>
-  
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); }
-    .btn { transition: transform 0.2s ease; }
-    .btn:active { transform: scale(0.95); }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa; color: #0f172a;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96); border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      padding: 12px 16px;
+    }
+    .wecom-content {
+      padding: 68px 16px 24px; max-width: 480px; margin: 0 auto; box-sizing: border-box;
+    }
+    .btn { -webkit-transition: transform .15s; transition: transform .15s; }
+    .btn:active { -webkit-transform: scale(.95); transform: scale(.95); }
+    .item-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04); padding: 12px; margin-bottom: 10px;
+    }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+      background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;
+    }
+    .tag.wait { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .hint { font-size: 11px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased">
-  <header class="mobile-header px-5 pb-4">
-    <div class="flex items-center justify-between">
-      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
-              onclick="navBack('../index.html')">
-        <i class="fa-solid fa-angle-left text-slate-700"></i>
+<body>
+  <header class="wecom-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto;">
+      <button type="button" class="btn" style="width:36px;height:36px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;"
+              onclick="location.href='wecom_home.html'" aria-label="返回首页">
+        <i class="fa-solid fa-angle-left"></i>
       </button>
-      <div class="text-sm font-semibold text-slate-900">违章处理</div>
-      <div class="w-10"></div>
+      <div style="font-size:15px;font-weight:600;">违章处理</div>
+      <div style="width:36px;"></div>
     </div>
-    <div class="mt-3 text-xs text-slate-500">待处理的违章登记</div>
   </header>
 
-  <div class="mobile-content space-y-3">
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4">
-      <div class="flex items-start justify-between">
+  <div class="wecom-content">
+    <div class="hint">待处理的违章登记。处理完成后状态由平台回写。</div>
+    <div class="item-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div>
-          <div class="text-sm font-semibold text-slate-900">未佩戴安全帽</div>
-          <div class="text-xs text-slate-500 mt-1">违章人员：李某 · 处理责任人：王强</div>
+          <div style="font-size:14px;font-weight:600;">未佩戴安全帽</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px;">违章人员：李某 · 处理责任人：王强</div>
         </div>
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">待处理</span>
+        <span class="tag wait">待处理</span>
       </div>
-      <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">违章地点</div>
-          <div class="mt-1 font-semibold text-slate-800">生产一车间</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+          <div style="font-size:11px;color:#94a3b8;">违章地点</div>
+          <div style="font-size:13px;font-weight:600;margin-top:4px;">生产一车间</div>
         </div>
-        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3">
-          <div class="text-slate-500">违章时间</div>
-          <div class="mt-1 font-semibold text-slate-800">2026-07-06</div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+          <div style="font-size:11px;color:#94a3b8;">违章时间</div>
+          <div style="font-size:13px;font-weight:600;margin-top:4px;">2026-07-06</div>
         </div>
       </div>
-      <div class="mt-4 flex justify-end gap-2">
-        <button class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700" onclick="toast('原型演示：查看')">查看</button>
-        <button class="btn px-3 py-2 rounded-2xl bg-slate-900 text-white text-xs font-semibold" onclick="navTo('wecom_违章管理_违章处理_form.html')">处理</button>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
+        <button type="button" class="btn" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;" onclick="toast('原型演示：查看')">查看</button>
+        <button type="button" class="btn" style="height:30px;padding:0 10px;border:0;border-radius:8px;background:#0f172a;color:#fff;font-size:12px;" onclick="location.href='wecom_违章管理_违章处理_form.html'">处理</button>
       </div>
     </div>
   </div>
 
-
-  <script>// Shared helpers for mobile prototype pages (vanilla JS, no build).
-function qs(sel, root) { return (root || document).querySelector(sel); }
-function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
-
-function toast(message) {
-  const el = document.createElement('div');
-  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
-  el.textContent = message;
-  document.body.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
-  setTimeout(() => el.remove(), 1700);
-}
-
-function navTo(page) {
-  window.location.href = page;
-}
-
-function navBack(fallback) {
-  if (history.length > 1) history.back();
-  else if (fallback) navTo(fallback);
-}
-
-/** 同步 fixed 顶栏高度，避免内容被遮挡 */
-function syncMobileLayout() {
-  const header = document.querySelector('.mobile-header');
-  if (header) {
-    document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
-  }
-}
-
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', syncMobileLayout);
-  window.addEventListener('resize', syncMobileLayout);
-}
-
-function setActiveTab(tabId) {
-  const items = qsa('[data-tab]');
-  items.forEach(i => {
-    const active = i.dataset.tab === tabId;
-    i.classList.toggle('text-slate-900', active);
-    i.classList.toggle('text-slate-500', !active);
-    const dot = i.querySelector('[data-dot]');
-    if (dot) dot.classList.toggle('opacity-100', active);
-    if (dot) dot.classList.toggle('opacity-0', !active);
-  });
-}
-
-</script>
+  <div id="toast" style="position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:rgba(15,23,42,.9);color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:90;"></div>
+  <script>
+    function toast(m) {
+      var el = document.getElementById('toast');
+      el.textContent = m;
+      el.style.opacity = '1';
+      setTimeout(function () { el.style.opacity = '0'; }, 1600);
+    }
+  </script>
 </body>
 </html>

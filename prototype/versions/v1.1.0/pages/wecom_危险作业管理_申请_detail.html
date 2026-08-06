@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>申请详情 · 企微H5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa;
+      color: #0f172a;
+      margin: 0;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .wecom-content {
+      padding: calc(var(--wecom-header-h, 56px) + 12px) 16px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .section-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 650;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: #3b82f6;
+      flex-shrink: 0;
+    }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .meta-box .k { font-size: 11px; color: #64748b; }
+    .meta-box .v { margin-top: 4px; font-size: 13px; font-weight: 650; color: #1e293b; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .risk-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #be123c;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 0 6px 6px 0;
+    }
+    .btn { -webkit-transition: transform 0.15s ease; transition: transform 0.15s ease; }
+    .btn:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+    .ver-tag { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    table.gas { width: 100%; border-collapse: collapse; font-size: 11px; }
+    table.gas th, table.gas td { border: 1px solid #e2e8f0; padding: 6px; }
+    table.gas th { background: #f8fafc; color: #64748b; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="wecom-header" id="wecomHeader">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:480px;margin:0 auto;">
+      <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;"
+              onclick="navBack('wecom_危险作业管理_申请_list.html')" aria-label="返回">
+        <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
+      </button>
+      <div style="text-align:center;">
+        <div style="font-size:15px;font-weight:650;">申请详情</div>
+        <div class="ver-tag">v1.1.0 · 企微H5</div>
+      </div>
+      <button type="button" class="btn" id="previewBtn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;" aria-label="作业票">
+        <i class="fa-solid fa-file-lines" style="color:#334155;"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="wecom-content">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span id="statusBadge"></span>
+      <span id="typeLabel" style="font-size:12px;color:#64748b;"></span>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <script src="permit-types.js"></script>
+  <script>
+    function toast(message) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;left:50%;bottom:96px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:rgba(15,23,42,0.9);box-shadow:0 8px 24px rgba(0,0,0,0.18);max-width:86%;';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
+      setTimeout(function () { el.remove(); }, 1700);
+    }
+    function navTo(page) { location.href = page; }
+    function navBack(fallback) { if (fallback) location.href = fallback; }
+    function syncHeaderH() {
+      var h = document.getElementById('wecomHeader');
+      if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
+    }
+
+    var LIST_DATA = [
+      { id: 'WP-001', type: 'hot_work', name: '动火作业申请（焊接检修）', date: '2026-07-08', area: '生产一车间', status: 'pending' },
+      { id: 'WP-002', type: 'high_altitude', name: '高处作业申请（设备检修）', date: '2026-07-09', area: '仓储区', status: 'pass' },
+      { id: 'WP-003', type: 'lifting', name: '吊装作业申请（设备移位）', date: '2026-07-10', area: '码头区', status: 'draft' },
+      { id: 'WP-004', type: 'confined_space', name: '有限空间作业申请', date: '2026-07-11', area: '污水处理站', status: 'pending' },
+      { id: 'WP-005', type: 'earthwork', name: '动土作业申请（管道敷设）', date: '2026-07-12', area: '厂区东侧', status: 'pass' },
+      { id: 'WP-006', type: 'temp_electricity', name: '临时用电作业申请', date: '2026-07-13', area: '维修车间', status: 'pending' }
+    ];
+
+    function statusBadge(status) {
+      var map = {
+        draft: { bg: '#f1f5f9', color: '#475569', border: '#e2e8f0', label: '草稿' },
+        pending: { bg: '#fffbeb', color: '#b45309', border: '#fde68a', label: '待审批' },
+        pass: { bg: '#ecfdf5', color: '#047857', border: '#a7f3d0', label: '已通过' },
+        reject: { bg: '#fff1f2', color: '#be123c', border: '#fecdd3', label: '已驳回' }
+      };
+      var s = map[status] || map.draft;
+      return '<span class="badge" style="background:' + s.bg + ';color:' + s.color + ';border-color:' + s.border + ';">' + s.label + '</span>';
+    }
+
+    function detailRow(label, value) {
+      return '<div class="meta-box"><div class="k">' + label + '</div><div class="v">' + value + '</div></div>';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      syncHeaderH();
+      var type = new URLSearchParams(location.search).get('type') || 'hot_work';
+      var cfg = PERMIT_TYPES[type] || PERMIT_TYPES.hot_work;
+      var listItem = LIST_DATA.find(function (d) { return d.type === type; }) || LIST_DATA[0];
+
+      document.getElementById('typeLabel').textContent = cfg.licenseTitle;
+      document.getElementById('statusBadge').innerHTML = statusBadge(listItem.status);
+      document.getElementById('previewBtn').onclick = function () {
+        navTo('wecom_危险作业管理_作业票_preview.html?type=' + type);
+      };
+
+      var sampleContent = {
+        hot_work: '焊接检修（生产一车间设备焊接）',
+        high_altitude: '设备检修（仓储区外墙维修）',
+        lifting: '设备移位（码头区吊装作业）',
+        confined_space: '污水池清理作业',
+        earthwork: '管道敷设（厂区东侧）',
+        temp_electricity: '临时用电（维修车间接线）'
+      };
+
+      var html = '';
+      html += '<section class="section-card"><div class="section-title">基本信息</div><div class="meta-grid">';
+      html += detailRow('申请编号', listItem.id);
+      html += detailRow('申请名称', listItem.name);
+      html += detailRow('申请人员', '张敏');
+      html += detailRow('所属部门', '安全环保部');
+      if (cfg.contentLabel) html += detailRow(cfg.contentLabel, sampleContent[type] || '（示例内容）');
+      if (cfg.locationLabel) html += detailRow(cfg.locationLabel, listItem.area);
+      html += detailRow('作业负责人', '王强');
+      html += detailRow('作业监护人', '钱师傅、李明');
+      html += detailRow('施工单位', '维修班');
+      if (cfg.levelLabel) html += detailRow(cfg.levelLabel, cfg.levels[0].label);
+      html += '<div class="meta-box" style="grid-column:1/-1;"><div class="k">作业区域</div><div class="v">' + listItem.area + '</div></div>';
+      html += '</div></section>';
+
+      html += '<section class="section-card"><div class="section-title">风险辨识结果</div><div>';
+      cfg.risks.forEach(function (r) {
+        html += '<span class="risk-tag"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>' + r + '</span>';
+      });
+      html += '</div></section>';
+
+      html += '<section class="section-card"><div class="section-title">' + cfg.planTimeLabel + '</div><div class="meta-grid">'
+        + detailRow('开始时间', '2026-07-08 09:00')
+        + detailRow('结束时间', '2026-07-08 17:00')
+        + '</div></section>';
+
+      if (cfg.workersLabel) {
+        var workers = type === 'hot_work'
+          ? [{ name: '赵工', cert: 'WA-10293' }, { name: '孙伟', cert: 'WA-10456' }]
+          : type === 'high_altitude'
+            ? [{ name: '周杰', cert: 'GA-20341' }, { name: '李明', cert: 'GA-20789' }]
+            : [{ name: '赵工', cert: 'WA-10293' }];
+        html += '<section class="section-card"><div class="section-title">' + cfg.workersLabel + '</div>';
+        workers.forEach(function (w) {
+          html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;margin-bottom:8px;">'
+            + '<span style="font-size:13px;font-weight:600;"><i class="fa-solid fa-user" style="color:#94a3b8;margin-right:6px;font-size:11px;"></i>' + w.name + '</span>'
+            + '<span style="font-size:12px;color:#64748b;">证书编号：' + w.cert + '</span></div>';
+        });
+        html += '</section>';
+      }
+
+      html += '<section class="section-card"><div class="section-title">安全措施确认</div>';
+      cfg.measures.forEach(function (m, i) {
+        var ok = i % 2 === 0;
+        html += '<div style="border:1px solid ' + (ok ? '#a7f3d0' : '#e2e8f0') + ';background:' + (ok ? '#ecfdf5' : '#f8fafc') + ';border-radius:10px;padding:10px;margin-bottom:8px;">'
+          + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">'
+          + '<span style="font-size:11px;color:#94a3b8;">第 ' + (i + 1) + ' 条</span>'
+          + '<span style="font-size:11px;font-weight:650;color:' + (ok ? '#047857' : '#64748b') + ';">'
+          + '<i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-minus') + '"></i> ' + (ok ? '已确认' : '待确认') + '</span></div>'
+          + '<div style="font-size:12px;color:#334155;line-height:1.55;">' + m + '</div></div>';
+      });
+      html += '</section>';
+
+      if (cfg.hasGasDetection) {
+        html += '<section class="section-card"><div class="section-title">有毒有害气体检测记录</div>'
+          + '<div style="overflow-x:auto;"><table class="gas"><thead><tr>'
+          + '<th>检测项目</th><th>允许范围</th><th>检测值</th><th>结果</th></tr></thead><tbody>'
+          + '<tr><td>硫化氢（H₂S）</td><td style="text-align:center;">＜4ppm</td><td style="text-align:center;">0.5ppm</td><td style="text-align:center;"><span class="badge" style="background:#ecfdf5;color:#047857;border-color:#a7f3d0;">合格</span></td></tr>'
+          + '<tr><td>一氧化碳（CO）</td><td style="text-align:center;">＜100ppm</td><td style="text-align:center;">12ppm</td><td style="text-align:center;"><span class="badge" style="background:#ecfdf5;color:#047857;border-color:#a7f3d0;">合格</span></td></tr>'
+          + '<tr><td>氧气（O₂）</td><td style="text-align:center;">19.5%-23.5%</td><td style="text-align:center;">20.8%</td><td style="text-align:center;"><span class="badge" style="background:#ecfdf5;color:#047857;border-color:#a7f3d0;">合格</span></td></tr>'
+          + '<tr><td>可燃气（LEL）</td><td style="text-align:center;">＜20% LEL</td><td style="text-align:center;">3%</td><td style="text-align:center;"><span class="badge" style="background:#ecfdf5;color:#047857;border-color:#a7f3d0;">合格</span></td></tr>'
+          + '</tbody></table></div>'
+          + '<div style="margin-top:8px;font-size:12px;color:#64748b;">检测人：李明 · 检测时间：2026-07-08 08:30</div></section>';
+      }
+
+      html += '<section class="section-card"><div class="section-title">附件资料</div>';
+      [{ icon: 'fa-image', name: '现场照片_01.jpg' }, { icon: 'fa-file-pdf', name: '作业方案.pdf' }, { icon: 'fa-file-lines', name: '风险辨识表.docx' }].forEach(function (f) {
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;margin-bottom:8px;">'
+          + '<span style="font-size:13px;"><i class="fa-regular ' + f.icon + '" style="color:#94a3b8;margin-right:8px;"></i>' + f.name + '</span>'
+          + '<i class="fa-solid fa-eye" style="color:#94a3b8;font-size:12px;"></i></div>';
+      });
+      html += '</section>';
+
+      // 审批记录：只读展示平台回写结果，无办理操作
+      var approverNames = ['张主管', '李经理', '王总'];
+      var isPass = listItem.status === 'pass';
+      html += '<section class="section-card"><div class="section-title">审批记录（平台回写）</div>';
+      cfg.approvals.forEach(function (a, i) {
+        var label = '未开始';
+        if (isPass) label = '已通过';
+        else if (listItem.status === 'pending' && i === 0) label = '待审批';
+        html += '<div style="display:flex;gap:12px;margin-bottom:14px;">'
+          + '<div style="width:10px;height:10px;margin-top:4px;border-radius:50%;background:' + (label === '已通过' ? '#10b981' : label === '待审批' ? '#f59e0b' : '#cbd5e1') + ';flex-shrink:0;"></div>'
+          + '<div style="flex:1;">'
+          + '<div style="display:flex;justify-content:space-between;gap:8px;">'
+          + '<div style="font-size:13px;font-weight:650;">' + a.node + (a.level ? '<span style="font-size:11px;color:#64748b;font-weight:400;">（' + a.level + '）</span>' : '') + '</div>'
+          + '<span class="badge" style="background:' + (label === '已通过' ? '#ecfdf5' : label === '待审批' ? '#fffbeb' : '#f8fafc') + ';color:' + (label === '已通过' ? '#047857' : label === '待审批' ? '#b45309' : '#64748b') + ';border-color:' + (label === '已通过' ? '#a7f3d0' : label === '待审批' ? '#fde68a' : '#e2e8f0') + ';">' + label + '</span>'
+          + '</div>'
+          + '<div style="margin-top:4px;font-size:12px;color:#64748b;">审批人：' + approverNames[i] + ' · 安全环保部</div>';
+        if (isPass) {
+          html += '<div style="margin-top:8px;padding:8px 10px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;font-size:12px;color:#475569;">'
+            + '签名回写：' + approverNames[i] + '　｜　时间：2026-07-0' + (8 + i) + ' 10:0' + i
+            + '</div>';
+        }
+        html += '</div></div>';
+      });
+      html += '<p style="font-size:11px;color:#94a3b8;margin:0;">本端不提供审批办理；状态与签名由平台回写。</p></section>';
+
+      if (cfg.notes && cfg.notes.length) {
+        html += '<section class="section-card"><div class="section-title">备注</div><ul style="margin:0;padding:0;list-style:none;">';
+        cfg.notes.forEach(function (n) {
+          html += '<li style="display:flex;gap:8px;font-size:12px;color:#475569;margin-bottom:8px;">'
+            + '<i class="fa-regular fa-note-sticky" style="color:#94a3b8;margin-top:2px;"></i><span>' + n + '</span></li>';
+        });
+        html += '</ul></section>';
+      }
+
+      if (listItem.status === 'pass') {
+        html += '<button type="button" class="btn" style="width:100%;min-height:44px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:14px;font-weight:600;" '
+          + 'onclick="navTo(\'wecom_危险作业管理_作业票_preview.html?type=' + type + '\')">'
+          + '<i class="fa-solid fa-file-lines" style="margin-right:6px;"></i>查看作业票</button>';
+      }
+
+      document.getElementById('detailContent').innerHTML = html;
+    });
+    window.addEventListener('resize', syncHeaderH);
+  </script>
+</body>
+</html>

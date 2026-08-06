@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>安环监测 · 企微首页 · v1.1.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #f5f7fa;
+      color: #0f172a;
+    }
+    .wecom-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e2e8f0;
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      padding: 12px 16px;
+    }
+    .wecom-content {
+      padding: 68px 16px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .entry {
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04);
+      text-decoration: none;
+      color: inherit;
+      -webkit-transition: transform .15s, background .15s;
+      transition: transform .15s, background .15s;
+    }
+    .entry:active {
+      -webkit-transform: scale(.98);
+      transform: scale(.98);
+      background: #f8fafc;
+    }
+    .entry-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: -webkit-box; display: flex;
+      -webkit-box-align: center; align-items: center;
+      -webkit-box-pack: center; justify-content: center;
+      font-size: 20px; -webkit-flex-shrink: 0; flex-shrink: 0;
+    }
+    .entry-icon.viol { background: #eff6ff; color: #2563eb; }
+    .entry-icon.permit { background: #f1f5f9; color: #0f172a; }
+    .entry-title { font-size: 15px; font-weight: 650; }
+    .entry-desc { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.45; }
+    .hint { font-size: 12px; color: #94a3b8; margin-bottom: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <header class="wecom-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto;">
+      <div style="width:36px;"></div>
+      <div style="text-align:center;">
+        <div style="font-size:15px;font-weight:650;">安环监测</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">v1.1.0 · 企微H5</div>
+      </div>
+      <div style="width:36px;"></div>
+    </div>
+  </header>
+
+  <div class="wecom-content">
+    <p class="hint">请选择业务入口。返回使用页面内按钮，避免多层页面堆叠。</p>
+
+    <a class="entry" href="违章管理_违章登记_list.html">
+      <div class="entry-icon viol"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div style="flex:1;min-width:0;">
+        <div class="entry-title">违章登记</div>
+        <div class="entry-desc">登记、筛查违章；可进入处理闭环</div>
+      </div>
+      <i class="fa-solid fa-angle-right" style="color:#cbd5e1;"></i>
+    </a>
+
+    <a class="entry" href="wecom_危险作业管理_申请_list.html">
+      <div class="entry-icon permit"><i class="fa-solid fa-helmet-safety"></i></div>
+      <div style="flex:1;min-width:0;">
+        <div class="entry-title">危险作业申请</div>
+        <div class="entry-desc">6 类作业申请、详情与作业票预览</div>
+      </div>
+      <i class="fa-solid fa-angle-right" style="color:#cbd5e1;"></i>
+    </a>
+  </div>
+</body>
+</html>

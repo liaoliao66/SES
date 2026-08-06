@@ -138,7 +138,7 @@
   <header class="wecom-header" id="wecomHeader">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:480px;margin:0 auto;">
       <button type="button" class="btn" style="width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;"
-              onclick="navBack('违章管理_违章登记_list.html')" aria-label="返回">
+              onclick="navTo('违章管理_违章登记_list.html')" aria-label="返回">
         <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
       </button>
       <div style="text-align:center;">
@@ -237,7 +237,7 @@
 
   <div class="footer-bar">
     <button type="button" class="btn" style="border:1px solid #e2e8f0;background:#fff;color:#334155;"
-            onclick="navBack('违章管理_违章登记_list.html')">
+            onclick="navTo('违章管理_违章登记_list.html')">
       <i class="fa-solid fa-xmark" style="margin-right:6px;"></i>取消
     </button>
     <button type="button" class="btn" style="border:none;background:#2563eb;color:#fff;"
@@ -257,10 +257,7 @@
       setTimeout(function () { el.remove(); }, 1700);
     }
     function navTo(page) { window.location.href = page; }
-    function navBack(fallback) {
-      if (history.length > 1) history.back();
-      else if (fallback) navTo(fallback);
-    }
+    function navBack(fallback) { if (fallback) navTo(fallback); }
     function syncHeaderH() {
       var h = document.getElementById('wecomHeader');
       if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
