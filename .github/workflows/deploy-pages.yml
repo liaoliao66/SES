@@ -10,9 +10,10 @@ permissions:
   pages: write
   id-token: write
 
+# 避免与系统自带 pages-build-deployment 抢同一 environment 导致 Timeout
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: github-pages-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -20,15 +21,28 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare site bundle
+        run: |
+          mkdir -p _site
+          cp -a index.html .nojekyll _site/
+          cp -a prototype docs _site/
+          # 部署标记，便于确认线上版本
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > _site/DEPLOYED_AT.txt
+          echo "${{ github.sha }}" > _site/DEPLOYED_SHA.txt
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
