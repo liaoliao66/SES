@@ -8,151 +8,214 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="mobile-layout.css">
   <style>
-.mobile-header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 40; padding-top: 3rem;
-  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid #e2e8f0;
-}
-.mobile-content {
-  padding-top: var(--mobile-header-h, 11.5rem); padding-bottom: 1.5rem;
-  padding-left: 1.25rem; padding-right: 1.25rem;
-}
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-.btn { transition: transform 0.2s ease; }
-.btn:active { transform: scale(0.95); }
-.sheet-mask {
-  position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.45);
-}
-.sheet-panel {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
-  max-height: 88vh; background: #fff; border-radius: 24px 24px 0 0;
-  display: flex; flex-direction: column;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
-  transform: translateY(100%); transition: transform 0.3s ease;
-}
-.sheet-panel.open { transform: translateY(0); }
-.hazard-card {
-  border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px;
-  background: #fff; cursor: pointer;
-}
-.hazard-card.selected {
-  border-color: #3b82f6; background: #eff6ff;
-  box-shadow: 0 0 0 1px #3b82f6;
-}
+    .mobile-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40; padding-top: 3rem;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid #e2e8f0;
+    }
+    .mobile-content {
+      padding-top: var(--mobile-header-h, 7rem); padding-bottom: 1.5rem;
+      padding-left: 1rem; padding-right: 1rem;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .btn { transition: transform 0.15s ease; }
+    .btn:active { transform: scale(0.97); }
+    .sec-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 650; color: #0f172a; margin-bottom: 12px;
+    }
+    .sec-title::before {
+      content: ""; width: 3px; height: 14px; border-radius: 2px; background: #3b82f6;
+    }
+    .field-label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+    .field-label .req { color: #ef4444; margin-right: 2px; }
+    .field-ctrl {
+      width: 100%; border: 1px solid #e2e8f0; background: #f8fafc;
+      border-radius: 12px; padding: 10px 12px; font-size: 14px; color: #0f172a;
+      outline: none;
+    }
+    .field-ctrl:focus { border-color: #93c5fd; background: #fff; }
+    .field-ctrl:disabled { color: #94a3b8; background: #f1f5f9; }
+    .radio-row { display: flex; align-items: center; gap: 16px; }
+    .radio-item {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; color: #334155; cursor: pointer;
+    }
+    .radio-item input { accent-color: #3b82f6; width: 16px; height: 16px; }
+    .upload-dash {
+      border: 1px dashed #cbd5e1; border-radius: 12px; background: #fafafa;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; color: #64748b; font-size: 13px; cursor: pointer;
+    }
+    .upload-dash i { font-size: 22px; color: #94a3b8; }
+    .upload-wide { min-height: 88px; padding: 16px; }
+    .upload-square { width: 96px; height: 96px; }
+    .hint { margin-top: 6px; font-size: 11px; color: #94a3b8; line-height: 1.45; }
+    .sheet-mask { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.45); }
+    .sheet-panel {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
+      max-height: 88vh; background: #fff; border-radius: 24px 24px 0 0;
+      display: flex; flex-direction: column;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.12);
+      transform: translateY(100%); transition: transform 0.3s ease;
+    }
+    .sheet-panel.open { transform: translateY(0); }
+    .hazard-card {
+      border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px;
+      background: #fff; cursor: pointer;
+    }
+    .hazard-card.selected {
+      border-color: #3b82f6; background: #eff6ff;
+      box-shadow: 0 0 0 1px #3b82f6;
+    }
+    .project-card {
+      border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px;
+      background: #fff; margin-top: 10px;
+    }
+    .thumb {
+      width: 72px; height: 72px; border-radius: 8px; object-fit: cover;
+      border: 1px solid #e2e8f0;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
-  <header class="mobile-header px-5 pb-4">
+  <header class="mobile-header px-4 pb-3">
     <div class="flex items-center justify-between">
-      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+      <button type="button" class="btn w-10 h-10 rounded-xl bg-white border border-slate-200"
               onclick="navBack('安环检查_检查记录_list.html')">
         <i class="fa-solid fa-angle-left text-slate-700"></i>
       </button>
-      <div class="text-sm font-semibold text-slate-900">新增检查记录</div>
-      <button class="btn w-10 h-10 rounded-2xl bg-white/90 border border-slate-200"
+      <div class="text-[15px] font-semibold text-slate-900">新增检查记录</div>
+      <button type="button" class="btn w-10 h-10 rounded-xl bg-white border border-slate-200"
               onclick="toast('原型演示：暂存草稿')">
         <i class="fa-regular fa-bookmark text-slate-700"></i>
       </button>
     </div>
-    <div class="mt-3 text-xs text-slate-500 leading-relaxed">
-      检查结果为「异常」时，提交后系统将自动创建整改通知并自动发起审核；整改责任人在审批过程中填写整改数据。
-    </div>
   </header>
 
-  <form class="mobile-content space-y-4" style="padding-bottom: 6rem;" onsubmit="event.preventDefault();">
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
-      <div class="text-sm font-semibold text-slate-800">基础信息</div>
-      <div class="grid grid-cols-2 gap-3">
+  <form class="mobile-content space-y-3" style="padding-bottom: 6.5rem;" onsubmit="event.preventDefault();">
+    <!-- 基础信息 -->
+    <section class="rounded-2xl bg-white border border-slate-200 p-4">
+      <div class="sec-title">基础信息</div>
+      <div class="space-y-3">
         <label class="block">
-          <div class="text-xs text-slate-500 mb-1">检查类型</div>
-          <select class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" id="checkType">
+          <div class="field-label">检查编号</div>
+          <input class="field-ctrl" id="checkNo" value="" placeholder="系统生成" disabled />
+        </label>
+        <label class="block">
+          <div class="field-label"><span class="req">*</span>检查类型</div>
+          <select class="field-ctrl" id="checkType">
+            <option value="">请选择</option>
             <option>综合检查</option>
             <option>专项检查</option>
             <option>日常巡检</option>
+            <option selected>周度检查计划</option>
           </select>
         </label>
         <label class="block">
-          <div class="text-xs text-slate-500 mb-1">检查日期</div>
-          <input type="date" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="2026-07-07"/>
+          <div class="field-label"><span class="req">*</span>检查日期</div>
+          <input type="date" class="field-ctrl" id="checkDate" value="2026-10-19" />
         </label>
         <label class="block">
-          <div class="text-xs text-slate-500 mb-1">检查人</div>
-          <input class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="张敏"/>
+          <div class="field-label"><span class="req">*</span>检查人</div>
+          <input class="field-ctrl" id="checker" value="张敏" placeholder="请选择" />
         </label>
         <label class="block">
-          <div class="text-xs text-slate-500 mb-1">责任人</div>
-          <input class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="王强"/>
-        </label>
-        <label class="block col-span-2">
-          <div class="text-xs text-slate-500 mb-1">被检查单位</div>
-          <input class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="生产一车间"/>
+          <div class="field-label"><span class="req">*</span>被检查单位</div>
+          <input class="field-ctrl" id="unit" value="设备维保项目部" placeholder="请选择" />
         </label>
       </div>
-    </div>
+    </section>
 
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)] p-4 space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="text-sm font-semibold text-slate-800">检查结果</div>
-        <div class="inline-flex rounded-2xl bg-slate-100 p-1 border border-slate-200">
-          <button type="button" id="btnNormal" class="btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">正常</button>
-          <button type="button" id="btnAbnormal" class="btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600">异常</button>
+    <!-- 检查结果 -->
+    <section class="rounded-2xl bg-white border border-slate-200 p-4">
+      <div class="sec-title">检查结果</div>
+      <div class="mb-4">
+        <div class="field-label"><span class="req">*</span>检查结果</div>
+        <div class="radio-row">
+          <label class="radio-item"><input type="radio" name="result" value="normal" id="rNormal" /> 正常</label>
+          <label class="radio-item"><input type="radio" name="result" value="abnormal" id="rAbnormal" checked /> 异常</label>
         </div>
       </div>
 
-      <div id="normalPanel" class="space-y-3">
-        <label class="block">
-          <div class="text-xs text-slate-500 mb-1">说明</div>
-          <textarea class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" rows="3" placeholder="输入说明（示例）"></textarea>
-        </label>
-        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3 text-sm text-slate-700 flex items-center justify-between">
-          <div><i class="fa-regular fa-image mr-2 text-slate-500"></i>上传资料/现场照片</div>
-          <button type="button" class="btn text-xs font-semibold text-slate-700" onclick="toast('原型演示：上传附件')">选择</button>
+      <!-- 正常 -->
+      <div id="normalPanel" class="space-y-4 hidden">
+        <div>
+          <div class="field-label">说明</div>
+          <div class="relative">
+            <textarea id="normalNote" class="field-ctrl resize-none" rows="4" maxlength="500" placeholder="请输入"></textarea>
+            <div class="absolute bottom-2 right-3 text-[11px] text-slate-400" id="normalNoteCount">0 / 500</div>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">资料</div>
+          <button type="button" class="upload-dash upload-wide w-full" onclick="mockFile('资料')">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>上传文件</span>
+          </button>
+          <p class="hint">注：单个文件不能超过20MB，数量限制10个</p>
+          <div id="normalFiles" class="mt-2 space-y-1 text-xs text-slate-600"></div>
+        </div>
+        <div>
+          <div class="field-label">现场照片</div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="upload-dash upload-square" onclick="mockPhoto('现场照片', 'normalPhotos')">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>上传图片</span>
+            </button>
+            <div id="normalPhotos" class="flex flex-wrap gap-2"></div>
+          </div>
+          <p class="hint">注：支持文件格式:.png, .jpg, .jpeg，单个文件不能超过20MB，数量限制10个</p>
         </div>
       </div>
 
-      <div id="abnormalPanel" class="space-y-3 hidden">
-        <div class="grid grid-cols-2 gap-3">
-          <label class="block">
-            <div class="text-xs text-slate-500 mb-1">整改责任人</div>
-            <input class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="王强"/>
-          </label>
-          <label class="block">
-            <div class="text-xs text-slate-500 mb-1">整改截止日期</div>
-            <input type="date" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm" value="2026-07-10"/>
-          </label>
-          <label class="block col-span-2">
-            <div class="text-xs text-slate-500 mb-1">风险等级</div>
-            <select class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
-              <option>低</option>
-              <option selected>中</option>
-              <option>高</option>
-            </select>
-          </label>
-        </div>
+      <!-- 异常 -->
+      <div id="abnormalPanel" class="space-y-4">
+        <label class="block">
+          <div class="field-label"><span class="req">*</span>整改责任人</div>
+          <input class="field-ctrl" id="owner" value="翁庆洋" placeholder="请选择" />
+        </label>
+        <label class="block">
+          <div class="field-label"><span class="req">*</span>整改截止日期</div>
+          <input type="date" class="field-ctrl" id="deadline" value="2026-10-26" />
+        </label>
+        <label class="block">
+          <div class="field-label"><span class="req">*</span>风险等级</div>
+          <select class="field-ctrl" id="riskLevel">
+            <option value="">请选择</option>
+            <option>I级(重大风险)</option>
+            <option>II级(较大风险)</option>
+            <option>III级(一般风险)</option>
+            <option selected>IV级(低风险)</option>
+          </select>
+        </label>
 
-        <div class="rounded-3xl bg-slate-50 border border-slate-200 p-3">
-          <div class="flex items-center justify-between">
-            <div class="text-sm font-semibold text-slate-800">风险隐患项目（可多条）</div>
-            <button type="button" id="btnAddHazard" class="btn px-3 py-2 rounded-2xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="field-label mb-0" style="font-size:13px;font-weight:650;color:#0f172a;">风险隐患</div>
+            <button type="button" id="btnAddProject" class="btn px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold">
               <i class="fa-solid fa-plus mr-1"></i>添加
             </button>
           </div>
-          <div class="mt-3 space-y-2" id="hazardList"></div>
-          <div class="mt-3 text-xs text-slate-500">点击「添加」从隐患库选择；支持上传隐患照片及资料（原型略）。</div>
+          <div id="projectList"></div>
         </div>
       </div>
-    </div>
+    </section>
   </form>
 
-  <div class="fixed bottom-0 left-0 right-0 z-40 px-5 pb-6">
-    <button type="button" id="btnSubmit" class="btn w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
-      提交检查记录
-    </button>
+  <div class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-5 pt-3 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent">
+    <div class="flex gap-3">
+      <button type="button" class="btn flex-1 py-3 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700"
+              onclick="navBack('安环检查_检查记录_list.html')">
+        <i class="fa-solid fa-xmark mr-1 text-slate-400"></i>取消
+      </button>
+      <button type="button" id="btnSubmit" class="btn flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-600/20">
+        <i class="fa-solid fa-check mr-1"></i>确定
+      </button>
+    </div>
   </div>
 
-  <!-- 隐患库选择面板（对齐 PC 隐患库弹窗，单选） -->
+  <!-- 隐患库 -->
   <div id="libMask" class="sheet-mask hidden" onclick="closeHazardLib()"></div>
   <div id="libSheet" class="sheet-panel">
     <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
@@ -161,53 +224,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI"
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
-
     <div class="px-4 py-3 border-b border-slate-100 shrink-0 space-y-2">
-      <select id="libCategory" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm">
+      <select id="libCategory" class="field-ctrl">
         <option value="全部">全部类型</option>
-        <option value="物资本体隐患" selected>物资本体隐患</option>
+        <option value="临时用电" selected>临时用电</option>
+        <option value="围挡防护">围挡防护</option>
+        <option value="劳动防护">劳动防护</option>
         <option value="电气隐患">电气隐患</option>
-        <option value="现场管理隐患">现场管理隐患</option>
       </select>
       <div class="flex gap-2">
-        <button type="button" class="btn flex-1 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm text-slate-700" onclick="resetLibFilter()">
-          <i class="fa-solid fa-rotate-right mr-1"></i>重置
-        </button>
-        <button type="button" class="btn flex-1 py-2.5 rounded-2xl bg-blue-600 text-white text-sm font-semibold" onclick="searchLib()">
-          <i class="fa-solid fa-magnifying-glass mr-1"></i>查询
-        </button>
+        <button type="button" class="btn flex-1 py-2.5 rounded-xl bg-white border border-slate-200 text-sm" onclick="resetLibFilter()">重置</button>
+        <button type="button" class="btn flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold" onclick="searchLib()">查询</button>
       </div>
     </div>
-
     <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2" id="libList"></div>
-
     <div class="px-4 py-2 text-xs text-slate-500 border-t border-slate-100 shrink-0" id="libCount">共 0 条</div>
-
     <div class="px-4 py-4 border-t border-slate-200 flex gap-3 shrink-0 pb-6">
-      <button type="button" class="btn flex-1 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-semibold text-slate-700" onclick="closeHazardLib()">取消</button>
-      <button type="button" class="btn flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold" onclick="confirmHazardLib()">确定</button>
+      <button type="button" class="btn flex-1 py-3 rounded-xl bg-white border border-slate-200 text-sm font-semibold" onclick="closeHazardLib()">取消</button>
+      <button type="button" class="btn flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold" onclick="confirmHazardLib()">确定</button>
     </div>
   </div>
 
   <script>
 function qs(sel, root) { return (root || document).querySelector(sel); }
 function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
-
 function toast(message) {
   const el = document.createElement('div');
-  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90 shadow-[0_8px_24px_rgba(0,0,0,0.18)]';
+  el.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 z-[999] px-4 py-2 rounded-2xl text-sm font-medium text-white bg-slate-900/90';
   el.textContent = message;
   document.body.appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 250ms ease'; }, 1200);
   setTimeout(() => el.remove(), 1700);
 }
-
 function navTo(page) { window.location.href = page; }
 function navBack(fallback) {
   if (history.length > 1) history.back();
   else if (fallback) navTo(fallback);
 }
-
 function syncMobileLayout() {
   const header = document.querySelector('.mobile-header');
   if (header) document.documentElement.style.setProperty('--mobile-header-h', header.offsetHeight + 'px');
@@ -216,102 +269,206 @@ document.addEventListener('DOMContentLoaded', syncMobileLayout);
 window.addEventListener('resize', syncMobileLayout);
   </script>
   <script>
-    /** 隐患库示例数据（对齐 PC 隐患库字段） */
     const HAZARD_LIB = [
-      { id: 'L1', category: '电气隐患', type: '电气', title: '配电箱门未闭合', major: false, requirement: '立即整改并张贴警示标识，确保配电箱门正常关闭并上锁。' },
-      { id: 'L2', category: '现场管理隐患', type: '现场管理', title: '通道堆放杂物', major: false, requirement: '清理通道，确保疏散畅通，不得占用消防通道。' },
-      { id: 'L3', category: '物资本体隐患', type: '物资本体', title: '灭火器压力不足', major: false, requirement: '更换或充压灭火器，并做好点检记录。' },
-      { id: 'L4', category: '物资本体隐患', type: '物资本体', title: '护栏缺失或松动', major: true, requirement: '立即修复护栏，作业区域设置警戒，禁止人员靠近。' },
-      { id: 'L5', category: '电气隐患', type: '电气', title: '临时用电未接漏保', major: true, requirement: '加装漏电保护器，规范接线后方可继续作业。' },
-      { id: 'L6', category: '现场管理隐患', type: '现场管理', title: '安全警示标识缺失', major: false, requirement: '按规范补设安全警示标识并拍照留存。' }
+      { id: 'L1', category: '临时用电', type: '临时用电', title: '4#泊位电缆线需套管或从走桥架，规范布线', major: false, requirement: '立即整改' },
+      { id: 'L2', category: '围挡防护', type: '围挡防护', title: '1#泊位装船机新安装垫板涂刷油漆，移动脚手架搭设不规范', major: false, requirement: '立即整改' },
+      { id: 'L3', category: '劳动防护', type: '劳动防护', title: '作业人员未正确佩戴安全帽', major: false, requirement: '立即整改并复查' },
+      { id: 'L4', category: '电气隐患', type: '电气隐患', title: '临时用电未接漏保', major: true, requirement: '加装漏电保护器后方可继续作业' }
     ];
 
-    /** 当前已添加的隐患列表 */
-    let selectedHazards = [
-      { id: 'L1', type: '电气', title: '配电箱门未闭合', major: false, requirement: '立即整改并张贴警示标识（示例）。', source: '隐患库' },
-      { id: 'M1', type: '现场管理', title: '通道堆放杂物', major: false, requirement: '清理通道，确保疏散畅通（示例）。', source: '手动录入' }
-    ];
-
-    let libFilterCategory = '物资本体隐患';
+    let mode = 'abnormal';
+    let projects = [];
+    let libTargetIndex = null;
     let libPickId = null;
     let libFiltered = [];
+    let projectSeq = 1;
 
-    const normal = qs('#btnNormal');
-    const abnormal = qs('#btnAbnormal');
-    const normalPanel = qs('#normalPanel');
-    const abnormalPanel = qs('#abnormalPanel');
-
-    function setMode(mode) {
-      const isNormal = mode === 'normal';
-      normal.className = 'btn px-3 py-1.5 rounded-xl text-xs font-semibold ' + (isNormal ? 'bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)]' : 'text-slate-600');
-      abnormal.className = 'btn px-3 py-1.5 rounded-xl text-xs font-semibold ' + (!isNormal ? 'bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)]' : 'text-slate-600');
-      normalPanel.classList.toggle('hidden', !isNormal);
-      abnormalPanel.classList.toggle('hidden', isNormal);
-      const btn = qs('#btnSubmit');
-      if (btn) btn.textContent = isNormal ? '提交检查记录' : '提交并自动发起审核';
+    function genHazardNo() {
+      return 'YH' + String(Date.now()).slice(-8) + String(projectSeq++).padStart(2, '0');
     }
 
-    let currentMode = 'normal';
-    normal.addEventListener('click', () => { currentMode = 'normal'; setMode('normal'); });
-    abnormal.addEventListener('click', () => { currentMode = 'abnormal'; setMode('abnormal'); });
-    setMode('normal');
+    function blankProject(overrides) {
+      return Object.assign({
+        key: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        hazardNo: genHazardNo(),
+        type: '',
+        major: null,
+        description: '',
+        requirement: '',
+        photos: [],
+        files: [],
+        fromLib: false
+      }, overrides || {});
+    }
 
-    function renderHazardList() {
-      const root = qs('#hazardList');
-      if (!selectedHazards.length) {
-        root.innerHTML = '<div class="text-center text-xs text-slate-400 py-6">暂无隐患，请点击「添加」从隐患库选择</div>';
+    function setMode(next) {
+      mode = next;
+      qs('#rNormal').checked = next === 'normal';
+      qs('#rAbnormal').checked = next === 'abnormal';
+      qs('#normalPanel').classList.toggle('hidden', next !== 'normal');
+      qs('#abnormalPanel').classList.toggle('hidden', next !== 'abnormal');
+      if (next === 'abnormal' && !projects.length) {
+        projects.push(blankProject());
+        renderProjects();
+      }
+      syncMobileLayout();
+    }
+
+    qs('#rNormal').addEventListener('change', () => setMode('normal'));
+    qs('#rAbnormal').addEventListener('change', () => setMode('abnormal'));
+
+    const noteEl = qs('#normalNote');
+    noteEl.addEventListener('input', () => {
+      qs('#normalNoteCount').textContent = noteEl.value.length + ' / 500';
+    });
+
+    function mockFile(label) {
+      const list = qs('#normalFiles');
+      const name = label + '_' + (list.children.length + 1) + '.pdf';
+      const row = document.createElement('div');
+      row.innerHTML = '<i class="fa-regular fa-file mr-1 text-slate-400"></i>' + name;
+      list.appendChild(row);
+      toast('已上传（原型）：' + name);
+    }
+
+    function mockPhoto(label, targetId) {
+      const root = qs('#' + targetId);
+      if (root.children.length >= 10) { toast('已达数量上限 10 个'); return; }
+      const url = 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=200&h=200&q=80';
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = url;
+      img.alt = label;
+      root.appendChild(img);
+      toast('已上传图片（原型）');
+    }
+
+    function mockProjectPhoto(idx) {
+      if (projects[idx].photos.length >= 40) { toast('隐患照片数量上限 40 张'); return; }
+      projects[idx].photos.push('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=200&h=200&q=80');
+      renderProjects();
+      toast('已上传隐患照片（原型）');
+    }
+
+    function mockProjectFile(idx) {
+      if (projects[idx].files.length >= 10) { toast('资料数量上限 10 个'); return; }
+      projects[idx].files.push('资料_' + (projects[idx].files.length + 1) + '.pdf');
+      renderProjects();
+      toast('已上传资料（原型）');
+    }
+
+    function renderProjects() {
+      const root = qs('#projectList');
+      if (!projects.length) {
+        root.innerHTML = '<div class="text-center text-xs text-slate-400 py-8">暂无隐患，请点击「添加」</div>';
         return;
       }
-      root.innerHTML = selectedHazards.map((h, idx) => `
-        <div class="rounded-2xl bg-white border border-slate-200 p-3">
-          <div class="flex items-start justify-between gap-2">
-            <div class="min-w-0">
-              <div class="text-sm font-semibold text-slate-900">隐患 ${idx + 1}：${h.title}</div>
-              <div class="text-xs text-slate-500 mt-1">类型：${h.type} · ${h.major ? '重大隐患' : '一般隐患'} · 来源：${h.source}</div>
+      root.innerHTML = projects.map((p, idx) => `
+        <div class="project-card" data-idx="${idx}">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-semibold text-slate-800">项目${idx + 1}</div>
+            <div class="flex items-center gap-3">
+              <button type="button" class="text-xs font-semibold text-blue-600" onclick="openHazardLib(${idx})">选择隐患库</button>
+              <button type="button" class="text-xs font-semibold text-rose-600" onclick="removeProject(${idx})"><i class="fa-regular fa-trash-can mr-0.5"></i>删除</button>
             </div>
-            <button type="button" class="btn text-xs text-rose-700 shrink-0" onclick="removeHazard('${h.id}')">删除</button>
           </div>
-          <div class="text-xs text-slate-600 mt-2">整改要求：${h.requirement}</div>
+          <div class="space-y-3">
+            <label class="block">
+              <div class="field-label">隐患编号</div>
+              <input class="field-ctrl" value="${p.hazardNo}" disabled placeholder="系统生成" />
+            </label>
+            <label class="block">
+              <div class="field-label"><span class="req">*</span>隐患类型</div>
+              <select class="field-ctrl" onchange="updateProject(${idx},'type',this.value)">
+                <option value="">请选择</option>
+                ${['临时用电','围挡防护','劳动防护','电气隐患'].map(t =>
+                  `<option ${p.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+            </label>
+            <div>
+              <div class="field-label"><span class="req">*</span>重大隐患</div>
+              <div class="radio-row">
+                <label class="radio-item"><input type="radio" name="major_${idx}" ${p.major === true ? 'checked' : ''} onchange="updateProject(${idx},'major',true)" /> 重大隐患</label>
+                <label class="radio-item"><input type="radio" name="major_${idx}" ${p.major === false ? 'checked' : ''} onchange="updateProject(${idx},'major',false)" /> 一般隐患</label>
+              </div>
+            </div>
+            <label class="block">
+              <div class="field-label"><span class="req">*</span>隐患描述</div>
+              <textarea class="field-ctrl resize-none" rows="3" placeholder="请输入" oninput="updateProject(${idx},'description',this.value)">${p.description || ''}</textarea>
+            </label>
+            <label class="block">
+              <div class="field-label"><span class="req">*</span>整改要求</div>
+              <textarea class="field-ctrl resize-none" rows="2" placeholder="请输入" oninput="updateProject(${idx},'requirement',this.value)">${p.requirement || ''}</textarea>
+            </label>
+            <div>
+              <div class="field-label">隐患照片</div>
+              <div class="flex flex-wrap gap-2 items-start">
+                <button type="button" class="upload-dash upload-square" onclick="mockProjectPhoto(${idx})">
+                  <i class="fa-solid fa-cloud-arrow-up"></i><span>上传图片</span>
+                </button>
+                ${p.photos.map(u => `<img class="thumb" src="${u}" alt="隐患照片">`).join('')}
+              </div>
+              <p class="hint">注：支持文件格式 .png, .jpg, .jpeg，单个文件不能超过500MB，数量限制40张</p>
+            </div>
+            <div>
+              <div class="field-label">资料</div>
+              <button type="button" class="upload-dash upload-wide w-full" onclick="mockProjectFile(${idx})">
+                <i class="fa-solid fa-cloud-arrow-up"></i><span>上传文件</span>
+              </button>
+              <p class="hint">注：单个文件不能超过20MB，数量限制10个</p>
+              ${p.files.length ? `<div class="mt-2 space-y-1 text-xs text-slate-600">${p.files.map(f => `<div><i class="fa-regular fa-file mr-1 text-slate-400"></i>${f}</div>`).join('')}</div>` : ''}
+            </div>
+          </div>
         </div>
       `).join('');
     }
 
-    function removeHazard(id) {
-      selectedHazards = selectedHazards.filter(h => h.id !== id);
-      renderHazardList();
-      toast('已删除隐患条目');
+    function updateProject(idx, key, value) {
+      if (!projects[idx]) return;
+      projects[idx][key] = value;
     }
 
-    function openHazardLib() {
+    function removeProject(idx) {
+      if (projects.length <= 1 && mode === 'abnormal') {
+        toast('异常检查至少保留 1 条隐患');
+        return;
+      }
+      projects.splice(idx, 1);
+      renderProjects();
+      toast('已删除项目');
+    }
+
+    qs('#btnAddProject').addEventListener('click', () => {
+      projects.push(blankProject());
+      renderProjects();
+      toast('已添加项目' + projects.length);
+    });
+
+    function openHazardLib(idx) {
+      libTargetIndex = idx;
       libPickId = null;
-      qs('#libCategory').value = '物资本体隐患';
-      libFilterCategory = '物资本体隐患';
+      qs('#libCategory').value = '临时用电';
       searchLib();
       qs('#libMask').classList.remove('hidden');
       requestAnimationFrame(() => qs('#libSheet').classList.add('open'));
     }
-
     function closeHazardLib() {
       qs('#libSheet').classList.remove('open');
       setTimeout(() => qs('#libMask').classList.add('hidden'), 280);
     }
-
     function resetLibFilter() {
       qs('#libCategory').value = '全部';
-      libFilterCategory = '全部';
       libPickId = null;
       searchLib();
     }
-
     function searchLib() {
-      libFilterCategory = qs('#libCategory').value;
-      libFiltered = HAZARD_LIB.filter(h => libFilterCategory === '全部' || h.category === libFilterCategory);
+      const cat = qs('#libCategory').value;
+      libFiltered = HAZARD_LIB.filter(h => cat === '全部' || h.category === cat);
       renderLibList();
     }
-
     function renderLibList() {
+      qs('#libCount').textContent = '共 ' + libFiltered.length + ' 条 · 单选';
       const root = qs('#libList');
-      qs('#libCount').textContent = `共 ${libFiltered.length} 条 · 单选`;
       if (!libFiltered.length) {
         root.innerHTML = '<div class="text-center text-sm text-slate-400 py-16">暂无数据</div>';
         return;
@@ -322,67 +479,71 @@ window.addEventListener('resize', syncMobileLayout);
             <div class="shrink-0 w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center ${libPickId === h.id ? 'border-blue-500 bg-blue-500' : 'border-slate-300'}">
               ${libPickId === h.id ? '<i class="fa-solid fa-check text-white text-[10px]"></i>' : ''}
             </div>
-            <div class="min-w-0 flex-1 space-y-2">
+            <div class="min-w-0 flex-1 space-y-1">
               <div class="flex items-center justify-between gap-2">
                 <div class="text-xs text-slate-500">隐患类型：<span class="font-medium text-slate-800">${h.type}</span></div>
-                <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${h.major ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-slate-50 text-slate-600 border-slate-200'}">${h.major ? '重大隐患' : '一般隐患'}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full border ${h.major ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-slate-50 text-slate-600 border-slate-200'}">${h.major ? '重大隐患' : '一般隐患'}</span>
               </div>
-              <div>
-                <div class="text-[11px] text-slate-400 mb-0.5">隐患描述</div>
-                <div class="text-sm text-slate-900 leading-relaxed line-clamp-3">${h.title}</div>
-              </div>
-              <div>
-                <div class="text-[11px] text-slate-400 mb-0.5">整改要求</div>
-                <div class="text-xs text-slate-600 leading-relaxed line-clamp-3">${h.requirement}</div>
-              </div>
+              <div class="text-sm text-slate-900 leading-relaxed">${h.title}</div>
+              <div class="text-xs text-slate-500">整改要求：${h.requirement}</div>
             </div>
           </div>
         </div>
       `).join('');
     }
-
-    function pickLibItem(id) {
-      libPickId = id;
-      renderLibList();
-    }
-
+    function pickLibItem(id) { libPickId = id; renderLibList(); }
     function confirmHazardLib() {
-      if (!libPickId) {
-        toast('请选择一条隐患');
-        return;
-      }
+      if (!libPickId) { toast('请选择一条隐患'); return; }
       const item = HAZARD_LIB.find(h => h.id === libPickId);
-      if (!item) return;
-      if (selectedHazards.some(h => h.id === item.id)) {
-        toast('该隐患已添加，请勿重复选择');
-        closeHazardLib();
-        return;
-      }
-      selectedHazards.push({
-        id: item.id,
-        type: item.type,
-        title: item.title,
-        major: item.major,
-        requirement: item.requirement,
-        source: '隐患库'
-      });
-      renderHazardList();
+      if (!item || libTargetIndex == null || !projects[libTargetIndex]) return;
+      const p = projects[libTargetIndex];
+      p.type = item.type;
+      p.major = item.major;
+      p.description = item.title;
+      p.requirement = item.requirement;
+      p.fromLib = true;
+      renderProjects();
       closeHazardLib();
-      toast('已从隐患库添加：' + item.title);
+      toast('已从隐患库回填项目' + (libTargetIndex + 1));
     }
 
-    qs('#btnAddHazard').addEventListener('click', openHazardLib);
+    function validate() {
+      if (!qs('#checkType').value) { toast('请选择检查类型'); return false; }
+      if (!qs('#checkDate').value) { toast('请选择检查日期'); return false; }
+      if (!qs('#checker').value.trim()) { toast('请填写检查人'); return false; }
+      if (!qs('#unit').value.trim()) { toast('请填写被检查单位'); return false; }
+      if (mode === 'abnormal') {
+        if (!qs('#owner').value.trim()) { toast('请填写整改责任人'); return false; }
+        if (!qs('#deadline').value) { toast('请选择整改截止日期'); return false; }
+        if (!qs('#riskLevel').value) { toast('请选择风险等级'); return false; }
+        if (!projects.length) { toast('请至少添加 1 条隐患'); return false; }
+        for (let i = 0; i < projects.length; i++) {
+          const p = projects[i];
+          if (!p.type) { toast('请完善项目' + (i + 1) + '隐患类型'); return false; }
+          if (p.major === null) { toast('请选择项目' + (i + 1) + '是否重大隐患'); return false; }
+          if (!p.description.trim()) { toast('请填写项目' + (i + 1) + '隐患描述'); return false; }
+          if (!p.requirement.trim()) { toast('请填写项目' + (i + 1) + '整改要求'); return false; }
+        }
+      }
+      return true;
+    }
+
     qs('#btnSubmit').addEventListener('click', () => {
-      if (currentMode === 'abnormal') {
+      if (!validate()) return;
+      if (mode === 'abnormal') {
         toast('已提交：系统已自动创建整改通知并发起审核');
-        setTimeout(() => navTo('安环检查_整改通知_list.html'), 900);
+        setTimeout(() => navTo('安环检查_整改通知_detail.html?id=1'), 800);
       } else {
         toast('检查记录已提交（正常）');
-        setTimeout(() => navBack('安环检查_检查记录_list.html'), 900);
+        setTimeout(() => navBack('安环检查_检查记录_list.html'), 800);
       }
     });
 
-    renderHazardList();
+    // 初始化：默认异常 + 1 条空白隐患
+    setMode('abnormal');
+    projects = [blankProject()];
+    renderProjects();
+    syncMobileLayout();
   </script>
 </body>
 </html>
