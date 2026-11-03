@@ -87,7 +87,7 @@
   </header>
 
   <div class="wecom-content">
-    <div class="hint">与 PC 同步：照片可放大；来源-类型级联；AI 反光衣仅 19:00～次日 07:00。</div>
+    <div class="hint">与 PC 同步：照片可放大；来源-类型级联；AI 反光衣仅 19:00～次日 07:00。待处理单可点「处理」进入违章处理。</div>
     <div class="filter-card">
       <div class="field">
         <label>违章来源</label>
@@ -193,9 +193,12 @@
           '<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.5;">' +
           r.time + ' · ' + r.place + (r.person ? ' · ' + r.person : '') +
           '</div></div></div>' +
-          '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
+          '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;-webkit-flex-wrap:wrap;flex-wrap:wrap;">' +
           '<button type="button" class="btn" data-act="view" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">查看</button>' +
           '<button type="button" class="btn" data-act="edit" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">编辑</button>' +
+          (r.handleStatus === '待处理'
+            ? '<button type="button" class="btn" data-act="handle" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:0;border-radius:8px;background:#0f172a;color:#fff;font-size:12px;">处理</button>'
+            : '') +
           '<button type="button" class="btn" data-act="audit" data-id="' + r.id + '" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;">发起审核</button>' +
           '</div></div>';
       }).join('');
@@ -219,9 +222,14 @@
         return;
       }
       var act = e.target.getAttribute('data-act');
+      var id = e.target.getAttribute('data-id');
       if (!act) return;
       if (act === 'view') toast('原型演示：查看');
       if (act === 'edit') toast('原型演示：编辑');
+      if (act === 'handle') {
+        location.href = 'wecom_违章管理_违章处理_form.html?id=' + encodeURIComponent(id || '');
+        return;
+      }
       if (act === 'audit') toast('原型演示：已发起审核（平台审批）');
     });
     document.getElementById('lightbox').addEventListener('click', function () {

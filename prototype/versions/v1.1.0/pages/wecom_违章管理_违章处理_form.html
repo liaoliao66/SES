@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
       background: #f5f7fa;
       color: #0f172a;
       margin: 0;
@@ -54,6 +54,27 @@
       -webkit-flex-shrink: 0;
       flex-shrink: 0;
     }
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .kv-item.full { grid-column: 1 / -1; }
+    .kv-label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    .kv-value { font-size: 14px; color: #0f172a; font-weight: 500; word-break: break-all; line-height: 1.45; }
+    .photo-box {
+      margin-top: 4px;
+      width: 96px; height: 72px;
+      border: 1px dashed #cbd5e1; border-radius: 8px;
+      background: #f8fafc;
+      display: -webkit-box; display: flex;
+      -webkit-box-align: center; align-items: center;
+      -webkit-box-pack: center; justify-content: center;
+      overflow: hidden;
+      color: #94a3b8; font-size: 12px;
+    }
+    .photo-box img { width: 100%; height: 100%; object-fit: cover; }
     .field { margin-bottom: 12px; }
     .field-label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
     .req::after { content: " *"; color: #ef4444; }
@@ -131,6 +152,13 @@
       font-weight: 600;
     }
     .ver-tag { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 80;
+      display: none; -webkit-box-align: center; align-items: center;
+      -webkit-box-pack: center; justify-content: center; padding: 20px;
+    }
+    .lightbox.show { display: -webkit-box; display: flex; }
+    .lightbox img { max-width: 100%; max-height: 80vh; border-radius: 12px; }
   </style>
 </head>
 <body>
@@ -141,7 +169,7 @@
         <i class="fa-solid fa-angle-left" style="color:#334155;"></i>
       </button>
       <div style="text-align:center;">
-        <div style="font-size:15px;font-weight:650;">违章处理</div>
+        <div style="font-size:15px;font-weight:650;" id="pageTitle">违章处理</div>
         <div class="ver-tag">v1.1.0 · 企微H5</div>
       </div>
       <div style="width:36px;"></div>
@@ -149,12 +177,52 @@
   </header>
 
   <form class="wecom-content" id="handleForm" novalidate>
+    <!-- 对齐 PC：违章信息只读回显 -->
+    <section class="section-card">
+      <div class="section-title">违章信息</div>
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-label">违章编号</div>
+          <div class="kv-value" id="vNo">—</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">违章类型</div>
+          <div class="kv-value" id="vType">—</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">违章人员</div>
+          <div class="kv-value" id="vPerson">—</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">违章时间</div>
+          <div class="kv-value" id="vTime">—</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">违章地点</div>
+          <div class="kv-value" id="vPlace">—</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">违章处理责任人</div>
+          <div class="kv-value" id="vHandler">—</div>
+        </div>
+        <div class="kv-item full">
+          <div class="kv-label">违章记录</div>
+          <div class="kv-value" id="vRecord">—</div>
+        </div>
+        <div class="kv-item full">
+          <div class="kv-label">违章照片</div>
+          <div class="photo-box" id="vPhotoBox">暂无照片</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 对齐 PC：违章处理填写区 -->
     <section class="section-card">
       <div class="section-title">违章处理</div>
 
       <div class="field">
-        <div class="field-label">处理编号</div>
-        <input class="ctrl" type="text" value="202607010004" readonly disabled />
+        <div class="field-label">违章编号</div>
+        <input class="ctrl" type="text" id="handleNo" value="" readonly disabled />
       </div>
 
       <div class="field">
@@ -171,34 +239,30 @@
       <div class="field">
         <div class="field-label req">违章内容</div>
         <select class="ctrl editable" id="violContent" required>
-          <option value="">请选择</option>
-          <option selected>2</option>
-          <option>未佩戴安全帽</option>
-          <option>违规动火作业</option>
-          <option>进入受限空间未登记</option>
+          <option value="">请先选择类目</option>
         </select>
         <div class="err-msg" id="errContent">请选择违章内容</div>
       </div>
 
       <div class="field">
         <div class="field-label">考核（元）</div>
-        <input class="ctrl" type="text" id="assessAmt" value="100" readonly />
+        <input class="ctrl" type="text" id="assessAmt" value="" readonly />
       </div>
 
       <div class="field">
         <div class="field-label req">扣除金额</div>
-        <input class="ctrl editable" type="number" id="deductAmt" value="99" min="0" step="0.01" required />
+        <input class="ctrl editable" type="number" id="deductAmt" value="" min="0" step="0.01" required placeholder="请输入" />
         <div class="err-msg" id="errDeduct">请输入扣除金额</div>
       </div>
 
       <div class="field">
         <div class="field-label">违章处罚单位</div>
-        <input class="ctrl" type="text" value="默认部门" readonly />
+        <input class="ctrl" type="text" id="punishDept" value="默认部门" readonly />
       </div>
 
       <div class="field">
         <div class="field-label">违章处罚人员</div>
-        <input class="ctrl" type="text" value="武穴管理员" readonly />
+        <input class="ctrl" type="text" id="punishPerson" value="武穴管理员" readonly />
       </div>
 
       <div class="field">
@@ -210,7 +274,7 @@
       <div class="field">
         <div class="field-label">处理文件</div>
         <div class="upload-row">
-          <button type="button" class="upload-box btn" onclick="toast('原型演示：上传文件')">
+          <button type="button" class="upload-box btn" id="btnUploadFile" onclick="toast('原型演示：上传文件')">
             <i class="fa-solid fa-cloud-arrow-up" style="font-size:18px;color:#94a3b8;"></i>
             <span>上传文件</span>
           </button>
@@ -220,7 +284,7 @@
       <div class="field">
         <div class="field-label">处理照片</div>
         <div class="upload-row">
-          <button type="button" class="upload-box btn" onclick="toast('原型演示：上传照片')">
+          <button type="button" class="upload-box btn" id="btnUploadImg" onclick="toast('原型演示：上传照片')">
             <i class="fa-solid fa-cloud-arrow-up" style="font-size:18px;color:#94a3b8;"></i>
             <span>上传图片</span>
           </button>
@@ -229,18 +293,23 @@
     </section>
   </form>
 
-  <div class="footer-bar">
+  <div class="footer-bar" id="footerBar">
     <button type="button" class="btn" style="border:1px solid #e2e8f0;background:#fff;color:#334155;"
             onclick="navTo('违章管理_违章处理_list.html')">
       <i class="fa-solid fa-xmark" style="margin-right:6px;"></i>取消
     </button>
-    <button type="button" class="btn" style="border:none;background:#2563eb;color:#fff;"
+    <button type="button" class="btn" id="btnOk" style="border:none;background:#2563eb;color:#fff;"
             onclick="submitForm()">
       <i class="fa-solid fa-check" style="margin-right:6px;"></i>确定
     </button>
   </div>
 
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" alt="违章照片" /></div>
+
+  <script src="violation-data.js"></script>
   <script>
+    var isView = false;
+
     function toast(message) {
       var el = document.createElement('div');
       el.style.cssText = 'position:fixed;left:50%;bottom:96px;z-index:999;transform:translateX(-50%);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:rgba(15,23,42,0.9);box-shadow:0 8px 24px rgba(0,0,0,0.18);max-width:86%;';
@@ -250,7 +319,6 @@
       setTimeout(function () { el.remove(); }, 1700);
     }
     function navTo(page) { window.location.href = page; }
-    function navBack(fallback) { if (fallback) navTo(fallback); }
     function syncHeaderH() {
       var h = document.getElementById('wecomHeader');
       if (h) document.documentElement.style.setProperty('--wecom-header-h', h.offsetHeight + 'px');
@@ -261,7 +329,83 @@
       if (input) input.classList.toggle('error', !!show);
       if (err) err.classList.toggle('show', !!show);
     }
+    function qs(name) {
+      var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+    function findRow(id) {
+      var list = window.VIOLATION_DATA || [];
+      for (var i = 0; i < list.length; i++) {
+        if (String(list[i].id) === String(id)) return list[i];
+      }
+      return list[0] || null;
+    }
+    function fillViolationInfo(row) {
+      if (!row) return;
+      document.getElementById('vNo').textContent = row.no || '—';
+      document.getElementById('vType').textContent = row.type || '—';
+      document.getElementById('vPerson').textContent = row.person || '—';
+      document.getElementById('vTime').textContent = row.time || '—';
+      document.getElementById('vPlace').textContent = row.place || '—';
+      document.getElementById('vHandler').textContent = row.handler || '—';
+      document.getElementById('vRecord').textContent = row.record || row.type || '—';
+      var box = document.getElementById('vPhotoBox');
+      if (row.photo) {
+        box.innerHTML = '<img src="' + row.photo + '" alt="违章照片" data-photo="' + row.photo + '" style="cursor:zoom-in;" />';
+      } else {
+        box.textContent = '暂无照片';
+      }
+    }
+    function syncContentOptions(preferType) {
+      var cat = document.getElementById('violCategory').value;
+      var sel = document.getElementById('violContent');
+      var map = window.HANDLE_CATEGORY_MAP || {};
+      var items = map[cat] || [];
+      sel.innerHTML = '<option value="">请选择</option>' +
+        items.map(function (it) {
+          return '<option value="' + it.content + '" data-assess="' + it.assess + '">' + it.content + '</option>';
+        }).join('');
+      if (preferType) {
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value === preferType) {
+            sel.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      syncAssess();
+    }
+    function syncAssess() {
+      var sel = document.getElementById('violContent');
+      var opt = sel.options[sel.selectedIndex];
+      var assess = opt && opt.getAttribute('data-assess') ? opt.getAttribute('data-assess') : '';
+      document.getElementById('assessAmt').value = assess;
+      if (!isView && assess !== '' && document.getElementById('deductAmt').value === '') {
+        document.getElementById('deductAmt').value = assess;
+      }
+    }
+    function setViewMode(on) {
+      isView = !!on;
+      document.getElementById('pageTitle').textContent = on ? '违章处理详情' : '违章处理';
+      ['violCategory', 'violContent', 'deductAmt', 'handleDesc'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = on;
+        el.classList.toggle('editable', !on);
+      });
+      document.getElementById('btnUploadFile').disabled = on;
+      document.getElementById('btnUploadImg').disabled = on;
+      document.getElementById('btnUploadFile').style.opacity = on ? '0.5' : '1';
+      document.getElementById('btnUploadImg').style.opacity = on ? '0.5' : '1';
+      var footer = document.getElementById('footerBar');
+      if (on) {
+        footer.innerHTML =
+          '<button type="button" class="btn" style="border:1px solid #e2e8f0;background:#fff;color:#334155;" onclick="navTo(\'违章管理_违章处理_list.html\')">返回</button>' +
+          '<button type="button" class="btn" style="border:none;background:#0f172a;color:#fff;" onclick="toast(\'原型演示：已发起审核（平台审批）\')"><i class="fa-solid fa-paper-plane" style="margin-right:6px;"></i>发起审核</button>';
+      }
+    }
     function submitForm() {
+      if (isView) return;
       var catOk = !!document.getElementById('violCategory').value;
       var contentOk = !!document.getElementById('violContent').value;
       var deductVal = document.getElementById('deductAmt').value;
@@ -278,13 +422,50 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
       syncHeaderH();
+      var mode = qs('mode') || 'handle';
+      var row = findRow(qs('id'));
+      fillViolationInfo(row);
+      if (row) {
+        document.getElementById('handleNo').value = row.handleNo || ('CL' + row.no);
+        document.getElementById('punishPerson').value = row.handler || '武穴管理员';
+        document.getElementById('punishDept').value = row.dept || '默认部门';
+        var preferCat = '一般违章';
+        var map = window.HANDLE_CATEGORY_MAP || {};
+        Object.keys(map).forEach(function (k) {
+          map[k].forEach(function (it) {
+            if (it.content === row.type || it.content === row.record) preferCat = k;
+          });
+        });
+        document.getElementById('violCategory').value = preferCat;
+        syncContentOptions(row.type);
+      } else {
+        document.getElementById('handleNo').value = 'CL' + Date.now().toString().slice(-10);
+      }
+      if (mode === 'view' || (row && row.handleStatus === '已处理' && mode !== 'handle')) {
+        setViewMode(true);
+      }
       var desc = document.getElementById('handleDesc');
       var count = document.getElementById('descCount');
       desc.addEventListener('input', function () { count.textContent = desc.value.length; });
-      ['violCategory', 'violContent', 'deductAmt'].forEach(function (id) {
-        var el = document.getElementById(id);
-        el.addEventListener('change', function () { this.classList.remove('error'); });
-        el.addEventListener('input', function () { this.classList.remove('error'); });
+      document.getElementById('violCategory').addEventListener('change', function () {
+        this.classList.remove('error');
+        syncContentOptions();
+      });
+      document.getElementById('violContent').addEventListener('change', function () {
+        this.classList.remove('error');
+        syncAssess();
+      });
+      document.getElementById('deductAmt').addEventListener('input', function () {
+        this.classList.remove('error');
+      });
+      document.getElementById('vPhotoBox').addEventListener('click', function (e) {
+        var img = e.target.closest('img');
+        if (!img) return;
+        document.getElementById('lightboxImg').src = img.getAttribute('data-photo') || img.src;
+        document.getElementById('lightbox').classList.add('show');
+      });
+      document.getElementById('lightbox').addEventListener('click', function () {
+        this.classList.remove('show');
       });
     });
     window.addEventListener('resize', syncHeaderH);

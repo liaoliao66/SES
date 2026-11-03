@@ -23,6 +23,16 @@
     }
     .btn { -webkit-transition: transform .15s; transition: transform .15s; }
     .btn:active { -webkit-transform: scale(.95); transform: scale(.95); }
+    .tabs {
+      display: -webkit-box; display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .tab {
+      -webkit-box-flex: 1; flex: 1; height: 34px; border-radius: 10px;
+      border: 1px solid #e2e8f0; background: #fff; font-size: 13px; color: #64748b;
+    }
+    .tab.on {
+      background: #0f172a; color: #fff; border-color: #0f172a; font-weight: 600;
+    }
     .item-card {
       background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
       box-shadow: 0 2px 8px rgba(15,23,42,.04); padding: 12px; margin-bottom: 10px;
@@ -32,7 +42,24 @@
       background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;
     }
     .tag.wait { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .tag.done { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
     .hint { font-size: 11px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
+    .empty { text-align: center; padding: 36px 12px; color: #94a3b8; font-size: 13px; }
+    .act-row {
+      display: -webkit-box; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap;
+      -webkit-box-pack: end; justify-content: flex-end; gap: 8px; margin-top: 10px;
+    }
+    .act {
+      height: 30px; padding: 0 10px; border-radius: 8px; font-size: 12px; background: #fff;
+      border: 1px solid #e2e8f0; color: #334155;
+    }
+    .act.primary { border: 0; background: #0f172a; color: #fff; }
+    .toast {
+      position: fixed; left: 50%; bottom: 88px; -webkit-transform: translateX(-50%); transform: translateX(-50%);
+      background: rgba(15,23,42,.9); color: #fff; padding: 10px 14px; border-radius: 12px;
+      font-size: 13px; opacity: 0; pointer-events: none; -webkit-transition: opacity .2s; transition: opacity .2s; z-index: 90;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -48,40 +75,97 @@
   </header>
 
   <div class="wecom-content">
-    <div class="hint">待处理的违章登记。处理完成后状态由平台回写。</div>
-    <div class="item-card">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-        <div>
-          <div style="font-size:14px;font-weight:600;">未佩戴安全帽</div>
-          <div style="font-size:12px;color:#64748b;margin-top:4px;">违章人员：李某 · 处理责任人：王强</div>
-        </div>
-        <span class="tag wait">待处理</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:#94a3b8;">违章地点</div>
-          <div style="font-size:13px;font-weight:600;margin-top:4px;">生产一车间</div>
-        </div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:#94a3b8;">违章时间</div>
-          <div style="font-size:13px;font-weight:600;margin-top:4px;">2026-07-06</div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
-        <button type="button" class="btn" style="height:30px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;" onclick="toast('原型演示：查看')">查看</button>
-        <button type="button" class="btn" style="height:30px;padding:0 10px;border:0;border-radius:8px;background:#0f172a;color:#fff;font-size:12px;" onclick="location.href='wecom_违章管理_违章处理_form.html'">处理</button>
-      </div>
+    <div class="hint">筛选项：全部 / 待处理 / 已处理。详情回显违章信息；「发起审核」调用平台，本页不提供审批办理。</div>
+    <div class="tabs" id="tabs">
+      <button type="button" class="btn tab on" data-tab="全部">全部</button>
+      <button type="button" class="btn tab" data-tab="待处理">待处理</button>
+      <button type="button" class="btn tab" data-tab="已处理">已处理</button>
     </div>
+    <div id="list"></div>
   </div>
 
-  <div id="toast" style="position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:rgba(15,23,42,.9);color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:90;"></div>
+  <div class="toast" id="toast"></div>
+  <script src="violation-data.js"></script>
   <script>
+    var tab = '全部';
+    var rows = (window.VIOLATION_DATA || []).slice();
+
     function toast(m) {
       var el = document.getElementById('toast');
       el.textContent = m;
-      el.style.opacity = '1';
-      setTimeout(function () { el.style.opacity = '0'; }, 1600);
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 1600);
     }
+
+    function filtered() {
+      if (tab === '全部') return rows;
+      return rows.filter(function (r) { return (r.handleStatus || '待处理') === tab; });
+    }
+
+    function render() {
+      var box = document.getElementById('list');
+      var list = filtered();
+      if (!list.length) {
+        box.innerHTML = '<div class="empty">暂无' + tab + '记录</div>';
+        return;
+      }
+      box.innerHTML = list.map(function (r) {
+        var hs = r.handleStatus || '待处理';
+        var tagCls = hs === '待处理' ? 'tag wait' : 'tag done';
+        var person = r.person || '—';
+        var handler = r.handler || '—';
+        var actions =
+          '<button type="button" class="btn act" data-act="view" data-id="' + r.id + '">查看</button>' +
+          (hs === '待处理'
+            ? '<button type="button" class="btn act primary" data-act="handle" data-id="' + r.id + '">处理</button>'
+            : '') +
+          '<button type="button" class="btn act" data-act="audit" data-id="' + r.id + '">发起审核</button>';
+        return '<div class="item-card">' +
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+          '<div style="min-width:0;flex:1;">' +
+          '<div style="font-size:14px;font-weight:600;">' + r.type + '</div>' +
+          '<div style="font-size:12px;color:#64748b;margin-top:4px;">单号 ' + r.no + ' · ' + r.source + '</div>' +
+          '<div style="font-size:12px;color:#64748b;margin-top:4px;">违章人员：' + person + ' · 处理责任人：' + handler + '</div>' +
+          '</div><span class="' + tagCls + '">' + hs + '</span></div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">' +
+          '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">' +
+          '<div style="font-size:11px;color:#94a3b8;">违章地点</div>' +
+          '<div style="font-size:13px;font-weight:600;margin-top:4px;">' + r.place + '</div></div>' +
+          '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">' +
+          '<div style="font-size:11px;color:#94a3b8;">违章时间</div>' +
+          '<div style="font-size:13px;font-weight:600;margin-top:4px;">' + String(r.time).slice(0, 16) + '</div></div></div>' +
+          '<div class="act-row">' + actions + '</div></div>';
+      }).join('');
+    }
+
+    document.getElementById('tabs').addEventListener('click', function (e) {
+      var t = e.target.getAttribute('data-tab');
+      if (!t) return;
+      tab = t;
+      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+        el.classList.toggle('on', el.getAttribute('data-tab') === tab);
+      });
+      render();
+    });
+
+    document.getElementById('list').addEventListener('click', function (e) {
+      var act = e.target.getAttribute('data-act');
+      var id = e.target.getAttribute('data-id');
+      if (!act) return;
+      if (act === 'view') {
+        location.href = 'wecom_违章管理_违章处理_form.html?id=' + encodeURIComponent(id) + '&mode=view';
+        return;
+      }
+      if (act === 'handle') {
+        location.href = 'wecom_违章管理_违章处理_form.html?id=' + encodeURIComponent(id) + '&mode=handle';
+        return;
+      }
+      if (act === 'audit') {
+        toast('原型演示：已发起审核（平台审批）');
+      }
+    });
+
+    render();
   </script>
 </body>
 </html>

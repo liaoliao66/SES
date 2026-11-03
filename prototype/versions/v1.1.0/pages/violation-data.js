@@ -26,46 +26,74 @@
     return minutes >= 19 * 60 || minutes < 7 * 60;
   };
 
+  /** handleStatus：待处理 | 已处理（违章处理列表用） */
   global.VIOLATION_DATA = [
     {
       id: 1, no: '202607160488', type: '未带安全帽', source: 'AI识别',
-      person: '', handler: '', place: '武穴项目-引桥21', time: '2026-07-16 10:53',
-      registrar: '', dept: '', photo: PHOTO_A, status: '已登记'
+      person: '', handler: '王强', place: '武穴项目-引桥21', time: '2026-07-16 10:53',
+      record: '未佩戴安全帽作业', registrar: '', dept: '', photo: PHOTO_A,
+      status: '已登记', handleStatus: '待处理', handleNo: '202607160001'
     },
     {
       id: 2, no: '202607160487', type: '车辆超速', source: 'AI识别',
       person: '张某', handler: '李敏', place: '武穴项目-引桥21', time: '2026-07-16 09:21',
-      registrar: '系统', dept: '安监部', photo: PHOTO_B, status: '已登记'
+      record: '车辆超速行驶', registrar: '系统', dept: '安监部', photo: PHOTO_B,
+      status: '已登记', handleStatus: '待处理', handleNo: '202607160002'
     },
     {
       id: 3, no: '202607152201', type: '夜间未穿反光衣', source: 'AI识别',
-      person: '', handler: '', place: '武穴项目-码头区', time: '2026-07-15 21:18',
-      registrar: '系统', dept: '安监部', photo: PHOTO_C, status: '已登记'
+      person: '', handler: '王强', place: '武穴项目-码头区', time: '2026-07-15 21:18',
+      record: '夜间未穿反光衣', registrar: '系统', dept: '安监部', photo: PHOTO_C,
+      status: '已登记', handleStatus: '待处理', handleNo: '202607150003'
     },
     {
       id: 4, no: '202607151105', type: '吸烟', source: 'AI识别',
       person: '王某', handler: '赵强', place: '武穴项目-堆场', time: '2026-07-15 14:05',
-      registrar: '系统', dept: '安监部', photo: PHOTO_A, status: '已登记'
+      record: '吸烟', registrar: '系统', dept: '安监部', photo: PHOTO_A,
+      status: '已登记', handleStatus: '已处理', handleNo: '202607150004'
     },
     {
-      id: 5, no: '202607140812', type: '人员作业违章', source: '人工登记',
-      person: '刘某', handler: '周伟', place: '生产一车间', time: '2026-07-14 08:12',
-      registrar: '陈建国', dept: '生产操作部', photo: PHOTO_B, status: '已登记'
+      id: 5, no: '202607010015', type: '人员作业违章', source: '人工登记',
+      person: '张飞', handler: '武穴管理员', place: '1号', time: '2026-07-01 00:00',
+      record: '抽烟', registrar: '陈建国', dept: '生产操作部', photo: '',
+      status: '已登记', handleStatus: '待处理', handleNo: '202607010004'
     },
     {
       id: 6, no: '202607131630', type: '设备作业违章', source: '人工登记',
       person: '孙某', handler: '吴芳', place: '设备检修区', time: '2026-07-13 16:30',
-      registrar: '罗建平', dept: '设备技术部', photo: '', status: '已登记'
+      record: '设备带病作业', registrar: '罗建平', dept: '设备技术部', photo: '',
+      status: '已登记', handleStatus: '待处理', handleNo: '202607130006'
     },
     {
       id: 7, no: '202607121920', type: '环境作业违章', source: '人工登记',
       person: '钱某', handler: '郑卫东', place: '仓储通道', time: '2026-07-12 19:20',
-      registrar: '冯雪梅', dept: '建管部', photo: PHOTO_C, status: '已登记'
+      record: '通道堆放杂物', registrar: '冯雪梅', dept: '建管部', photo: PHOTO_C,
+      status: '已登记', handleStatus: '已处理', handleNo: '202607120007'
     },
     {
       id: 8, no: '202607111100', type: '制度执行违章', source: '人工登记',
       person: '周某', handler: '高敏', place: '办公楼入口', time: '2026-07-11 11:00',
-      registrar: '崔静', dept: '综合部', photo: PHOTO_A, status: '已登记'
+      record: '未按制度签到', registrar: '崔静', dept: '综合部', photo: PHOTO_A,
+      status: '已登记', handleStatus: '已处理', handleNo: '202607110008'
     }
   ];
+
+  /** 处理表单：类目 → 内容 → 考核金额（元） */
+  global.HANDLE_CATEGORY_MAP = {
+    '一般违章': [
+      { content: '未佩戴安全帽', assess: 100 },
+      { content: '未带安全帽', assess: 100 },
+      { content: '吸烟', assess: 200 }
+    ],
+    '严重违章': [
+      { content: '车辆超速', assess: 500 },
+      { content: '夜间未穿反光衣', assess: 300 },
+      { content: '人员作业违章', assess: 400 }
+    ],
+    '重大违章': [
+      { content: '违规动火作业', assess: 1000 },
+      { content: '进入受限空间未登记', assess: 800 },
+      { content: '设备作业违章', assess: 600 }
+    ]
+  };
 })(window);
